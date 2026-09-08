@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>VELOX KADENS | גלילה מלאה</title>
+<meta name="description" content="VELOX KADENS. נעל ריצה שתוכננה למהירות, לנוחות וליעילות ריצה. גללו לאט כדי להתקדם פריים אחר פריים.">
+<style>
+  /* ===== FONTS ===== */
+  @font-face{font-family:'Reisinger Neta';src:url('fonts/Reisinger-Neta-Bold.woff2') format('woff2');font-weight:700;font-style:normal;font-display:swap}
+  @font-face{font-family:'Reisinger Neta';src:url('fonts/Reisinger-Neta-Medium.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}
+  @font-face{font-family:'Birzia';src:url('fonts/Birzia-Light.woff2') format('woff2');font-weight:300;font-style:normal;font-display:swap}
+  @font-face{font-family:'Birzia';src:url('fonts/Birzia-Regular.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}
+  @font-face{font-family:'Birzia';src:url('fonts/Birzia-Medium.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}
+
+  :root{
+    --bg:#0a0a0b;
+    --fg:#f4f2ee;
+    --muted:rgba(244,242,238,.62);
+    --lime:#c9d61b;
+    --ease:cubic-bezier(.22,.61,.36,1);
+    --head:'Reisinger Neta','Arial Hebrew',sans-serif;
+    --body:'Birzia','Arial Hebrew',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:auto}
+  body{background:var(--bg);color:var(--fg);font-family:var(--body);-webkit-font-smoothing:antialiased;
+    overscroll-behavior-y:none;user-select:none;-webkit-user-select:none}
+  #spacer{width:1px}
+
+  #stage{position:fixed;inset:0;display:block;width:100%;height:100%;background:var(--bg);z-index:1}
+
+  /* vignette */
+  #vignette{position:fixed;inset:0;pointer-events:none;z-index:2;
+    background:
+      linear-gradient(to bottom, rgba(0,0,0,.55) 0%, rgba(0,0,0,0) 22%, rgba(0,0,0,0) 62%, rgba(0,0,0,.72) 100%);}
+
+  /* header */
+  header{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;justify-content:space-between;
+    padding:clamp(18px,2.4vw,32px) clamp(20px,3.5vw,56px);pointer-events:none}
+  header .brand{font-family:var(--head);font-weight:700;font-size:clamp(20px,1.6vw,26px);letter-spacing:.14em;text-transform:uppercase;display:flex;align-items:center;gap:12px;direction:ltr}
+  header nav{display:flex;gap:clamp(16px,2.4vw,36px);font-family:var(--body);font-size:13px;letter-spacing:.08em;color:var(--muted);font-weight:400;pointer-events:auto}
+  header nav span{cursor:pointer;position:relative;padding-bottom:4px;transition:color .25s}
+  header nav span::after{content:"";position:absolute;bottom:0;inset-inline-start:0;width:0;height:1px;background:var(--lime);transition:width .3s var(--ease)}
+  header nav span:hover{color:var(--fg)}
+  header nav span:hover::after,header nav span.active::after{width:100%}
+  header nav span.active{color:var(--lime)}
+  @media (max-width:640px){header nav{display:none}}
+
+  /* text layers */
+  .layer{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;justify-content:flex-end;
+    padding:0 clamp(20px,3.5vw,56px) clamp(84px,10vh,120px);pointer-events:none;
+    opacity:0;transform:translateY(24px);transition:opacity .55s var(--ease),transform .7s var(--ease)}
+  .layer.show{opacity:1;transform:translateY(0)}
+
+  /* soft dark scrim behind the copy only, faded to transparent on every side */
+  .layer::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+    opacity:0;transition:opacity .8s var(--ease);
+    background:linear-gradient(to top,
+      rgba(5,5,7,.46) 0%, rgba(5,5,7,.40) 32%, rgba(5,5,7,.29) 48%, rgba(5,5,7,.18) 62%,
+      rgba(5,5,7,.09) 74%, rgba(5,5,7,.03) 86%, transparent 96%);
+    -webkit-mask-image:linear-gradient(to left,#000 0%,#000 64%,rgba(0,0,0,.4) 83%,transparent 98%);
+            mask-image:linear-gradient(to left,#000 0%,#000 64%,rgba(0,0,0,.4) 83%,transparent 98%)}
+  .layer.show::before{opacity:1}
+  .layer.left::before{
+    -webkit-mask-image:linear-gradient(to right,#000 0%,#000 64%,rgba(0,0,0,.4) 83%,transparent 98%);
+            mask-image:linear-gradient(to right,#000 0%,#000 64%,rgba(0,0,0,.4) 83%,transparent 98%)}
+  .layer.center::before{
+    background:radial-gradient(86% 54% at 50% 50%,
+      rgba(5,5,7,.46) 0%, rgba(5,5,7,.40) 30%, rgba(5,5,7,.29) 48%,
+      rgba(5,5,7,.16) 64%, rgba(5,5,7,.06) 80%, transparent 100%);
+    -webkit-mask-image:none;mask-image:none}
+
+  .layer .kicker{font-family:var(--body);font-size:clamp(12px,.95vw,14px);letter-spacing:.16em;color:var(--lime);font-weight:500;margin-bottom:14px;display:flex;align-items:center;gap:14px}
+  .layer .kicker::before{content:"";width:34px;height:1px;background:var(--lime);flex:none}
+  .layer h1,.layer h2{font-family:var(--head);font-weight:500;line-height:.98;letter-spacing:-.005em;
+    font-size:clamp(42px,7.6vw,118px);max-width:16ch;color:var(--fg);
+    text-shadow:0 1px 3px rgba(5,5,7,.34)}
+  .layer p,.layer .kicker,.layer .sub,.layer .stat b,.layer .stat span{
+    text-shadow:0 1px 2px rgba(5,5,7,.38)}
+  .layer h1 em,.layer h2 em{font-style:normal;color:var(--lime)}
+  .layer p{margin-top:18px;max-width:44ch;font-family:var(--body);font-size:clamp(15px,1.2vw,19px);line-height:1.65;color:var(--muted);font-weight:300}
+  .layer .stat{display:flex;gap:clamp(24px,4vw,64px);margin-top:26px}
+  .layer .stat b{display:block;font-family:var(--head);font-weight:700;font-size:clamp(28px,3vw,44px);line-height:1;color:var(--fg);direction:ltr;unicode-bidi:isolate}
+  .layer .stat span{display:block;margin-top:6px;font-family:var(--body);font-size:12px;letter-spacing:.06em;color:var(--muted);font-weight:400}
+  .layer.left{align-items:flex-end;text-align:left}
+  .layer.left .kicker{flex-direction:row-reverse}
+  .layer.center{align-items:center;text-align:center;justify-content:center;padding-bottom:0}
+  .layer.center .kicker{justify-content:center}
+  .layer.center p{margin-left:auto;margin-right:auto}
+
+  /* opening */
+  #intro h1{font-size:clamp(64px,13vw,220px);direction:ltr;letter-spacing:.02em}
+  #intro .sub{font-family:var(--head);font-weight:500;font-size:clamp(19px,2.1vw,32px);letter-spacing:.06em;color:var(--muted);margin-top:12px}
+
+  /* CTA */
+  .cta{pointer-events:auto;display:inline-flex;align-items:center;gap:14px;margin-top:34px;padding:18px 34px;border:0;cursor:pointer;
+    background:var(--lime);color:#0a0a0b;font-family:var(--head);font-weight:700;font-size:19px;letter-spacing:.02em;
+    clip-path:polygon(100% 0,0 0,0 calc(100% - 12px),12px 100%,100% 100%);transition:transform .25s var(--ease),background .25s}
+  .cta:hover{transform:translateY(-2px);background:#e2f02a}
+  .cta svg{width:18px;height:18px}
+  .cta.ghost{background:transparent;color:var(--fg);border:1px solid rgba(244,242,238,.35);clip-path:none;margin-right:14px}
+  .cta.ghost:hover{background:rgba(244,242,238,.08)}
+
+  /* progress rail */
+  #rail{position:fixed;inset-inline-end:clamp(16px,2.6vw,40px);top:50%;transform:translateY(-50%);z-index:20;display:flex;flex-direction:column;gap:14px;align-items:center}
+  #rail i{width:2px;height:20px;background:rgba(244,242,238,.22);border-radius:2px;transition:background .3s,height .3s;position:relative;overflow:hidden}
+  #rail i.done{background:rgba(244,242,238,.6)}
+  #rail i.on{height:38px;background:rgba(244,242,238,.22)}
+  #rail i.on::after{content:"";position:absolute;top:0;left:0;width:100%;height:var(--fill,0%);background:var(--lime)}
+  @media (max-width:640px){#rail{inset-inline-end:14px;gap:9px}#rail i{height:13px}#rail i.on{height:24px}}
+
+  /* scene counter */
+  #counter{position:fixed;inset-inline-end:clamp(20px,3.5vw,56px);bottom:clamp(20px,3vh,32px);z-index:20;font-family:var(--head);font-weight:500;font-size:16px;letter-spacing:.1em;color:var(--muted);direction:ltr}
+  #counter b{color:var(--fg);font-size:22px;font-weight:700}
+
+  /* scrub bar at the bottom edge */
+  #scrub{position:fixed;left:0;right:0;bottom:0;height:2px;z-index:21;background:rgba(244,242,238,.12)}
+  #scrub i{display:block;height:100%;width:0;background:var(--lime)}
+
+  /* loader */
+  #loader{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;transition:opacity .8s var(--ease)}
+  #loader.hidden{opacity:0;pointer-events:none}
+  #loader .word{font-family:var(--head);font-weight:700;font-size:clamp(40px,7vw,96px);letter-spacing:.04em;text-transform:uppercase;direction:ltr}
+  #loader .word em{font-style:normal;color:var(--lime)}
+  #loader .bar{width:min(320px,70vw);height:2px;background:rgba(244,242,238,.15);overflow:hidden}
+  #loader .bar i{display:block;height:100%;width:0;background:var(--lime);transition:width .2s}
+  #loader small{font-family:var(--body);font-size:13px;letter-spacing:.1em;color:var(--muted);font-weight:300}
+
+  /* buffering pill */
+  #buffer{position:fixed;left:50%;top:clamp(80px,10vh,110px);transform:translateX(-50%);z-index:30;padding:8px 16px;border-radius:999px;background:rgba(10,10,11,.6);backdrop-filter:blur(8px);
+    font-family:var(--body);font-size:12px;letter-spacing:.08em;color:var(--muted);opacity:0;transition:opacity .3s;display:flex;align-items:center;gap:10px;pointer-events:none}
+  #buffer.show{opacity:1}
+  #buffer i{width:8px;height:8px;border-radius:50%;background:var(--lime);animation:pulse 1s infinite;flex:none}
+  @keyframes pulse{50%{opacity:.2}}
+
+  /* =====================================================================
+     RESPONSIVE. Everything below is gated to phones and short viewports.
+     A desktop at 1280x720 matches none of these blocks. Values above are
+     the desktop design and are not touched.
+     ===================================================================== */
+
+  /* ---- phones (portrait and landscape), <= 640px wide ---- */
+  @media (max-width:640px){
+    header{padding:16px 20px}
+    header .brand{font-size:18px;letter-spacing:.12em}
+
+    /* text column: tighter frame, room for the home indicator */
+    .layer{padding:0 20px calc(72px + env(safe-area-inset-bottom,0px))}
+    .layer .kicker{font-size:11px;letter-spacing:.14em;margin-bottom:10px}
+    .layer .kicker::before{width:24px}
+    .layer h1,.layer h2{font-size:clamp(32px,9.6vw,42px);line-height:1.02;max-width:none}
+    .layer p{font-size:15px;line-height:1.55;margin-top:12px;max-width:none}
+    .layer .stat{gap:22px;margin-top:18px;flex-wrap:wrap}
+    .layer .stat b{font-size:26px}
+    .layer .stat span{font-size:11px;margin-top:4px}
+    /* the "left" scenes read fine mirrored on desktop; on a phone one
+       alignment keeps the rhythm and the scrim geometry consistent */
+    .layer.left{align-items:flex-start;text-align:right}
+    .layer.left .kicker{flex-direction:row}
+    .layer.left::before{
+      -webkit-mask-image:linear-gradient(to left,#000 0%,#000 64%,rgba(0,0,0,.4) 83%,transparent 98%);
+              mask-image:linear-gradient(to left,#000 0%,#000 64%,rgba(0,0,0,.4) 83%,transparent 98%)}
+    .layer.center{padding-bottom:0}
+
+    #intro h1{font-size:clamp(56px,17vw,80px)}
+    #intro .sub{font-size:18px;letter-spacing:.05em;margin-top:8px}
+
+    /* CTAs stack full-width instead of two uneven centred pills */
+    .ctas{display:flex;flex-direction:column;gap:12px;width:100%;max-width:340px;margin:26px auto 0}
+    .ctas .cta{width:100%;justify-content:center;margin:0;padding:16px 24px;font-size:17px}
+    .ctas .cta.ghost{margin-right:0}
+
+    #counter{inset-inline-end:20px;bottom:calc(16px + env(safe-area-inset-bottom,0px));font-size:14px}
+    #counter b{font-size:19px}
+    #rail{transform:translateY(-50%) translateY(-24px)}   /* clear the text block on tall phones */
+    #buffer{top:64px;font-size:11px;padding:7px 14px}
+    #loader .word{font-size:clamp(34px,10vw,48px)}
+    #loader .bar{width:min(240px,64vw)}
+  }
+
+  /* ---- short viewports: phones held sideways, small laptops in split view ---- */
+  @media (max-height:520px) and (max-width:1024px){
+    .layer{padding-bottom:40px;justify-content:flex-end}
+    .layer .kicker{margin-bottom:6px}
+    .layer h1,.layer h2{font-size:clamp(28px,6.5vh,44px);line-height:1}
+    .layer p{margin-top:8px;font-size:14px;line-height:1.45;max-width:52ch}
+    .layer .stat{margin-top:12px}
+    .layer .stat b{font-size:22px}
+    #intro h1{font-size:clamp(48px,14vh,90px)}
+    #intro .sub{font-size:16px;margin-top:6px}
+    .ctas{margin-top:16px}
+    .ctas .cta{padding:12px 22px;font-size:15px}
+    #rail{display:none}
+  }
+</style>
+</head>
+<body>
+
+<canvas id="stage"></canvas>
+<div id="vignette"></div>
+<div id="spacer"></div>
+
+<header>
+  <div class="brand">VELOX</div>
+  <nav>
+    <span data-goto="5">ריצה</span>
+    <span data-goto="2">טכנולוגיה</span>
+    <span data-goto="9">סיפורים</span>
+    <span data-goto="10">KADENS</span>
+  </nav>
+</header>
+
+<!-- ===== TEXT LAYERS (one per scene, index 0..10) ===== -->
+<section class="layer" id="intro" data-scene="0">
+  <div class="kicker">מציגים</div>
+  <h1><em>KADENS</em></h1>
+  <div class="sub">לרוץ מהר יותר. להרגיש פחות.</div>
+  <p>נעל הריצה החדשה של VELOX, שתוכננה סביב שלושה דברים בלבד: מהירות, נוחות ויעילות ריצה. גללו לאט, ותראו כל פריים בדרך.</p>
+</section>
+
+<section class="layer" data-scene="1">
+  <div class="kicker">01</div>
+  <h2>בנויה <em>להיעלם</em> מתחת לרגל</h2>
+  <p>212 גרם של תנועה קדימה. פרופיל מעוגל שממשיך לגלגל את הרגל מהעקב אל הבהונות, כך שכל צעד מרגיש קצר מקודמו.</p>
+</section>
+
+<section class="layer left" data-scene="2">
+  <div class="kicker">02</div>
+  <h2>שלוש שכבות.<br>ריצה אחת <em>מתפרצת</em></h2>
+  <p>מבנה עליון ממֶש קל במיוחד, מוט EnergyRod משולב סיבי קרבון לכל אורך הסוליה, ושתי צפיפויות של קצף Lightstrike Pro. כל שכבה כאן מסיבה אחת.</p>
+  <div class="stat"><div><b>+8%</b><span>החזר אנרגיה</span></div><div><b>212g</b><span>משקל (מידה 42)</span></div><div><b>38mm</b><span>גובה סוליה</span></div></div>
+</section>
+
+<section class="layer" data-scene="3">
+  <div class="kicker">03</div>
+  <h2>נצמדת לרגל.<br>ואז <em>נשכחת</em></h2>
+  <p>מֶש הנדסי בלי תפרים, שעוטף את הרגל כמו שכבה שנייה של עור. בלי נקודות לחץ, בלי שפשופים, גם אחרי הקילומטר הארבעים.</p>
+</section>
+
+<section class="layer center" data-scene="4">
+  <div class="kicker">04</div>
+  <h2>המהירות מתחילה<br><em>לפני</em> הזינוק</h2>
+  <p>KADENS נבנתה בשביל הרגע שבו אתם מחליטים לזוז. קלים יותר על הרגליים, קלים יותר בראש.</p>
+</section>
+
+<section class="layer" data-scene="5">
+  <div class="kicker">05</div>
+  <h2>יציאה מהבלוקים<br>כמו <em>רפלקס</em></h2>
+  <p>מוט ה-EnergyRod הקשיח משתחרר ברגע הדחיפה מהבהונות, והופך כל גרם של כוח שהשקעתם להאצה שמרגישים מיד.</p>
+</section>
+
+<section class="layer left" data-scene="6">
+  <div class="kicker">06</div>
+  <h2>פחות מאמץ.<br>אותו <em>קצב</em></h2>
+  <p>בבדיקות מעבדה עצמאיות נמדדה ירידה של עד 4% בעלות האנרגטית של הריצה. זה בדיוק ההפרש בין להחזיק את הקצב לבין להישבר בסוף.</p>
+  <div class="stat"><div><b>-4%</b><span>עלות אנרגטית</span></div><div><b>+2.1%</b><span>מהיר יותר בקצב 5 ק"מ</span></div></div>
+</section>
+
+<section class="layer" data-scene="7">
+  <div class="kicker">07</div>
+  <h2>נחיתה רכה.<br>דחיפה <em>חדה</em></h2>
+  <p>קצף Lightstrike Pro בולע את הזעזוע ומחזיר אותו מיד קדימה. הרגליים נשארות טריות עמוק לתוך הריצה, והקילומטר האחרון מרגיש כמו הראשון.</p>
+</section>
+
+<section class="layer left" data-scene="8">
+  <div class="kicker">08</div>
+  <h2>כל גרם<br>של <em>אחיזה</em></h2>
+  <p>גומי ‎Continental™‎ ממוקם רק במקומות שבהם הוא באמת עובד. ביטחון על מסלול רטוב, על אספלט ובפניות של יום תחרות, בלי לשלם על זה במשקל.</p>
+</section>
+
+<section class="layer" data-scene="9">
+  <div class="kicker">09</div>
+  <h2>הכול נבנה בשביל<br>הקילומטר <em>האחרון</em></h2>
+  <p>כל החלטה בנעל הזאת נמדדה בשאלה אחת: מה היא עושה לכם כשכבר נגמר הכוח. זה מה שנשאר בסוף.</p>
+</section>
+
+<section class="layer center" data-scene="10">
+  <div class="kicker">VELOX KADENS</div>
+  <h2>לרוץ <em>מהר יותר.</em><br>להרגיש פחות.</h2>
+  <p>זמינה עכשיו בצבע ההשקה Lime Pulse. מהדורה ראשונה בכמות מוגבלת.</p>
+  <div class="ctas">
+    <button class="cta" onclick="alert('אתר הדגמה. אין חנות מחוברת.')">לרכישת KADENS
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M11 5l-7 7 7 7"/></svg></button>
+    <button class="cta ghost" onclick="app.restart()">לצפייה מהתחלה</button>
+  </div>
+</section>
+
+<!-- ===== UI ===== -->
+<div id="rail"></div>
+<div id="counter"><b>00</b> / 10</div>
+<div id="scrub"><i id="scrubfill"></i></div>
+<div id="buffer"><i></i>טוען פריימים</div>
+
+<div id="loader">
+  <div class="word">VELOX <em>Kadens</em></div>
+  <div class="bar"><i id="loadbar"></i></div>
+  <small id="loadtxt">טוען את החוויה</small>
+</div>
+
+<script>
+/* =========================================================
+   SCROLL-SCRUBBED IMAGE SEQUENCE
+   The page owns a tall spacer. Scroll position maps 1:1 onto a
+   global frame index, so the animation advances frame by frame as
+   you scroll and runs backwards when you scroll up.
+   Timeline: [intro still] [scene 1 .. hold] [scene 2 .. hold] ...
+   [scene 10] then an endless loop at the very bottom.
+   ========================================================= */
+const CONFIG = {
+  scenes: 10,
+  frames: 97,
+  fps: 24,
+  pxPerFrame: 24,     // scroll distance that advances one frame
+  smooth: .1,         // lerp factor per 60Hz frame (Lenis default). Wheel/trackpad only.
+  smoothTouch: 1,     // touch gets no lerp: the OS already applies momentum, and
+                      // stacking a second easing on top reads as lag ("stuck")
+  introPx: 220,       // scroll length of the opening still before scene 1 begins
+  holdPx: 520,        // scroll length the last frame + text is held after each scene
+  loopPx: 700,        // tail zone where scene 10 loops on its own
+  path:   (s,f) => `frames/${s}/${String(f).padStart(3,'0')}.jpg`,     // 1280x720, ~70KB
+  pathLo: (s,f) => `frames-lo/${s}/${String(f).padStart(3,'0')}.jpg`,  // 640x360, ~14KB proxy
+  pathPt: (s,f) => `frames-pt/${s}/${String(f).padStart(3,'0')}.jpg`,  // 405x720 centre crop, ~18KB, portrait phones
+  opening: 'opening.jpg',
+  openingPt: 'opening-pt.jpg',
+  revealAt: .82,      // text starts fading in at this point inside a scene
+};
+
+const canvas = document.getElementById('stage');
+const ctx = canvas.getContext('2d', {alpha:false});
+const spacer = document.getElementById('spacer');
+const layers = [...document.querySelectorAll('.layer')];
+const rail = document.getElementById('rail');
+const counter = document.querySelector('#counter b');
+const scrubfill = document.getElementById('scrubfill');
+const bufferPill = document.getElementById('buffer');
+const loader = document.getElementById('loader');
+const loadbar = document.getElementById('loadbar');
+const loadtxt = document.getElementById('loadtxt');
+const navItems = [...document.querySelectorAll('header nav span[data-goto]')];
+
+/* Two tiers per scene. `lo` is a small proxy that covers the whole timeline
+   quickly so scrubbing always has *a* frame; `hi` replaces it as it lands.
+   Frames are stored as <img>, i.e. compressed bytes the browser is free to
+   evict. They must never be held as ImageBitmap: 970 frames of 1280x720 RGBA
+   is 3.4GB of pixels the browser may not reclaim, which kills mobile tabs. */
+const store = { hi:{}, lo:{} };     /* store.hi[scene][frame] = HTMLImageElement */
+const loaded = { hi:{}, lo:{} };    /* loaded.hi[scene] = true once every frame is in */
+let opening = null;
+
+/* Phones stay on the proxy tier: 640x360 is past retina on a handset, and it
+   drops the download from 82MB to 14MB and the memory ceiling with it. */
+const LOW_POWER = innerWidth < 900 || (navigator.deviceMemory && navigator.deviceMemory <= 4);
+const USE_HI = !LOW_POWER;
+/* A 16:9 frame cover-fitted into a phone in portrait shows ~26% of its width
+   and upscales the 640x360 proxy 2.3x. Portrait phones instead get a 9:16
+   centre crop at full 720 height: same bytes, twice the sharpness, nothing
+   drawn off-screen. Chosen once at boot; a rotation reloads to re-pick. */
+const PORTRAIT = LOW_POWER && (innerHeight / innerWidth) > 1.4;
+const proxyPath = PORTRAIT ? CONFIG.pathPt : CONFIG.pathLo;
+
+/* ---------- timeline ---------- */
+const scenePx = CONFIG.frames * CONFIG.pxPerFrame;
+const seg = [];        /* seg[s] = {start, end, holdEnd} in scroll px */
+(function buildTimeline(){
+  let cur = CONFIG.introPx;
+  for(let s=1; s<=CONFIG.scenes; s++){
+    const start = cur;
+    const end = start + scenePx;
+    const isLast = s === CONFIG.scenes;
+    const holdEnd = end + (isLast ? CONFIG.loopPx : CONFIG.holdPx);
+    seg[s] = {start, end, holdEnd};
+    cur = holdEnd;
+  }
+})();
+const TOTAL = seg[CONFIG.scenes].holdEnd;
+function applyHeight(){ spacer.style.height = (TOTAL + innerHeight) + 'px'; }
+
+/* ---------- drawing ---------- */
+let dpr = 1, lastImg = null;
+function resize(){
+  /* Cap the backing store at 1.5x on low-power devices: the proxy frames are
+     640x360 anyway, so a 3x canvas is pure fill cost with no added detail. */
+  dpr = Math.min(window.devicePixelRatio || 1, LOW_POWER ? 1.5 : 2);
+  canvas.width = innerWidth * dpr;
+  canvas.height = innerHeight * dpr;
+  canvas.style.width = innerWidth+'px';
+  canvas.style.height = innerHeight+'px';
+  applyHeight();
+  if(lastImg) draw(lastImg);
+}
+function draw(img){
+  const iw = img && (img.width || img.naturalWidth), ih = img && (img.height || img.naturalHeight);
+  if(!iw || !ih) return;
+  lastImg = img;
+  const cw = canvas.width, ch = canvas.height;
+  const ir = iw/ih, cr = cw/ch;
+  let dw, dh, dx, dy;
+  if(cr > ir){ dw = cw; dh = cw/ir; dx = 0; dy = (ch-dh)/2; }
+  else { dh = ch; dw = ch*ir; dy = 0; dx = (cw-dw)/2; }
+  ctx.drawImage(img, dx, dy, dw, dh);
+}
+
+/* ---------- loading ---------- */
+function loadImage(src){
+  return new Promise(res=>{
+    const im = new Image();
+    im.onload = ()=>res(im);
+    im.onerror = ()=>res(null);
+    im.src = src;
+  });
+}
+/* Decoding is warmed on a sliding window instead of up front, so the browser
+   keeps only the frames near the playhead in decoded form and can drop the
+   rest under pressure. decode() is idempotent and cheap once warm. */
+let decodeBusy = 0;
+function warmDecode(s, from){
+  const tier = (USE_HI && store.hi[s]) ? 'hi' : 'lo';
+  const arr = store[tier][s];
+  if(!arr) return;
+  /* Window is wide on purpose: one wheel notch on Windows is ~100px = 4
+     frames, and a flick can be 30+, so a narrow window keeps landing on cold
+     frames. Look ahead further than behind since scrolling is mostly forward. */
+  for(let i=Math.max(0,from-6); i<Math.min(from+40, CONFIG.frames); i++){
+    if(decodeBusy >= 4) return;
+    const im = arr[i];
+    if(im && im.naturalWidth && !im.__warm){
+      im.__warm = 1;
+      decodeBusy++;
+      im.decode().catch(()=>{}).then(()=>{ decodeBusy--; });
+    }
+  }
+}
+async function loadScene(s, tier, onProgress){
+  const st = store[tier], ld = loaded[tier];
+  if(ld[s]) return st[s];
+  if(st[s] && st[s].__loading) return st[s].__loading;
+  st[s] = st[s] || [];
+  const path = tier==='hi' ? CONFIG.path : proxyPath;
+  const tasks = [];
+  for(let f=1; f<=CONFIG.frames; f++){
+    tasks.push(loadImage(path(s,f)).then(im=>{
+      if(im && im.naturalWidth) st[s][f-1] = im;
+      onProgress && onProgress();
+      if(pending && pending.scene===s && pending.frame===f-1) render(true);
+    }));
+  }
+  const p = Promise.all(tasks).then(()=>{ ld[s]=true; return st[s]; });
+  st[s].__loading = p;
+  return p;
+}
+
+/* Priority queue. Order is recomputed whenever the visitor changes scene:
+   proxies for everything first, then hi-res for the current scene, then
+   forward from it, then backward. One scene at a time so the scene the
+   visitor is actually looking at always has the whole pipe. */
+let queue = [];
+let pumping = false;
+let queueScene = 1;
+function buildQueue(cur){
+  const order = [];
+  for(let s=1; s<=CONFIG.scenes; s++) if(!loaded.lo[s]) order.push({s, tier:'lo'});
+  const fwd=[], back=[];
+  if(USE_HI){
+    for(let s=cur; s<=CONFIG.scenes; s++) if(!loaded.hi[s]) fwd.push({s, tier:'hi'});
+    for(let s=cur-1; s>=1; s--) if(!loaded.hi[s]) back.push({s, tier:'hi'});
+  }
+  /* lo of the *current* scene jumps ahead of everything */
+  const curLo = order.findIndex(x=>x.s===cur);
+  if(curLo>0) order.unshift(order.splice(curLo,1)[0]);
+  queue = order.concat(fwd, back);
+}
+async function pump(){
+  if(pumping) return;
+  pumping = true;
+  while(queue.length){
+    const {s, tier} = queue.shift();
+    await loadScene(s, tier);
+  }
+  pumping = false;
+}
+function prioritize(s){
+  if(s === queueScene && pumping) return;
+  queueScene = s;
+  buildQueue(s);
+  pump();
+}
+/* best available frame: exact hi, exact lo, else nearest of either tier.
+   Scrubbing never draws blank. */
+function frameFor(s, idx){
+  const hi = USE_HI ? store.hi[s] : null, lo = store.lo[s];
+  if(hi && hi[idx]) return {img:hi[idx], exact:true};
+  if(lo && lo[idx]) return {img:lo[idx], exact:true};
+  for(let d=1; d<CONFIG.frames; d++){
+    const cands = [hi&&hi[idx-d], hi&&hi[idx+d], lo&&lo[idx-d], lo&&lo[idx+d]];
+    for(const c of cands) if(c) return {img:c, exact:false};
+  }
+  return {img:null, exact:false};
+}
+
+/* ---------- scroll -> frame ---------- */
+let viewY = 0;           /* smoothed scroll position the canvas actually renders */
+let pending = null;      /* {scene, frame} currently wanted */
+let loopStart = 0;       /* rAF clock for the tail loop */
+let inLoop = false;
+
+function sceneAt(y){
+  if(y < CONFIG.introPx) return 0;
+  for(let s=1; s<=CONFIG.scenes; s++){
+    if(y < seg[s].holdEnd) return s;
+  }
+  return CONFIG.scenes;
+}
+
+function render(redrawOnly){
+  const y = Math.max(0, Math.min(viewY, TOTAL));
+  const s = sceneAt(y);
+
+  /* ---- opening still ---- */
+  if(s === 0){
+    inLoop = false;
+    pending = null;
+    draw(opening);
+    setLayer(0, 1);
+    updateUI(0, y/CONFIG.introPx, y);
+    return;
+  }
+
+  const {start, end, holdEnd} = seg[s];
+  const isLast = s === CONFIG.scenes;
+  let frame, local;
+
+  if(y <= end){
+    /* scrubbing through the scene */
+    inLoop = false;
+    local = (y - start) / scenePx;
+    frame = Math.min(CONFIG.frames-1, Math.floor((y - start) / CONFIG.pxPerFrame));
+  }else{
+    /* past the scene: hold the last frame (or loop, on the last scene) */
+    local = 1;
+    frame = CONFIG.frames - 1;
+    if(isLast){
+      if(!inLoop){ inLoop = true; loopStart = performance.now(); }
+      const t = (performance.now() - loopStart) / (1000/CONFIG.fps);
+      frame = Math.floor(t) % CONFIG.frames;
+    }else{
+      inLoop = false;
+    }
+  }
+
+  pending = {scene:s, frame};
+  if(s !== queueScene) prioritize(s);
+  const {img, exact} = frameFor(s, frame);
+  if(img && img !== lastImg) draw(img);          /* skip the blit when the frame is unchanged */
+  if(exact === lastExact){} else { bufferPill.classList.toggle('show', !exact); lastExact = exact; }
+
+  if(redrawOnly) return;
+  warmDecode(s, frame);
+
+  /* text reveal: fades in near the scene end, stays through the hold */
+  const revealed = local >= CONFIG.revealAt;
+  setLayer(s, revealed ? 1 : 0);
+  updateUI(s, local, y);
+}
+
+/* ---- DOM writes are diffed against the last applied state. The tick runs at
+   display refresh rate; without this every idle frame did ~40 class/style
+   writes, each a style-recalc trigger, for nothing. ---- */
+let lastExact = null, lastLayer = -1, lastLayerOn = null, lastScene = -1, lastFill = -1, lastScrub = -1;
+function setLayer(idx, on){
+  on = !!on;
+  if(idx === lastLayer && on === lastLayerOn) return;
+  layers.forEach(l => l.classList.toggle('show', (+l.dataset.scene === idx) && on));
+  lastLayer = idx; lastLayerOn = on;
+}
+function updateUI(s, local, y){
+  const dots = rail.children;
+  if(s !== lastScene){
+    counter.textContent = String(s).padStart(2,'0');
+    for(let i=0;i<dots.length;i++){ dots[i].classList.toggle('on', i===s); dots[i].classList.toggle('done', i<s); }
+    navItems.forEach(n => n.classList.toggle('active', +n.dataset.goto === s));
+    lastScene = s; lastFill = -1;
+  }
+  const fill = Math.round(Math.max(0,Math.min(1,local))*100);
+  if(fill !== lastFill){ dots[s] && dots[s].style.setProperty('--fill', fill+'%'); lastFill = fill; }
+  const scrub = Math.round(y/TOTAL*1000)/10;
+  if(scrub !== lastScrub){ scrubfill.style.width = scrub+'%'; lastScrub = scrub; }
+}
+
+/* ---------- smoothed rAF driver ----------
+   Native scroll sets the target; the rendered position eases toward it every
+   frame. That decoupling is what makes the sequence glide instead of snapping,
+   and it also powers the tail loop. Same idea as Lenis, without the dependency. */
+/* Touch input already carries OS momentum. Lenis ships with touch smoothing
+   off for exactly this reason: a second easing on top of the native one makes
+   the frame trail the finger, which people report as "stuck". So touch tracks
+   1:1 and only wheel/trackpad gets the lerp. */
+const TOUCH = matchMedia('(pointer:coarse)').matches || 'ontouchstart' in window;
+const SMOOTH = TOUCH ? CONFIG.smoothTouch : CONFIG.smooth;
+let lastT = 0;
+(function tick(t){
+  /* SMOOTH is defined per 60Hz frame. Rescale it by the real elapsed time so
+     a 30Hz laptop, a 120Hz monitor and a throttled tab all ease at the same
+     speed instead of feeling sluggish or twitchy. */
+  const dt = lastT ? Math.min(t - lastT, 100) : 16.667;
+  lastT = t;
+  const target = Math.max(0, Math.min(scrollY, TOTAL));
+  const d = target - viewY;
+  if(SMOOTH >= 1){ viewY = target; }
+  else {
+    const k = 1 - Math.pow(1 - SMOOTH, dt / 16.667);
+    if(Math.abs(d) > .08) viewY += d * k;
+    else if(viewY !== target) viewY = target;
+  }
+  render();
+  requestAnimationFrame(tick);
+})(0);
+
+/* Mobile browsers fire resize every time the URL bar shows or hides during a
+   scroll. Rebuilding the canvas on each of those is a visible flash mid-swipe,
+   so only react to real geometry changes: a width change, or a large height
+   change (rotation), never the ~60-100px bar toggle. */
+let lastW = innerWidth, lastH = innerHeight;
+addEventListener('resize', ()=>{
+  const dw = Math.abs(innerWidth - lastW), dh = Math.abs(innerHeight - lastH);
+  if(dw < 1 && dh < 160) return;
+  lastW = innerWidth; lastH = innerHeight;
+  const nowPortrait = LOW_POWER && (innerHeight / innerWidth) > 1.4;
+  if(nowPortrait !== PORTRAIT){ location.reload(); return; }   /* frame set no longer matches */
+  resize(); render(true);
+});
+
+/* ---------- nav ---------- */
+navItems.forEach(n => n.addEventListener('click', e=>{
+  e.stopPropagation();
+  const s = +n.dataset.goto;
+  prioritize(s);
+  scrollTo({top: seg[s].start, behavior:'auto'});
+}));
+function restart(){ scrollTo({top:0, behavior:'auto'}); viewY = 0; render(); }
+
+/* ---------- boot ---------- */
+(async function boot(){
+  for(let i=0;i<=CONFIG.scenes;i++) rail.appendChild(document.createElement('i'));
+  if(scrollY > 0) scrollTo({top:0, behavior:'auto'});
+  resize();
+
+  let done = 0;
+  const total = CONFIG.frames + 1;
+  const prog = ()=>{ done++; loadbar.style.width = Math.min(100,Math.round(done/total*100))+'%'; };
+  opening = await loadImage(PORTRAIT ? CONFIG.openingPt : CONFIG.opening); prog();
+  loadtxt.textContent = 'מכין את הסצנה הראשונה';
+  await loadScene(1, USE_HI ? 'hi' : 'lo', prog);
+
+  render();
+  loader.classList.add('hidden');
+  prioritize(1);   /* proxies for every scene, then hi-res radiating out from here */
+})();
+
+window.app = { restart, CONFIG, seg };
+</script>
+</body>
+</html>

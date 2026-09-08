@@ -1,0 +1,14 @@
+# מקורות כבדים לא נדחפים. הפריימים ב-site/frames* הם מה שהאתר טוען.
+source/clips/
+source/clips-pt/
+source/*.png
+*.mp4
+*.mov
+tools/shots/
+אלמנטים מוכנים לשימוש באתר/
+
+# רעש
+Thumbs.db
+desktop.ini
+.DS_Store
+*.swp

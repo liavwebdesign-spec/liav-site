@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "liav-site",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["C:/Users/liav/.claude/skills/design-dna/tools/site-edit/server.mjs", "--root", "site", "--port", "5173"],
+      "port": 5173
+    }
+  ]
+}

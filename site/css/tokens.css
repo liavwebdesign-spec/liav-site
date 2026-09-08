@@ -1,0 +1,37 @@
+/* ===== טוקנים: שחור עמוק קולנועי + ליים אחד ===== */
+@font-face{font-family:'Ploni';src:url('../fonts/ploni-regular-aaa.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Ploni';src:url('../fonts/ploni-medium-aaa.woff2') format('woff2');font-weight:500;font-display:swap}
+@font-face{font-family:'Ploni';src:url('../fonts/ploni-bold-aaa.woff2') format('woff2');font-weight:700;font-display:swap}
+/* פונט הכותרות מפונטאפ נכנס כאן אחרי שליאב בוחר: @font-face 'Display' + --head */
+
+:root{
+  --canvas:#070708;          /* לא #000 טהור */
+  --surface:#111114;
+  --ink:#F4F4F6;
+  --muted:#9A9AA6;
+  --accent:#D8FC73;
+  --accent-hover:#E8FFA3;
+  --accent-line:rgba(216,252,115,.45);
+  --accent-glow:rgba(216,252,115,.18);
+  --accent-wash:rgba(216,252,115,.10);
+  --line:rgba(255,255,255,.10);
+  --r-control:12px;
+  --r-card:16px;
+  --ease:cubic-bezier(.2,.6,.2,1);
+
+  --head:'Display','Ploni',Assistant,Heebo,system-ui,sans-serif;
+  --body:'Ploni',Assistant,Heebo,system-ui,sans-serif;
+
+  /* מסגרת נוזלית: מרזב ורוחב לפי המסך */
+  --gutter:clamp(20px,4vw,72px);
+  --sec:clamp(96px,12vw,220px);
+
+  /* סולם טיפוגרפי נוזלי */
+  --fs-giant:clamp(64px,14vw,240px);   /* כותרת הפתיח דרך המסכה */
+  --fs-word:clamp(44px,9vw,150px);     /* מילה על סצנה */
+  --fs-h2:clamp(38px,6.5vw,110px);     /* מניפסט */
+  --fs-h3:clamp(26px,3vw,48px);
+  --fs-lead:clamp(18px,1.2vw,24px);
+  --fs-body:clamp(16px,.9vw,19px);
+  --fs-eyebrow:clamp(14px,.9vw,17px);
+}
