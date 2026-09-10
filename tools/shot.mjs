@@ -51,7 +51,7 @@ if (mobile) await send("Emulation.setUserAgentOverride", { userAgent: "Mozilla/5
 for (const at of ats) {
   await send("Page.navigate", { url: `${process.env.BASE || "http://localhost:5173/"}?at=${at}&shot=${Date.now()}` });
   await sleep(mobile ? 6500 : 6000);
-  const { result } = await send("Runtime.evaluate", { expression: "JSON.stringify({y:scrollY, at:document.documentElement.dataset.at, low:window.sequence&&sequence.LOW_POWER, pt:window.sequence&&sequence.PORTRAIT})", returnByValue: true });
+  const { result } = await send("Runtime.evaluate", { expression: "JSON.stringify({y:scrollY, at:document.documentElement.dataset.at, w:innerWidth})", returnByValue: true });
   const shot = await send("Page.captureScreenshot", { format: "png", captureBeyondViewport: false });
   const out = path.join(outDir, `${W}x${H}-${at}.png`);
   fs.writeFileSync(out, Buffer.from(shot.result.data, "base64"));

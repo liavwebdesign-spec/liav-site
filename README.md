@@ -1,49 +1,27 @@
-# ליאב מצרי · האתר החדש
+# ליאב מצרי · האתר החדש (v2, שוויצרי)
 
-אתר תדמית של סטודיו ליאב מצרי: פתיח image sequence מסרטוני Magnific של ליאב, ואחריו סקשנים שמונעים ב-GSAP מתוך Motion Vault. סטטי לגמרי, מתפרסם ל-GitHub Pages דרך Actions.
+אתר תדמית של סטודיו ליאב מצרי במסגרת מודולרית שוויצרית, בהשראת madewithgsap.com: בהיר, גרוטסק צמוד, תוויות מונו, גריד 12 עמודות, קווי שיער, וליים אחד כצבע פעולה. בכל סקשן אנימציית GSAP מונעת גלילה. סטטי, GitHub Pages דרך Actions.
 
-המסר: אמן אתרים. יוצר אתרים ב-AI שלא נראים כמו AI.
+המסר: אמן אתרים. אתרים ב-AI שלא נראים כמו AI.
 
 ## מבנה
-
 ```
-site/                 מה שמתפרסם
-  index.html          עמוד אחד. הקופי של הסצנות ב-.layer, השאר בסקשנים
-  css/tokens.css      שחור קולנועי + ליים אחד, סולם טיפוגרפי נוזלי, --head לפונט הכותרות
+site/
+  index.html        עמוד אחד. הקופי הקבוע כאן
+  js/data.js        14 הפרויקטים ו-4 שלבי העבודה (שמות, תגיות, תמונות)
+  js/main.js        Lenis + המהלכים: G15 מונה, B55 ניווט, B23 נייד, G06 שואוקייס נגרר, G48 מניפסט,
+                    G43 אינדקס עם תצוגה עוקבת, B41 שלבים מוצמדים, G4 כותרות, G12 פרלקס, B29 מעבר לכהה,
+                    B40 פוטר, G08 סמן, B61 מגנט, B03 FAB, B32 טופס ל-public-pricing-lead
+  css/tokens.css    צבעים, פונטים (--head מחכה לפונט מפונטאפ), גריד, סולם טיפוגרפי
   css/site.css
-  js/sequence.js      מנוע ה-image sequence (מבוסס velox), מוצמד לסקשן #intro
-  js/site.js          Lenis + מהלכי ה-Vault: G59 G37 G4 G12 G15 G08 B23 B61 B40 B32 B03
-  frames/ frames-lo/ frames-pt/   שלוש שכבות פריימים (דסקטופ / פרוקסי / פורטרט)
-  img/works/featured  4 נבחרות (G59) · img/works/cloud 10 (G37)
-source/clips/         קליפי המקור (לא נדחפים)
-source/testimonials/  11 ההמלצות מהאתר הישן, לשלב הבא
-tools/build-frames.sh פירוק קליפים לפריימים (מהסקיל image-sequence-site)
-tools/font-sheet.html 32 פונטים של פונטאפ על שחור, לבחירה
-tools/shot.mjs        צילומי QA דרך CDP: node tools/shot.mjs [--mobile] 0 4500 12000
-tools/stamp.py        cache-busting ל-css/js. להריץ אחרי כל עריכה
+  img/works/NN.webp + NN-s.webp   14 מוקאפים (01-04 נבחרות)
+tools/font-sheet-v2.html   74 משפחות עבריות במבנה ההירו, לבחירה
+tools/shot.mjs             צילומי QA דרך CDP: node tools/shot.mjs [--mobile] 0 1400 3000  (BASE=<url> לאתר החי)
+_archive/v1-image-sequence  הגרסה הקודמת (פתיח סרטונים), לא בשימוש
 ```
-
-## הפתיח
-
-`CONFIG` ב-`sequence.js`: `frames` הוא מערך לפי סצנה (הקליפים באורכים שונים), `pxPerFrame` 24, `holdPx` 520. הקנבס `position:sticky` בתוך `#intro`, והגלילה נמדדת יחסית לתחילתו. Lenis מספק את מיקום הגלילה (גלגלת עם lerp, טאץ' 1:1). טלפונים בפורטרט מקבלים `frames-pt`.
-
-הכותרת הפותחת היא מסכת SVG: שכבה שחורה עם חלון בצורת האותיות, שנמסה בתחילת סצנה 1 (`maskFade`).
-
-### החלפת קליפים
-
-```bash
-bash tools/build-frames.sh --opening source/opening.png --out site --fps 24 source/clips/1.mp4 source/clips/2.mp4 ...
-```
-ואז לעדכן `CONFIG.scenes` ו-`CONFIG.frames` לפי הפלט. גרסאות 9:16 ל-`frames-pt` יחליפו את החיתוך המרכזי כשיגיעו.
 
 ## QA
+`?at=N` מדלג על הפרילודר וקופץ למיקום גלילה. הפאנל של הדפדפן בסשן מוסתר ומקפיא rAF, לכן צילומים רק דרך shot.mjs.
 
-- `?at=N` בכתובת: מדלג על הפרילודר וקופץ למיקום גלילה. לצילומים בלבד.
-- `node tools/shot.mjs 0 4500 12000` לדסקטופ, `--mobile` לטלפון 390x844.
-- שרת מקומי: `.claude/launch.json` (site-edit של design-dna, `?edit=1` לעריכת טקסט ותמונות).
-
-## עוד לא
-
-- סצנה 4 (זום למסך) והמסירה 1:1 לסקשן העבודות. `#handoff` מוכן ומוסתר.
-- אפסקייל 1080p לפני פירוק.
-- ההמלצות (מוכנות ב-`source/testimonials`).
+## פתוח
+פונט הכותרות (ליאב מסמן בדף הבדיקה), שמות סופיים ל-14 הפרויקטים, ההמלצות (source/testimonials), החלפת הדומיין.
