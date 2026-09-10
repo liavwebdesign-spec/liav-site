@@ -200,7 +200,9 @@ if(!REDUCE){
 /* ---------- B29: העמוד מחליף לכהה בסקשן האחרון ---------- */
 (function(){
   const page = document.querySelector('.page');
-  ScrollTrigger.create({ trigger:'#contact', start:'top 60%', end:'bottom top', onToggle(self){ page.classList.toggle('dark', self.isActive); } });
+  ScrollTrigger.create({ trigger:'#contact', start:'top 15%', end:'bottom top', onToggle(self){ page.classList.toggle('dark', self.isActive); } });
+  /* הניווט הקבוע צריך להתהפך יחד עם הרקע, אחרת הלוגו הכהה יושב על שחור */
+  ScrollTrigger.create({ trigger:'#contact', start:'top 15%', endTrigger:'.rvf-footer', end:'bottom bottom', onToggle(self){ document.body.classList.toggle('nav-dark', self.isActive); } });
 })();
 
 /* ---------- B40: פוטר קבוע מאחורי העמוד ---------- */

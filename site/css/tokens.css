@@ -1,11 +1,21 @@
-/* ===== טוקנים: שוויצרי בהיר, בהשראת madewithgsap. ליים אחד כצבע פעולה ===== */
-@font-face{font-family:'Ploni';src:url('../fonts/ploni-regular-aaa.woff2') format('woff2');font-weight:400;font-display:swap}
-@font-face{font-family:'Ploni';src:url('../fonts/ploni-medium-aaa.woff2') format('woff2');font-weight:500;font-display:swap}
-@font-face{font-family:'Ploni';src:url('../fonts/ploni-bold-aaa.woff2') format('woff2');font-weight:700;font-display:swap}
+/* ===== טוקנים: שוויצרי בהיר, בהשראת madewithgsap. ליים אחד כצבע פעולה =====
+   טיפוגרפיה: Sataf לכותרות, Begin לטקסט רץ, Index Mono לתוויות. שלושתם מקומיים. */
+@font-face{font-family:'Sataf';src:url('../fonts/sataf-light.woff2') format('woff2');font-weight:300;font-display:swap}
+@font-face{font-family:'Sataf';src:url('../fonts/sataf-regular.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Sataf';src:url('../fonts/sataf-medium.woff2') format('woff2');font-weight:500;font-display:swap}
+@font-face{font-family:'Sataf';src:url('../fonts/sataf-semibold.woff2') format('woff2');font-weight:600;font-display:swap}
+@font-face{font-family:'Sataf';src:url('../fonts/sataf-bold.woff2') format('woff2');font-weight:700;font-display:swap}
+@font-face{font-family:'Sataf';src:url('../fonts/sataf-extrabold.woff2') format('woff2');font-weight:800;font-display:swap}
+
+@font-face{font-family:'Begin';src:url('../fonts/begin-light.woff2') format('woff2');font-weight:300;font-display:swap}
+@font-face{font-family:'Begin';src:url('../fonts/begin-regular.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Begin';src:url('../fonts/begin-medium.woff2') format('woff2');font-weight:500;font-display:swap}
+@font-face{font-family:'Begin';src:url('../fonts/begin-semibold.woff2') format('woff2');font-weight:600;font-display:swap}
+@font-face{font-family:'Begin';src:url('../fonts/begin-bold.woff2') format('woff2');font-weight:700;font-display:swap}
+
 @font-face{font-family:'IndexMono';src:url('../fonts/index-mono-light-aaa.woff2') format('woff2');font-weight:300;font-display:swap}
 @font-face{font-family:'IndexMono';src:url('../fonts/index-mono-regular-aaa.woff2') format('woff2');font-weight:400;font-display:swap}
 @font-face{font-family:'IndexMono';src:url('../fonts/index-mono-medium-aaa.woff2') format('woff2');font-weight:500;font-display:swap}
-/* פונט הכותרות נכנס כאן אחרי שליאב בוחר מדף הבדיקה: @font-face 'Display' */
 
 :root{
   --bg:#F1F1F1;
@@ -25,8 +35,8 @@
   --ease:cubic-bezier(.2,.6,.2,1);
   --ease-out:cubic-bezier(.16,1,.3,1);
 
-  --head:'Display','Ploni',Assistant,system-ui,sans-serif;
-  --body:'Ploni',Assistant,system-ui,sans-serif;
+  --head:'Sataf',Assistant,system-ui,sans-serif;
+  --body:'Begin',Assistant,system-ui,sans-serif;
   --mono:'IndexMono','JetBrains Mono',Consolas,'Courier New',monospace;
 
   /* גריד שוויצרי: 12 עמודות, מרזב 15, שוליים 25 (16 בנייד) */
