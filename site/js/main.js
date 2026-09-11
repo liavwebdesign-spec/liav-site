@@ -13,7 +13,7 @@ const { works, steps } = window.SITE;
 /* ---------- תוכן דינמי: שואוקייס, אינדקס, שלבים ---------- */
 (function build(){
   const track = document.getElementById('track');
-  track.innerHTML = works.map((w,i) => `<figure><img src="img/works/${String(i+1).padStart(2,'0')}.webp" alt="${w.n}" ${i>1?'loading="lazy"':''}></figure>`).join('');
+  track.innerHTML = works.map((w,i) => `<figure><img src="img/works/${String(i+1).padStart(2,'0')}.webp" alt="${w.n}" ${i>2?'loading="lazy"':''}></figure>`).join('');
   const pl = document.getElementById('pl');
   pl.innerHTML = works.map((w,i) => `<div class="pl-row" data-i="${i}"><span class="mono">${String(i+1).padStart(2,'0')}</span><h3>${w.n}</h3><span class="mono tag">${w.tag}</span><div class="thumb"><img src="img/works/${String(i+1).padStart(2,'0')}-s.webp" alt="" loading="lazy"></div></div>`).join('');
   document.getElementById('pl-prev').innerHTML = works.map((w,i) => `<img src="img/works/${String(i+1).padStart(2,'0')}-s.webp" alt="" loading="lazy">`).join('');

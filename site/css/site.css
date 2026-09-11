@@ -11,7 +11,7 @@ h1,h2,h3{font-family:var(--head);font-weight:500;line-height:1;letter-spacing:-.
 em{font-style:normal}
 
 /* ===== גריד ===== */
-.grid{display:grid;grid-template-columns:repeat(var(--cols),1fr);column-gap:var(--gg);padding-inline:var(--gm)}
+.grid{display:grid;grid-template-columns:repeat(var(--cols),1fr);column-gap:var(--gg);padding-inline:var(--pad-x)}
 .mono{font-family:var(--mono);font-size:var(--fs-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--grey);font-weight:400;direction:ltr;unicode-bidi:isolate}
 .mono.ink{color:var(--ink)}
 .rule{height:1px;background:var(--line);transform-origin:right center}
@@ -23,14 +23,18 @@ em{font-style:normal}
 .mg.leave>*{transition-duration:.6s}
 
 /* ===== פרילודר (G15 עם מונה) ===== */
-#pre{position:fixed;inset:0;z-index:999;background:var(--ink);color:var(--bg);display:grid;align-content:end;padding:var(--gm)}
+#pre{position:fixed;inset:0;z-index:999;background:var(--ink);color:var(--bg);display:grid;align-content:end;padding:var(--pad-x)}
 #pre .num{font-family:var(--mono);font-size:clamp(64px,14vw,200px);line-height:.9;letter-spacing:-.02em;font-weight:300;direction:ltr;text-align:left}
 #pre .lbl{color:var(--grey-2);margin-bottom:12px}
 
 /* ===== ניווט ===== */
-.hd{position:fixed;top:0;inset-inline:0;z-index:60;display:flex;align-items:center;justify-content:space-between;padding:18px var(--gm);pointer-events:none}
+.hd{position:fixed;top:0;inset-inline:0;z-index:60;display:flex;align-items:center;justify-content:space-between;padding:18px var(--pad-x);pointer-events:none}
+.hd::before{content:"";position:absolute;inset:0 0 -40px;z-index:-1;pointer-events:none;
+  background:linear-gradient(to bottom,var(--bg) 30%,transparent 100%);transition:background .8s ease}
+body.nav-dark .hd::before{background:linear-gradient(to bottom,var(--dark) 30%,transparent 100%)}
+body.nv-open .hd::before{opacity:0}
 .hd>*{pointer-events:auto}
-.hd .logo{width:clamp(130px,11vw,170px);display:block;position:relative}
+.hd .logo{width:clamp(130px,11vw,170px);display:flex;align-items:center;min-height:44px;position:relative}
 /* שתי גרסאות הלוגו: כהה על רקע בהיר, בהירה כשהעמוד או התפריט כהים */
 .hd .logo img{width:100%;height:auto;transition:opacity .35s var(--ease)}
 .hd .logo .on-dark{position:absolute;inset:0;opacity:0}
@@ -49,7 +53,7 @@ body.nav-dark .tg a.cta{background:var(--accent);color:var(--ink)}
 .tg a.hot{color:var(--bg)}
 .tg a.cta{background:var(--accent);color:var(--ink);margin-inline-start:4px}
 .tg a.cta.hot{color:var(--ink)}
-.nv-toggle{display:none;align-items:center;gap:10px;font-family:var(--mono);font-size:var(--fs-mono);letter-spacing:.08em;text-transform:uppercase;padding:8px}
+.nv-toggle{display:none;align-items:center;gap:10px;min-height:44px;font-family:var(--mono);font-size:var(--fs-mono);letter-spacing:.08em;text-transform:uppercase;padding:8px}
 .nv-burger{width:24px;height:12px;position:relative;display:block}
 .nv-burger i{position:absolute;inset-inline:0;height:1.5px;background:var(--ink);transition:transform .4s var(--ease),opacity .25s}
 .nv-burger i:nth-child(1){top:0}.nv-burger i:nth-child(2){top:5px}.nv-burger i:nth-child(3){top:10px}
@@ -58,7 +62,7 @@ body.nav-dark .tg a.cta{background:var(--accent);color:var(--ink)}
 .nv-open .nv-burger i:nth-child(2){opacity:0}
 .nv-open .nv-burger i:nth-child(3){transform:translateY(-5px) rotate(-45deg)}
 .nv-open .nv-toggle{color:var(--bg)}
-.nv-overlay{position:fixed;inset:0;z-index:55;background:var(--ink);color:var(--bg);display:grid;align-content:center;gap:4px;padding:14vh var(--gm) 8vh;clip-path:inset(0 0 100% 0);transition:clip-path .62s cubic-bezier(.76,0,.24,1);visibility:hidden}
+.nv-overlay{position:fixed;inset:0;z-index:55;background:var(--ink);color:var(--bg);display:grid;align-content:center;gap:4px;padding:14vh var(--pad-x) 8vh;clip-path:inset(0 0 100% 0);transition:clip-path .62s cubic-bezier(.76,0,.24,1);visibility:hidden}
 .nv-open .nv-overlay{clip-path:inset(0 0 0 0);visibility:visible}
 .nv-link{display:flex;align-items:baseline;gap:18px;font-family:var(--head);font-size:clamp(40px,9vw,110px);font-weight:500;line-height:1.1;opacity:0;transform:translateY(28px);transition:opacity .5s,transform .5s}
 .nv-open .nv-link{opacity:1;transform:none}
@@ -70,7 +74,7 @@ body.nav-dark .tg a.cta{background:var(--accent);color:var(--ink)}
 @media (max-width:899px){.tg{display:none}.nv-toggle{display:inline-flex}.hd{padding:14px var(--gm)}}
 
 /* ===== הירו ===== */
-.hero{min-height:100svh;padding-top:clamp(110px,16vh,160px);padding-bottom:40px;display:grid;align-content:space-between;gap:40px}
+.hero{min-height:100svh;padding-top:var(--hero-top);padding-bottom:40px;display:grid;align-content:space-between;gap:40px}
 .hero-top{align-items:center}
 .hero h1{font-size:var(--fs-hero)}
 .hero .h-r{grid-column:1/5;text-align:start}
@@ -81,12 +85,12 @@ body.nav-dark .tg a.cta{background:var(--accent);color:var(--ink)}
 .show-card{position:relative;aspect-ratio:16/10;background:var(--dark);overflow:hidden;cursor:grab;touch-action:pan-y;user-select:none}
 .show-card:active{cursor:grabbing}
 .show-track{position:absolute;inset:0;display:flex;direction:ltr;will-change:transform}
-.show-track figure{flex:0 0 100%;height:100%;padding:clamp(10px,1.4vw,22px)}
+.show-track figure{flex:0 0 100%;height:100%;padding:16px}
 .show-track img{width:100%;height:100%;object-fit:cover;pointer-events:none}
 .show-meta{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
 .show-meta .name{font-family:var(--body);font-size:14px;color:var(--ink);text-transform:none;letter-spacing:0;direction:rtl}
 .hero-bottom{align-items:end}
-.hero .lead{grid-column:1/6;font-size:var(--fs-lead);line-height:1.3;max-width:26ch;color:var(--ink)}
+.hero .lead{grid-column:1/6;font-size:var(--fs-lead);line-height:1.4;max-width:26ch;color:var(--ink)}
 .hero .drag{grid-column:6/8;justify-self:center}
 .hero .ctas{grid-column:9/13;justify-self:end;display:flex;gap:10px;align-items:center}
 @media (max-width:899px){
@@ -99,22 +103,24 @@ body.nav-dark .tg a.cta{background:var(--accent);color:var(--ink)}
 }
 
 /* ===== תווית סקשן ===== */
-.sec-head{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;padding-block:14px;margin-bottom:clamp(28px,4vw,56px);position:relative}
+.sec-head{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;padding-block:14px;margin-bottom:32px;position:relative}
+@media (min-width:900px){.sec-head{margin-bottom:56px}}
 .sec-head::before{content:"";position:absolute;top:0;inset-inline:0;height:1px;background:var(--line);transform:scaleX(0);transform-origin:right center}
 .sec-head.in::before{transform:scaleX(1);transition:transform 1.2s var(--ease-out)}
-section.pad{padding-block:var(--sec)}
+section.pad{padding-block:var(--sec) 0}
+.contact.pad{padding-block:var(--sec)}
 
 /* ===== מניפסט (G48) ===== */
-.mani .hl{grid-column:2/12;padding-block:6vh}
+.mani .hl{grid-column:2/12;padding-block:48px}
 .mani p{font-family:var(--head);font-size:clamp(26px,3.6vw,64px);line-height:1.25;font-weight:500;letter-spacing:-.015em}
-.mani .w{color:var(--grey-2);display:inline-block}
+.mani .w{color:var(--ink-dim);display:inline-block}
 .mani .mk{position:relative;z-index:0;display:inline-block;padding-inline:.12em;border-radius:.14em}
 .mani .mk::before{content:"";position:absolute;inset:.06em 0;border-radius:.14em;background:var(--accent);transform:scaleX(var(--fill,0));transform-origin:right center;z-index:-1}
 @media (max-width:899px){.mani .hl{grid-column:1/-1}}
 
 /* ===== אינדקס עבודות (G43) ===== */
 .pl{grid-column:1/-1;position:relative}
-.pl-row{display:grid;grid-template-columns:5ch 1fr auto;align-items:baseline;gap:18px;padding:clamp(16px,2vw,28px) 0;border-top:1px solid var(--line);cursor:pointer;position:relative}
+.pl-row{display:grid;grid-template-columns:5ch 1fr auto;align-items:baseline;gap:18px;padding:20px 0;border-top:1px solid var(--line);cursor:pointer;position:relative}
 .pl-row:last-child{border-bottom:1px solid var(--line)}
 .pl-row h3{font-size:clamp(26px,3.6vw,64px);transition:transform .45s var(--ease),opacity .3s}
 .pl.hovering .pl-row h3{opacity:.3}
@@ -123,6 +129,7 @@ section.pad{padding-block:var(--sec)}
 .pl-prev{position:fixed;top:0;left:0;width:min(400px,32vw);aspect-ratio:16/12;overflow:hidden;pointer-events:none;z-index:40;opacity:0;transform:scale(.94);will-change:transform;box-shadow:0 30px 70px rgba(10,10,11,.28);background:var(--dark)}
 .pl-prev img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .25s}
 .pl-prev img.on{opacity:1}
+@media (min-width:900px){.pl-row{padding:28px 0}}
 @media (max-width:899px){
   .pl-prev{display:none}
   .pl-row{grid-template-columns:4ch 1fr;grid-template-rows:auto auto;row-gap:12px}
@@ -139,10 +146,11 @@ section.pad{padding-block:var(--sec)}
 .ss-media img.on{opacity:1;transform:none}
 .ss-media .tag{position:absolute;top:16px;inset-inline-start:16px;color:var(--bg);background:rgba(10,10,11,.6);padding:6px 10px;border-radius:999px}
 .ss-list{grid-column:8/13;display:grid}
-.ss-item{border-top:1px solid var(--line);padding-block:clamp(18px,2.2vw,30px)}
+.ss-item{border-top:1px solid var(--line);padding-block:24px}
+@media (min-width:900px){.ss-item{padding-block:32px}}
 .ss-item:last-child{border-bottom:1px solid var(--line)}
 .ss-head{display:flex;align-items:baseline;gap:16px}
-.ss-item h3{font-size:var(--fs-h3);color:var(--grey-2);transition:color .35s}
+.ss-item h3{font-size:var(--fs-h3);color:var(--ink-dim);transition:color .35s}
 .ss-item.on h3{color:var(--ink)}
 .ss-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .5s var(--ease)}
 .ss-item.on .ss-body{grid-template-rows:1fr}
@@ -158,12 +166,12 @@ section.pad{padding-block:var(--sec)}
 /* ===== מי אני (G12) ===== */
 /* חוק: גזירת דמות לא נחתכת לעולם. גובה טבעי, בלי object-fit:cover ובלי overflow שחותך.
    הדהייה בתחתית היא מסכה רכה, כך שהמפגש עם קצה הסקשן אינו קו חד. */
-.about{padding-bottom:0}
+section.about{padding-bottom:0}
 .about .portrait{grid-column:1/6;position:relative;align-self:end;display:flex;justify-content:center}
 .about .portrait img{width:auto;max-width:100%;height:auto;max-height:min(76vh,760px);
   -webkit-mask-image:linear-gradient(to bottom,#000 0,#000 80%,transparent 100%);
   mask-image:linear-gradient(to bottom,#000 0,#000 80%,transparent 100%)}
-.about .text{grid-column:7/13;align-self:center;padding-bottom:clamp(60px,10vh,120px)}
+.about .text{grid-column:7/13;align-self:center;padding-bottom:96px}
 .about h2{font-size:var(--fs-h2);margin-bottom:22px}
 .about .text p{font-size:var(--fs-lead);color:var(--grey);max-width:34ch;line-height:1.4}
 .about .disc{position:absolute;width:min(380px,46vw);aspect-ratio:1;border-radius:50%;background:var(--accent);z-index:-1;inset-inline-start:50%;translate:50% 0;bottom:18%}
@@ -177,7 +185,8 @@ section.pad{padding-block:var(--sec)}
 .page{position:relative;z-index:2;background:var(--bg);overflow-x:clip;transition:background-color .8s ease,color .8s ease}
 .page.dark{background:var(--dark);color:var(--bg)}
 .page.dark .sec-head::before,.page.dark .rule{background:var(--dark-line)}
-.contact{min-height:90vh;align-content:center}
+.contact{min-height:90vh;align-content:center;background:var(--dark);color:var(--bg);--grey:#A7A7A7;--grey-2:#8E8E8E}
+.contact .sec-head::before{background:var(--dark-line)}
 .contact .inner{grid-column:3/11;display:grid;grid-template-columns:1fr 1fr;column-gap:var(--gg);row-gap:40px;align-items:start}
 .contact h2{font-size:var(--fs-h2);grid-column:1/-1}
 .contact .lead{color:var(--grey-2);font-size:var(--fs-lead);max-width:30ch;line-height:1.4}
@@ -202,7 +211,7 @@ section.pad{padding-block:var(--sec)}
 .contact .or{color:var(--grey-2);margin:16px 0 8px}
 .contact .wa{color:var(--bg);border-color:var(--dark-line)}
 @media (max-width:899px){.contact .inner{grid-column:1/-1;grid-template-columns:1fr}}
-.rvf-footer{position:fixed;inset-inline:0;bottom:0;z-index:1;min-height:var(--rvf-h,56vh);background:var(--dark);color:var(--bg);display:grid;align-content:end;gap:28px;padding:clamp(36px,5vw,70px) var(--gm)}
+.rvf-footer{position:fixed;inset-inline:0;bottom:0;z-index:1;min-height:var(--rvf-h,56vh);background:var(--dark);color:var(--bg);display:grid;align-content:end;gap:28px;padding:40px var(--pad-x)}
 .rvf-footer .big{width:100%;max-width:1100px;height:auto}
 .rvf-cols{display:flex;gap:clamp(20px,4vw,60px);flex-wrap:wrap;color:var(--grey-2);align-items:center}
 .rvf-cols a{color:var(--bg)}
