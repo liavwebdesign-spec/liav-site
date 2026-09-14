@@ -20,3 +20,4 @@ qa-shots/
 # עריכת תוכן מהדפדפן (site-edit): גיבויים ולוג מקומיים בלבד
 _edits/
 site/_edits/
+!site/video/works/*.mp4

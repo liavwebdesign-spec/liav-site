@@ -16,6 +16,24 @@ window.SITE = {
     { n: 'מחשב לכל ילד',        tag: 'Government · Impact' },
     { n: 'קוגומלו',             tag: 'Kids · Playful' },
   ],
+  /* v3: אותן 14 עבודות עם הקלטת מסך. חמש הוחלפו בפרויקטים שיש להם סרטון. v2 ממשיך לקרוא את works, שממופה לתמונות לפי מיקום */
+  worksV3: [
+    /* clip: שם הקובץ ב-video/works ו-img/clips (הקלטת מסך שמתנגנת בלפטופ) */
+    { n: 'קרן גרינלייט',        tag: 'Corporate · Energy',        clip: 'greenlight' },
+    { n: 'קבוצת גולן',          tag: 'Real estate · Investment',  clip: 'golan-group' },
+    { n: 'ספיק',                tag: 'Storytelling · Coaching',   clip: 'speak-storytelling' },
+    { n: 'סונה סטודיו',         tag: 'Architecture',              clip: 'sauna-studio' },
+    { n: 'מאסל אנד מושן',       tag: 'SaaS · Global',             clip: 'muscle-and-motion' },
+    { n: 'גלברד סטודיו',        tag: 'Motion · Video',            clip: 'studio-gelbard' },
+    { n: 'ידע שווה כסף',        tag: 'Community · Finance',       clip: 'yeda-shave-kesef' },
+    { n: 'ד״ר נמירובסקי',       tag: 'Aesthetic medicine',        clip: 'dr-nemirovsky' },
+    { n: 'עופר ומאור',          tag: 'Kids · Entertainment',      clip: 'ofer-maor' },
+    { n: 'ווישלי',              tag: 'App · Service',             clip: 'washly' },
+    { n: 'ברזי',                tag: 'Manufacturing · Luxury',    clip: 'barzi-cosmetics' },
+    { n: 'שי כליף',             tag: 'Towing · Rescue',           clip: 'grar-khalif' },
+    { n: 'מחשב לכל ילד',        tag: 'Government · Impact',       clip: 'machshev-lekol-yeled' },
+    { n: 'קוגומלו',             tag: 'Kids · Playful',            clip: 'kogumelo' },
+  ],
   /* המלצות וידאו. הציטוט הקצר לקוח מהסרטון עצמו, מילה במילה ככל האפשר. */
   clients: [
     { v: 'f', n: 'טוהר',          r: 'Fashion · E-commerce',   q: 'ההכנסות שלי הרבה יותר קבועות מאז שיש לי אתר.' },

@@ -8,9 +8,11 @@ const FINE = matchMedia('(hover:hover) and (pointer:fine)').matches;
 const EASE = 'power3.out';
 const QA = /[?&](at|qa|st|rm)=/.test(location.search);
 const QA_AT = +new URLSearchParams(location.search).get('at');
-const { works, clients } = window.SITE;
+const { clients } = window.SITE, works = window.SITE.worksV3 || window.SITE.works;
 const pad = n => String(n).padStart(2, '0');
 const src = (i, s) => `../img/works/${pad(i)}${s ? '-s' : ''}.webp`;
+/* לפטופ: פוסטרים של כל הקליפים ברשימה, ו-video אחד שמקבל src רק כשמנגנים */
+const lapHTML = clips => `<div class="lap"><div class="lap-stage"><div class="lap-screen">${clips.map(c => `<img src="../img/clips/${c}.webp" alt="" loading="lazy" data-clip="${c}">`).join('')}<video muted playsinline loop preload="none" tabindex="-1" aria-hidden="true"></video></div><img class="lap-frame" src="../img/laptop.webp" alt="" width="819" height="919" loading="lazy"></div></div>`;
 
 /* המלצות כתובות מהאתר הישן, כמו שהן */
 const QUOTES = [
@@ -27,14 +29,15 @@ const QUOTES = [
   { n:'טל אליהו', t:'תילתן ייעוץ משכנתאות', i:'11', q:'ליאב בנה לי את האתר לעסק בצורה מקצועית ויצירתית. התהליך היה יעיל, מסודר ומאורגן בשקיפות מלאה בכל שלב.' },
 ];
 const ALL = works.map((w, i) => i + 1);
-const GEN_IMGS = [2, 8, 12];
+const GEN_IMGS = [2, 'lap', 12];   /* במשפט השני ("תנועה ושפה משלו") לפטופ עם אתר שזז */
+const GEN_CLIP = 'muscle-and-motion';
 const STRIP = [4, 7, 10];
 
 /* ---------- תוכן דינמי ---------- */
 (function build(){
-  document.getElementById('pl').innerHTML = works.map((w, i) => `<div class="pl-row" data-i="${i}"><span class="mono">${pad(i+1)}</span><h3>${w.n}</h3><span class="mono tag">${w.tag}</span><div class="thumb"><img src="${src(i+1, 1)}" alt="" loading="lazy"></div></div>`).join('');
-  document.getElementById('pl-prev').innerHTML = '<div class="pl-prev-in">' + works.map((w, i) => `<img src="${src(i+1)}" alt="" loading="lazy">`).join('') + '</div>';
-  document.getElementById('gen-media').innerHTML = GEN_IMGS.map(i => `<img src="${src(i)}" alt="" loading="lazy">`).join('');
+  document.getElementById('pl').innerHTML = works.map((w, i) => `<div class="pl-row" data-i="${i}"><span class="mono">${pad(i+1)}</span><h3>${w.n}</h3><span class="mono tag">${w.tag}</span></div>`).join('');
+  document.getElementById('pl-prev').innerHTML = '<div class="pl-prev-in">' + lapHTML(works.map(w => w.clip)) + '</div>';
+  document.getElementById('gen-media').innerHTML = GEN_IMGS.map(i => i === 'lap' ? `<div class="gm gm-lap">${lapHTML([GEN_CLIP])}</div>` : `<img class="gm" src="${src(i)}" alt="" loading="lazy">`).join('');
   document.querySelectorAll('.mq-in').forEach((row, r) => { const list = r ? [...ALL.slice(7), ...ALL.slice(0, 7)] : ALL; row.innerHTML = list.map(i => `<figure><img src="${src(i, 1)}" alt=""></figure>`).join(''); });
   document.getElementById('sp-img').innerHTML = STRIP.map(i => `<figure><img src="${src(i)}" alt="" loading="lazy"></figure>`).join('');
   document.getElementById('vt-track').innerHTML = clients.map((c, i) => `<button class="vt-card" type="button" data-i="${i}" aria-label="צפייה בהמלצה של ${c.n}"><span class="vt-media"><img src="../video/${c.v}.webp" alt="" loading="lazy"><video muted playsinline loop preload="none" src="../video/${c.v}.mp4" tabindex="-1" aria-hidden="true"></video><span class="vt-q">${c.q}</span><span class="vt-play"><i></i>צפייה</span></span><span class="vt-meta"><b>${c.n}</b><span class="mono">${c.r}</span></span></button>`).join('');
@@ -142,32 +145,63 @@ gsap.utils.toArray('section:not(.hero) .rv').forEach(el => gsap.to(el, { autoAlp
 if(!REDUCE) READY.then(() => document.querySelectorAll('.t-lines').forEach(h => gsap.from(LINES.get(h), { yPercent:110, duration:1, stagger:.1, ease:EASE, scrollTrigger:{ trigger:h, start:'top 85%', once:true } })));
 if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--u':1, duration:.8, ease:'power2.inOut', scrollTrigger:{ trigger:u, start:'top 80%', once:true } }));
 
+/* ---------- לפטופ עם הקלטת מסך ----------
+   scale לפי הרוחב בפועל, החלפת פוסטר בהחלקה אנכית בתוך המסך, וניגון: ה-video מקבל src רק ברגע שמנגנים,
+   נחשף רק כשהפריים הראשון באמת רץ, ונעצר כשיוצאים. במצב חיסכון בסוללה play נכשל בשקט והפוסטר נשאר */
+const LAPS = new ResizeObserver(es => es.forEach(e => e.target.style.setProperty('--lap-k', (e.contentRect.width / 819).toFixed(5))));
+document.querySelectorAll('.lap').forEach(l => LAPS.observe(l));
+function laptop(root){
+  const shots = [...root.querySelectorAll('.lap-screen img')], video = root.querySelector('video');
+  let cur = 0, z = 1, want = false, wait = 0;
+  const load = () => { const c = shots[cur].dataset.clip, url = `../video/works/${c}.mp4`; if(!video.src.endsWith(url.slice(2))){ video.classList.remove('on'); video.src = url; } };
+  video.addEventListener('playing', () => { if(want) video.classList.add('on'); });
+  return {
+    show(i, animate = true){
+      if(i === cur) return;
+      const inc = shots[i], out = shots[cur], down = i > cur;
+      cur = i; inc.style.zIndex = ++z; inc.style.visibility = 'visible';
+      video.classList.remove('on');
+      if(!animate || REDUCE){ if(out) out.style.visibility = 'hidden'; }
+      else {
+        gsap.fromTo(inc, { yPercent: down ? 100 : -100, scale:1.15 }, { yPercent:0, scale:1, duration:.7, ease:'power4.out', overwrite:true });
+        if(out) gsap.to(out, { yPercent: down ? -30 : 30, scale:1.05, duration:.7, ease:'power4.out', overwrite:true, onComplete(){ if(shots[cur] !== out) out.style.visibility = 'hidden'; } });
+      }
+      /* ממתינים רגע לפני טעינה: בגלילה מהירה על הרשימה לא נטען סרטון לכל שורה שעוברת */
+      clearTimeout(wait); if(want) wait = setTimeout(() => { if(want){ load(); video.play().catch(() => {}); } }, 380);
+    },
+    play(){ if(REDUCE) return; want = true; load(); video.play().catch(() => {}); },
+    pause(){ want = false; clearTimeout(wait); video.pause(); video.classList.remove('on'); }
+  };
+}
+
 /* ---------- 01 G43 משודרג: רשימת פרויקטים עם תצוגה גדולה שעוקבת אחרי הסמן ----------
    נפתחת במסכה מלמטה עם זום פנימי, מתחלפת בין פרויקטים בהחלקה אנכית, ומוטה לפי מהירות העכבר:
    סיבוב קל במישור והטיה בתלת-ממד (css15). כשהעכבר נעצר, הכול מתיישר. */
 (function(){
   const list = document.getElementById('pl'), prev = document.getElementById('pl-prev'), inner = prev.querySelector('.pl-prev-in');
-  const rows = [...list.querySelectorAll('.pl-row')], shots = [...inner.querySelectorAll('img')];
-  const mm = gsap.matchMedia();
-  mm.add({ desk:'(min-width:600px)', mob:'(max-width:599px)' }, ctx => {
-    if(REDUCE) return;
-    if(ctx.conditions.desk){ gsap.from(rows, { y:30, autoAlpha:0, duration:.8, ease:EASE, stagger:.05, scrollTrigger:{ trigger:list, start:'top 85%', once:true } }); return; }
-    /* בנייד: כל תמונה נפתחת מהמסגרת כשהיא נכנסת, התמונה בפנים זזה בפרלקס, והשורה שבמרכז המסך בפוקוס */
+  const rows = [...list.querySelectorAll('.pl-row')];
+  const TOUCH = !FINE || innerWidth < 900;
+  if(TOUCH){
+    /* לפטופ דביק מעל הרשימה: השורה שבאמצע השטח שמתחתיו בפוקוס, והמסך מחליף אליה ומנגן */
+    const st = document.createElement('div'); st.className = 'pl-sticky'; st.setAttribute('aria-hidden', 'true');
+    st.innerHTML = lapHTML(works.map(w => w.clip)); list.prepend(st); LAPS.observe(st.querySelector('.lap'));
+    const lap = laptop(st);
     list.classList.add('pl-m');
-    rows.forEach(row => {
-      const th = row.querySelector('.thumb'), img = th.querySelector('img');
-      gsap.fromTo(th, { clipPath:'inset(12% 6% 12% 6%)' }, { clipPath:'inset(0% 0% 0% 0%)', ease:'none', scrollTrigger:{ trigger:th, start:'top 95%', end:'center 60%', scrub:.4 } });
-      gsap.fromTo(img, { scale:1.22, yPercent:-6 }, { scale:1, yPercent:6, ease:'none', scrollTrigger:{ trigger:th, start:'top bottom', end:'bottom top', scrub:.4 } });
-      gsap.from(row.querySelector('h3'), { yPercent:60, autoAlpha:0, duration:.7, ease:EASE, scrollTrigger:{ trigger:row, start:'top 88%', once:true } });
-      ScrollTrigger.create({ trigger:row, start:'top 55%', end:'bottom 55%', toggleClass:{ targets:row, className:'on-m' } });
+    const focus = i => { rows.forEach((r, k) => r.classList.toggle('on-m', k === i)); lap.show(i); };
+    rows.forEach((row, i) => {
+      if(!REDUCE) gsap.from(row.querySelector('h3'), { yPercent:60, autoAlpha:0, duration:.7, ease:EASE, scrollTrigger:{ trigger:row, start:'top 92%', once:true } });
+      ScrollTrigger.create({ trigger:row, start:'top 74%', end:'bottom 74%', onToggle(self){ if(self.isActive) focus(i); } });
     });
-    return () => list.classList.remove('pl-m');
-  });
+    ScrollTrigger.create({ trigger:list, start:'top 60%', end:'bottom 40%', onToggle(self){ self.isActive ? lap.play() : lap.pause(); } });
+    return;
+  }
+  if(!REDUCE) gsap.from(rows, { y:30, autoAlpha:0, duration:.8, ease:EASE, stagger:.05, scrollTrigger:{ trigger:list, start:'top 85%', once:true } });
   if(!FINE) return;
   gsap.set(inner, { transformPerspective:1000 });
   const xTo = gsap.quickTo(prev, 'x', { duration:.6, ease:'power3' }), yTo = gsap.quickTo(prev, 'y', { duration:.6, ease:'power3' });
   const rz = gsap.quickTo(inner, 'rotation', { duration:.5, ease:'power3' }), ry = gsap.quickTo(inner, 'rotationY', { duration:.6, ease:'power3' }), rx = gsap.quickTo(inner, 'rotationX', { duration:.6, ease:'power3' });
-  let shown = false, placed = false, cur = -1, z = 1, lx = null, ly = null, vx = 0, vy = 0;
+  let shown = false, placed = false, lx = null, ly = null, vx = 0, vy = 0;
+  const lap = laptop(inner);
   function place(e){
     if(lx !== null){ vx += ((e.clientX - lx) - vx) * .35; vy += ((e.clientY - ly) - vy) * .35; }
     lx = e.clientX; ly = e.clientY;
@@ -186,26 +220,18 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
     ry(gsap.utils.clamp(-18, 18, vx * .9));
     rx(gsap.utils.clamp(-12, 12, -vy * .9));
   });
-  function swap(i){
-    if(i === cur) return;
-    const inc = shots[i], out = shots[cur], down = cur < 0 || i > cur;
-    cur = i; inc.style.zIndex = ++z; inc.style.visibility = 'visible';
-    gsap.fromTo(inc, { yPercent: down ? 100 : -100, scale:1.2 }, { yPercent:0, scale:1, duration:.7, ease:'power4.out', overwrite:true });
-    if(out) gsap.to(out, { yPercent: down ? -30 : 30, scale:1.05, duration:.7, ease:'power4.out', overwrite:true, onComplete(){ if(shots[cur] !== out) out.style.visibility = 'hidden'; } });
-  }
   list.addEventListener('pointermove', place);
   rows.forEach(r => r.addEventListener('pointerenter', () => {
     rows.forEach(x => x.classList.toggle('on', x === r));
     const i = +r.dataset.i;
     if(!shown){
       shown = true; list.classList.add('hovering');
-      shots.forEach((s, k) => { if(k !== i) s.style.visibility = 'hidden'; });
-      cur = -1; swap(i);
+      lap.show(i, false); lap.play();
       gsap.fromTo(inner, { clipPath:'inset(100% 0% 0% 0%)' }, { clipPath:'inset(0% 0% 0% 0%)', duration:.75, ease:'power4.out', overwrite:'auto' });
-    } else swap(i);
+    } else lap.show(i);
   }));
   list.addEventListener('pointerleave', () => {
-    shown = false; list.classList.remove('hovering'); rows.forEach(x => x.classList.remove('on'));
+    shown = false; list.classList.remove('hovering'); rows.forEach(x => x.classList.remove('on')); lap.pause();
     gsap.to(inner, { clipPath:'inset(0% 0% 100% 0%)', duration:.4, ease:'power3.in', overwrite:'auto' });
     rz(0); ry(0); rx(0); vx = vy = 0; lx = ly = null;
   });
@@ -213,13 +239,16 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
 
 /* ---------- 02 G60: שלושה משפטים מתחלפים על מסך מוצמד, כל אחד עם קו ליים, והתמונה איתם ---------- */
 (function(){
-  const lines = gsap.utils.toArray('#gen-lines p'), imgs = gsap.utils.toArray('#gen-media img'), idx = document.getElementById('gen-idx'), bar = document.querySelector('.gen-bar i');
+  const lines = gsap.utils.toArray('#gen-lines p'), imgs = gsap.utils.toArray('#gen-media > .gm'), idx = document.getElementById('gen-idx'), bar = document.querySelector('.gen-bar i');
   if(REDUCE){ lines.forEach(p => gsap.set(p.querySelector('.u'), {'--u':1})); return; }
-  const N = lines.length, shp = gsap.utils.toArray('.gen-shp .b');
+  const N = lines.length, shp = gsap.utils.toArray('.gen-shp .b'), gLap = document.querySelector('.gm-lap') && laptop(document.querySelector('.gm-lap'));
+  let gOn = -1;
   const fitLines = () => { const box = lines[0].parentNode; box.style.setProperty('--gl-h', Math.max(...lines.map(p => p.offsetHeight)) + 'px'); };
   fitLines(); addEventListener('resize', fitLines); READY.then(fitLines);
   const tl = gsap.timeline({ scrollTrigger:{ trigger:'.gen-pin', start:'top top', end:'+=' + N * 70 + '%', pin:true, anticipatePin:1, scrub:.5,
-    onUpdate(self){ const k = Math.min(N - 1, Math.floor(self.progress * N)); idx.textContent = `${pad(k+1)} / ${pad(N)}`; bar.style.transform = `scaleX(${self.progress})`; } } });
+    onUpdate(self){ const k = Math.min(N - 1, Math.floor(self.progress * N)); idx.textContent = `${pad(k+1)} / ${pad(N)}`; bar.style.transform = `scaleX(${self.progress})`;
+      const on = self.isActive && k === GEN_IMGS.indexOf('lap'); if(gLap && on !== (gOn === 1)){ gOn = on ? 1 : 0; on ? gLap.play() : gLap.pause(); } },
+    onToggle(self){ if(!self.isActive && gLap){ gOn = 0; gLap.pause(); } } } });
   tl.to(lines[0].querySelector('.u'), { '--u':1, duration:.4, ease:'power2.inOut' }, .15);
   lines.forEach((p, i) => {
     if(i === 0) return;
