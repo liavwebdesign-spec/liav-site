@@ -16,11 +16,14 @@ body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:var
 [data-theme]{color:var(--ink)}
 .th-dark,body.t-dark .hd{--bg:#0A0A0B;--bg-2:#141416;--ink:#F1F1F1;--ink-2:#DADADA;--ink-dim:#8E8E8E;--grey:#A7A7A7;--grey-2:#8E8E8E;--line:rgba(241,241,241,.16);--line-strong:rgba(241,241,241,.6)}
 .th-white,body.t-white .hd{--bg:#FFFFFF;--bg-2:#F1F1F1}
-#bg{position:fixed;inset:0;z-index:2;pointer-events:none;will-change:transform}
-#bg i{position:absolute;inset:0;opacity:0;will-change:opacity;transition:opacity 0s linear .7s}
-#bg i.on{opacity:1;transition:opacity .7s cubic-bezier(.4,0,.2,1)}
+/* מעבר נושא = ניגוב, לא דהייה (ליאב, 14.9.2026: הדהייה "מרגישה קצת חובבנית").
+   השכבה החדשה עולה מהכיוון שאליו גוללים ב-scaleY (מאיץ גרפי, בלי ציור מחדש), עם קו ליים דק בקצה.
+   דהייה עוברת דרך אפור עכור באמצע, וזה מה שנראה זול. בניגוב אין מצב ביניים: כל נקודה במסך או בצבע הישן או בחדש. */
+#bg{position:fixed;inset:0;z-index:2;pointer-events:none;will-change:transform;overflow:hidden}
+#bg i{position:absolute;inset:0;opacity:0;will-change:transform}
+#bg i.on{opacity:1}
 #bg i[data-t="light"]{background:#F1F1F1}#bg i[data-t="dark"]{background:#0A0A0B}#bg i[data-t="white"]{background:#FFFFFF}
-@media (prefers-reduced-motion:reduce){#bg i,#bg i.on{transition:none}}
+#bg .bg-edge{position:absolute;inset-inline:0;top:0;height:2px;margin-top:-1px;background:var(--accent);opacity:0;will-change:transform,opacity}
 img{max-width:100%;display:block}
 a{color:inherit;text-decoration:none}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
@@ -115,10 +118,10 @@ body.t-dark .tg{box-shadow:none}
   .hero{padding-top:96px;row-gap:32px}
   .hero-copy,.wall{grid-column:1/-1}
   .wall{height:46svh;order:-1;margin-top:8px;transform:rotate(-3deg) scale(1.1)}
-  .hero h1{max-width:none}
+  /* "בהישג ידכם" לא נשבר: הגודל צמוד לרוחב המסך כדי שלא ייכנס לשוליים ב-320 עד 390 */
+  .hero h1{max-width:none;font-size:clamp(28px,9.2vw,52px)}
 }
 /* 320px: "בתוך ימים," לא נשבר ורוחבו 289px בעמודה של 288px */
-@media (max-width:359px){.hero h1{font-size:32px}}
 
 /* ===== 01 עבודות: אינדקס עם תצוגה שעוקבת אחרי הסמן (G43) ===== */
 .works-top{align-items:end;row-gap:16px;margin-bottom:48px}
@@ -133,9 +136,10 @@ body.t-dark .tg{box-shadow:none}
 .pl-row.on h3{opacity:1;transform:translateX(-16px)}
 .pl-row.on>.mono:first-child{color:var(--accent)}
 .pl-row .thumb{display:none}
-.pl-prev{position:fixed;top:0;left:0;width:min(400px,32vw);aspect-ratio:16/12;overflow:hidden;pointer-events:none;z-index:40;opacity:0;transform:scale(.94);will-change:transform;box-shadow:0 30px 70px rgba(10,10,11,.28);background:var(--dark)}
-.pl-prev img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .25s}
-.pl-prev img.on{opacity:1}
+/* G43 משודרג: תצוגה גדולה ביחס הטבעי של המוקאפים, נפתחת במסכה מלמטה, ומוטה בתלת-ממד לפי מהירות העכבר (css15 + עקרון g09) */
+.pl-prev{position:fixed;top:0;left:0;width:min(600px,40vw);aspect-ratio:1400/1056;pointer-events:none;z-index:40;will-change:transform}
+.pl-prev-in{position:absolute;inset:0;overflow:hidden;background:var(--dark);box-shadow:0 40px 90px rgba(10,10,11,.35);clip-path:inset(100% 0 0 0);will-change:transform,clip-path}
+.pl-prev img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;visibility:hidden;will-change:transform}
 @media (min-width:900px){.pl-row{padding:28px 0}}
 @media (max-width:899px){
   .works h2,.works-top p{grid-column:1/-1}
@@ -326,10 +330,6 @@ body.t-dark .tg{box-shadow:none}
 .tq-card p{font-size:15px;line-height:1.45;color:var(--ink);padding-inline-end:28px}
 .tq-card small{display:block;margin-top:10px;color:var(--grey);font-size:13px}
 .tq-card small b{color:var(--ink);font-weight:500}
-.tq-card.lime{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-.tq-card.lime::before{color:var(--accent-ink);opacity:.35}
-.tq-card.lime p,.tq-card.lime small b{color:var(--accent-ink)}
-.tq-card.lime small{color:#3E4A16}
 @media (max-width:899px){.people h2,.people-top p{grid-column:1/-1}.vt-card{--w:min(62vw,300px)}.vt-media{max-height:58svh}.vt-pin{gap:20px}}
 @media (prefers-reduced-motion:reduce){
   .vt-pin{height:auto;padding-block:48px 0}
@@ -351,26 +351,30 @@ body.t-dark .tg{box-shadow:none}
 body.vt-open .stickycta{opacity:0;pointer-events:none}
 body.cursor-on .vt-lb,body.cursor-on .vt-lb button,body.cursor-on .vt-lb video{cursor:auto}
 
-/* ===== 08 מי אני: פורטרט ענק במסגרת 4/5, נחשף מלמטה, נמס לרקע ===== */
+/* ===== 08 מי אני: פורטרט בגודל טבעי, צמוד לטקסט, נחשף מלמטה ונמס לרקע =====
+   התמונה גזירה ביחס 1054/1156, אז אין מסגרת עם object-fit שחותכת כתפיים. הגובה מוגבל, והרוחב נגזר ממנו.
+   הפורטרט יושב בקצה העמודה שפונה לטקסט (justify-self:end ב-RTL = שמאל), כדי שלא יהיה רווח ריק ביניהם. */
 section.about{padding-bottom:0;align-items:end;row-gap:0}
-.about .portrait{grid-column:1/8;align-self:end;position:relative;aspect-ratio:4/5;overflow:hidden;max-height:92svh;
-  -webkit-mask-image:linear-gradient(to bottom,#000 0,#000 72%,transparent 100%);mask-image:linear-gradient(to bottom,#000 0,#000 72%,transparent 100%);
+.about .portrait{grid-column:1/7;justify-self:end;align-self:end;position:relative;width:min(100%, calc(84svh * 1054 / 1156));
+  -webkit-mask-image:linear-gradient(to bottom,#000 0,#000 78%,transparent 100%);mask-image:linear-gradient(to bottom,#000 0,#000 78%,transparent 100%);
   clip-path:inset(100% 0 0 0)}
-.about .portrait img{width:100%;height:100%;object-fit:cover;object-position:50% 0;transform:scale(1.18);transform-origin:50% 100%}
-.about-text{grid-column:8/13;align-self:center;padding-bottom:96px;display:grid;gap:22px;min-width:0}
+.about .portrait img{display:block;width:100%;height:auto;transform:scale(1.12);transform-origin:50% 100%}
+.about-text{grid-column:7/13;align-self:center;padding-bottom:96px;padding-inline-start:clamp(8px,2vw,40px);display:grid;gap:22px;min-width:0}
 .about-text p{font-size:var(--fs-lead);color:var(--grey);max-width:34ch;line-height:1.4}
-.stats{display:grid;grid-template-columns:repeat(3,auto);gap:32px;min-width:0;justify-content:start;margin-top:18px;padding-top:24px;border-top:1px solid var(--line)}
-.stats b{display:block;font-family:var(--head);font-weight:500;font-size:clamp(34px,4vw,64px);line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.stats span{display:block;margin-top:8px;color:var(--grey);font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(3,auto);gap:clamp(24px,3vw,48px);min-width:0;justify-content:start;margin-top:18px;padding-top:24px;border-top:1px solid var(--line)}
+/* המספר עד פי 2.5 מהתווית שמתחתיו, לא פי 4. ליאב: עצומים ביחס לכותרת שתחתם */
+.stats b{display:block;font-family:var(--head);font-weight:500;font-size:clamp(28px,2.4vw,40px);line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.stats span{display:block;margin-top:10px;color:var(--grey);font-size:15px;line-height:1.3}
 @media (max-width:899px){
   .about .sec-head{order:-2}
   .about .portrait,.about-text{grid-column:1/-1}
   .about-text{order:-1;padding-bottom:0;margin-bottom:32px}
-  .about .portrait{max-height:80svh}
+  .about .portrait{justify-self:center;width:min(100%, calc(70svh * 1054 / 1156))}
+  .about-text{padding-inline-start:0}
   /* Sataf רחב מאוד: "+200" צריך ~140px ולכל עמודה בטלפון יש ~106px. בנייד המספרים בשורות, כל מספר ליד התווית שלו */
   .stats{grid-template-columns:1fr;gap:16px}
   .stats>div{display:flex;align-items:baseline;gap:16px}
-  .stats b{font-size:clamp(36px,11vw,52px);min-width:4.2em}
+  .stats b{font-size:clamp(26px,7vw,32px);min-width:3.6em}
   .stats span{margin-top:0}
 }
 

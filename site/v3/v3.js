@@ -35,12 +35,12 @@ const TILES = [4, 6, 7, 10];
   /* הקיר: שני טורים, כל אחד עם 7 עבודות, משוכפל פעמיים ללופ */
   document.querySelectorAll('#wall .wall-col').forEach((col, c) => { const list = ALL.filter((_, i) => i % 2 === c); col.innerHTML = [...list, ...list].map((i, k) => `<figure><img src="${src(i, 1)}" alt="" ${k > 3 ? 'loading="lazy"' : ''}></figure>`).join(''); });
   document.getElementById('pl').innerHTML = works.map((w, i) => `<div class="pl-row" data-i="${i}"><span class="mono">${pad(i+1)}</span><h3>${w.n}</h3><span class="mono tag">${w.tag}</span><div class="thumb"><img src="${src(i+1, 1)}" alt="" loading="lazy"></div></div>`).join('');
-  document.getElementById('pl-prev').innerHTML = works.map((w, i) => `<img src="${src(i+1, 1)}" alt="" loading="lazy">`).join('');
+  document.getElementById('pl-prev').innerHTML = '<div class="pl-prev-in">' + works.map((w, i) => `<img src="${src(i+1)}" alt="" loading="lazy">`).join('') + '</div>';
   document.getElementById('gen-media').innerHTML = GEN_IMGS.map(i => `<img src="${src(i)}" alt="" loading="lazy">`).join('');
   document.querySelectorAll('.mq-in').forEach((row, r) => { const list = r ? [...ALL.slice(7), ...ALL.slice(0, 7)] : ALL; row.innerHTML = list.map(i => `<figure><img src="${src(i, 1)}" alt=""></figure>`).join(''); });
   document.getElementById('tiles').innerHTML = TILES.map((i, k) => `<figure data-k="${k}"><img src="${src(i, 1)}" alt=""></figure>`).join('');
   document.getElementById('vt-track').innerHTML = clients.map((c, i) => `<button class="vt-card" type="button" data-i="${i}" aria-label="צפייה בהמלצה של ${c.n}"><span class="vt-media"><img src="../video/${c.v}.webp" alt="" loading="lazy"><video muted playsinline loop preload="none" src="../video/${c.v}.mp4" tabindex="-1" aria-hidden="true"></video><span class="vt-q">${c.q}</span><span class="vt-play"><i></i>צפייה</span></span><span class="vt-meta"><b>${c.n}</b><span class="mono">${c.r}</span></span></button>`).join('');
-  const card = (q, k) => `<div class="tq-card${k % 3 === 1 ? ' lime' : ''}"><img src="../img/testi/${q.i}.webp" alt="" loading="lazy"${q.logo ? ' class="logo"' : ''}><div><p>${q.q}</p><small><b>${q.n}</b> · ${q.t}</small></div></div>`;
+  const card = (q, k) => `<div class="tq-card"><img src="../img/testi/${q.i}.webp" alt="" loading="lazy"${q.logo ? ' class="logo"' : ''}><div><p>${q.q}</p><small><b>${q.n}</b> · ${q.t}</small></div></div>`;
   const a = QUOTES.slice(0, 6), b = QUOTES.slice(6);
   document.getElementById('tq').innerHTML = `<div class="tq-row" data-dir="1" style="--d:64s">${[...a, ...a].map(card).join('')}</div><div class="tq-row" data-dir="-1" style="--d:56s">${[...b, ...b].map(card).join('')}</div>`;
 })();
@@ -124,26 +124,59 @@ gsap.utils.toArray('section:not(.hero) .rv').forEach(el => gsap.to(el, { autoAlp
 if(!REDUCE) READY.then(() => document.querySelectorAll('.t-lines').forEach(h => gsap.from(LINES.get(h), { yPercent:110, duration:1, stagger:.1, ease:EASE, scrollTrigger:{ trigger:h, start:'top 85%', once:true } })));
 if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--u':1, duration:.8, ease:'power2.inOut', scrollTrigger:{ trigger:u, start:'top 80%', once:true } }));
 
-/* ---------- 01 G43: אינדקס עם תצוגה שעוקבת אחרי הסמן ---------- */
+/* ---------- 01 G43 משודרג: רשימת פרויקטים עם תצוגה גדולה שעוקבת אחרי הסמן ----------
+   נפתחת במסכה מלמטה עם זום פנימי, מתחלפת בין פרויקטים בהחלקה אנכית, ומוטה לפי מהירות העכבר:
+   סיבוב קל במישור והטיה בתלת-ממד (css15). כשהעכבר נעצר, הכול מתיישר. */
 (function(){
-  const list = document.getElementById('pl'), prev = document.getElementById('pl-prev');
-  const rows = [...list.querySelectorAll('.pl-row')], shots = [...prev.querySelectorAll('img')];
+  const list = document.getElementById('pl'), prev = document.getElementById('pl-prev'), inner = prev.querySelector('.pl-prev-in');
+  const rows = [...list.querySelectorAll('.pl-row')], shots = [...inner.querySelectorAll('img')];
   if(!REDUCE) gsap.from(rows, { y:30, autoAlpha:0, duration:.8, ease:EASE, stagger:.05, scrollTrigger:{ trigger:list, start:'top 85%', once:true } });
   if(!FINE) return;
-  const xTo = gsap.quickTo(prev, 'x', {duration:.55, ease:'power3'}), yTo = gsap.quickTo(prev, 'y', {duration:.55, ease:'power3'});
-  let shown = false, placed = false;
+  gsap.set(inner, { transformPerspective:1000 });
+  const xTo = gsap.quickTo(prev, 'x', { duration:.6, ease:'power3' }), yTo = gsap.quickTo(prev, 'y', { duration:.6, ease:'power3' });
+  const rz = gsap.quickTo(inner, 'rotation', { duration:.5, ease:'power3' }), ry = gsap.quickTo(inner, 'rotationY', { duration:.6, ease:'power3' }), rx = gsap.quickTo(inner, 'rotationX', { duration:.6, ease:'power3' });
+  let shown = false, placed = false, cur = -1, z = 1, lx = null, ly = null, vx = 0, vy = 0;
   function place(e){
-    let x = e.clientX - prev.offsetWidth - 26; if(x < 12) x = e.clientX + 26;
-    const y = gsap.utils.clamp(12, innerHeight - prev.offsetHeight - 12, e.clientY - prev.offsetHeight/2);
-    if(!placed){ placed = true; gsap.set(prev, {x, y}); }
+    if(lx !== null){ vx += ((e.clientX - lx) - vx) * .35; vy += ((e.clientY - ly) - vy) * .35; }
+    lx = e.clientX; ly = e.clientY;
+    const w = prev.offsetWidth, h = prev.offsetHeight;
+    let x = e.clientX - w - 40; if(x < 16) x = e.clientX + 40;
+    x = gsap.utils.clamp(16, innerWidth - w - 16, x);
+    const y = gsap.utils.clamp(16, innerHeight - h - 16, e.clientY - h / 2);
+    if(!placed){ placed = true; gsap.set(prev, { x, y }); }
     xTo(x); yTo(y);
+  }
+  /* מהירות שדועכת: כשהעכבר זז התצוגה נוטה לכיוון התנועה, וכשהוא נעצר היא חוזרת לישר */
+  gsap.ticker.add(() => {
+    if(!shown || REDUCE) return;
+    vx *= .88; vy *= .88;
+    rz(gsap.utils.clamp(-10, 10, vx * .5));
+    ry(gsap.utils.clamp(-18, 18, vx * .9));
+    rx(gsap.utils.clamp(-12, 12, -vy * .9));
+  });
+  function swap(i){
+    if(i === cur) return;
+    const inc = shots[i], out = shots[cur], down = cur < 0 || i > cur;
+    cur = i; inc.style.zIndex = ++z; inc.style.visibility = 'visible';
+    gsap.fromTo(inc, { yPercent: down ? 100 : -100, scale:1.2 }, { yPercent:0, scale:1, duration:.7, ease:'power4.out', overwrite:true });
+    if(out) gsap.to(out, { yPercent: down ? -30 : 30, scale:1.05, duration:.7, ease:'power4.out', overwrite:true, onComplete(){ if(shots[cur] !== out) out.style.visibility = 'hidden'; } });
   }
   list.addEventListener('pointermove', place);
   rows.forEach(r => r.addEventListener('pointerenter', () => {
-    rows.forEach(x => x.classList.toggle('on', x===r)); shots.forEach((s,i) => s.classList.toggle('on', i===+r.dataset.i));
-    if(!shown){ shown = true; list.classList.add('hovering'); gsap.to(prev, {opacity:1, scale:1, duration:.35, ease:'power3.out'}); }
+    rows.forEach(x => x.classList.toggle('on', x === r));
+    const i = +r.dataset.i;
+    if(!shown){
+      shown = true; list.classList.add('hovering');
+      shots.forEach((s, k) => { if(k !== i) s.style.visibility = 'hidden'; });
+      cur = -1; swap(i);
+      gsap.fromTo(inner, { clipPath:'inset(100% 0% 0% 0%)' }, { clipPath:'inset(0% 0% 0% 0%)', duration:.75, ease:'power4.out', overwrite:'auto' });
+    } else swap(i);
   }));
-  list.addEventListener('pointerleave', () => { shown = false; list.classList.remove('hovering'); rows.forEach(x => x.classList.remove('on')); gsap.to(prev, {opacity:0, scale:.94, duration:.25, ease:'power2.in'}); });
+  list.addEventListener('pointerleave', () => {
+    shown = false; list.classList.remove('hovering'); rows.forEach(x => x.classList.remove('on'));
+    gsap.to(inner, { clipPath:'inset(0% 0% 100% 0%)', duration:.4, ease:'power3.in', overwrite:'auto' });
+    rz(0); ry(0); rx(0); vx = vy = 0; lx = ly = null;
+  });
 })();
 
 /* ---------- 02 G60: שלושה משפטים מתחלפים על מסך מוצמד, כל אחד עם קו ליים, והתמונה איתם ---------- */
@@ -385,7 +418,7 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
     const write = v => { b.textContent = Math.round(v) + plus; };
     if(REDUCE){ write(n); return; }
     const o = { v:0 };
-    ScrollTrigger.create({ trigger:b, start:'top 88%', once:true, onEnter(){ gsap.to(o, { v:n, duration:1.6, ease:'power3.out', onUpdate(){ write(o.v); } }); } });
+    ScrollTrigger.create({ trigger:b, start:'top 98%', once:true, onEnter(){ gsap.to(o, { v:n, duration:1.6, ease:'power3.out', onUpdate(){ write(o.v); } }); } });
   });
 })();
 
@@ -452,34 +485,64 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
   });
 })();
 
-/* ---------- B29 מוכלל: כל המסך בנושא של הסקשן שבמרכז, במעבר מונפש ----------
-   רקע: שכבה קבועה לכל נושא, החדשה עולה מעל ב-opacity (מאיץ גרפי, בלי ציור מחדש).
-   טקסט: מתהפך בבת אחת כשהרקע כבר באמצע הדרך, ורק בסקשנים שעל המסך או במרחק מסך אחד ממנו.
-   סקשן רחוק מקבל את הנושא כשהוא מתקרב, כך שהעלות מתפזרת ולא נופלת על פריים ההחלפה. */
+/* ---------- B29 מוכלל: מעבר נושא בניגוב ----------
+   הנושא נקבע לפי הסקשן שבמרכז המסך. השכבה החדשה נפרשת מהכיוון שאליו גוללים, עם קו ליים בקצה.
+   הטקסט לא מתהפך בבת אחת: כל סקשן מתהפך ברגע שקצה הניגוב עובר את האמצע הנראה שלו, והכותרת כשהקצה עובר אותה.
+   כך אין רגע שבו טקסט בצבע אחד יושב על רקע באותו צבע. סקשנים רחוקים מסתנכרנים כשהם מתקרבים. אפס transition על צבע. */
 (function(){
   const secs = [...document.querySelectorAll('[data-theme]')], layers = [...document.querySelectorAll('#bg i')];
-  const bg = document.getElementById('bg'), page = document.querySelector('.page'), THEMES = ['t-light', 't-dark', 't-white'];
-  const FLIP = REDUCE ? 0 : 300;   /* מתוך 700ms של המעבר: הטקסט מתהפך כשהרקע כבר רחוק מהצבע הקודם */
-  let cur = 'light', shown = 'light', z = 1, timer = 0;
+  const bg = document.getElementById('bg'), edge = bg.querySelector('.bg-edge'), page = document.querySelector('.page'), hd = document.querySelector('.hd');
+  const THEMES = ['t-light', 't-dark', 't-white'];
+  let cur = 'light', headT = 'light', z = 1, dir = 1, wipe = null;
+  layers.forEach(l => gsap.set(l, { opacity: l.dataset.t === 'light' ? 1 : 0, scaleY: 1 }));
   const paint = (s, t) => { if(s._t === t) return; s._t = t; s.classList.toggle('th-dark', t === 'dark'); s.classList.toggle('th-white', t === 'white'); };
+  const head = t => { if(headT === t) return; headT = t; THEMES.forEach(c => document.body.classList.toggle(c, c === 't-' + t)); };
   const near = r => r.bottom > -innerHeight && r.top < innerHeight * 2;
-  const sync = rects => secs.forEach((s, i) => { if(near(rects[i])) paint(s, shown); });
-  const pick = () => {
+  const visible = r => r.bottom > 0 && r.top < innerHeight;
+  function run(t, d){
+    const layer = layers.find(l => l.dataset.t === t);
+    if(wipe){ wipe.progress(1); }
+    layer.style.zIndex = ++z; edge.style.zIndex = z + 1;
+    if(REDUCE){
+      gsap.set(layer, { opacity:1, scaleY:1 }); layers.forEach(l => { if(l !== layer) gsap.set(l, { opacity:0 }); });
+      secs.forEach(s => paint(s, t)); head(t); return;
+    }
+    const H = innerHeight, hdMid = hd.offsetHeight / 2;
+    gsap.set(layer, { opacity:1, scaleY:0, transformOrigin: d > 0 ? '50% 100%' : '50% 0%' });
+    gsap.set(edge, { opacity:1, y: d > 0 ? H : 0 });
+    wipe = gsap.to(layer, { scaleY:1, duration:.85, ease:'power3.inOut',
+      onUpdate(){
+        const p = gsap.getProperty(layer, 'scaleY'), ey = d > 0 ? H * (1 - p) : H * p;
+        gsap.set(edge, { y: ey });
+        const passed = y => d > 0 ? ey <= y : ey >= y;
+        secs.forEach(s => {
+          if(s._t === t) return;
+          const r = s.getBoundingClientRect(); if(!visible(r)) return;
+          if(passed((Math.max(r.top, 0) + Math.min(r.bottom, H)) / 2)) paint(s, t);
+        });
+        if(passed(hdMid)) head(t);
+      },
+      onComplete(){
+        layers.forEach(l => { if(l !== layer) gsap.set(l, { opacity:0 }); });
+        gsap.to(edge, { opacity:0, duration:.25 });
+        secs.forEach(s => { if(near(s.getBoundingClientRect())) paint(s, t); });
+        head(t); wipe = null;
+      } });
+  }
+  const pick = self => {
+    if(self && self.direction) dir = self.direction;
     const rects = secs.map(s => s.getBoundingClientRect()), mid = innerHeight / 2;
     let t = cur;
     for(let i = 0; i < secs.length; i++){ if(rects[i].top <= mid && rects[i].bottom > mid){ t = secs[i].dataset.theme; break; } }
-    if(t !== cur){
-      cur = t;
-      layers.forEach(l => { const on = l.dataset.t === t; if(on) l.style.zIndex = ++z; l.classList.toggle('on', on); });
-      clearTimeout(timer);
-      timer = setTimeout(() => { shown = cur; THEMES.forEach(c => document.body.classList.toggle(c, c === 't-' + shown)); sync(secs.map(s => s.getBoundingClientRect())); }, FLIP);
-    }
-    sync(rects);
+    if(t !== cur){ cur = t; run(t, dir); }
+    /* סקשנים שלא על המסך מקבלים את הנושא מיד. אלה שעל המסך מתהפכים רק כשהניגוב עובר אותם */
+    secs.forEach((s, i) => { if(near(rects[i]) && (!wipe || !visible(rects[i]))) paint(s, cur); });
+    if(!wipe) head(cur);
     /* בסוף העמוד השכבה עולה עם קצה הדף כדי שהפוטר שמאחור ייחשף, עם חפיפה של שני פיקסלים נגד תפר */
     gsap.set(bg, { y: Math.min(0, Math.round(page.getBoundingClientRect().bottom - innerHeight) + 2) });
   };
   ScrollTrigger.create({ trigger:document.body, start:0, end:'max', onUpdate:pick, onRefresh:pick });
-  addEventListener('resize', pick);
+  addEventListener('resize', () => pick());
   pick();
 })();
 

@@ -1,5 +1,5 @@
 // בדיקת מעברי נושא: שלושת הכשלים שכבר קרו, בכל גבול בין סקשן בהיר לכהה.
-//   1. מונפש:  המעבר באמת קורה בהדרגה (נדגמת שקיפות ביניים של שכבת הרקע). נכשל כשהמעברים "מושבתים".
+//   1. מונפש:  המעבר באמת קורה בהדרגה (נדגם מצב ביניים של שכבת הרקע: opacity או scaleY של ניגוב). נכשל כשהמעברים "מושבתים".
 //   2. קריא:   במצב נח לפני, באמצע ואחרי הגבול, כל טקסט שעל המסך בניגודיות 3 לפחות מול הרקע בפועל. נכשל כשסקשן "נבלע".
 //   3. חלק:    זמני פריים בגלילה חלקה דרך הגבול קרובים לגלילה בלי גבול. נכשל כשהמעבר "תקוע".
 //   4. בלי קו חד: אף סקשן לא צובע רקע משלו (אחרת המעבר הוא קו ולא אנימציה).
@@ -69,7 +69,7 @@ const glide = async (from, to) => {
   await sleep(1300);
   return js(`new Promise(res => { const t = [], ops = []; let last = performance.now(), go = true;
     const top = () => [...document.querySelectorAll('#bg i')].sort((a, b) => (+b.style.zIndex || 0) - (+a.style.zIndex || 0))[0];
-    const f = n => { t.push(n - last); last = n; ops.push(+getComputedStyle(top()).opacity); if (go) requestAnimationFrame(f); };
+    const f = n => { t.push(n - last); last = n; const cs = getComputedStyle(top()), m = cs.transform === 'none' ? 1 : new DOMMatrix(cs.transform).d; ops.push(Math.min(+cs.opacity, Math.abs(m))); if (go) requestAnimationFrame(f); };
     requestAnimationFrame(f); lenis.scrollTo(${to}, { duration: 1.4, easing: x => x, force: true });
     setTimeout(() => { go = false; t.shift(); const s = [...t].sort((a, b) => b - a); res({ worst: +s[0].toFixed(1), p95: +s[Math.floor(s.length * .05)].toFixed(1), animated: ops.some(o => o > .06 && o < .94) }); }, 2300); })`);
 };
