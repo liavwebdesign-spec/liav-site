@@ -42,8 +42,8 @@ for (const s of stops) {
   const n = s.n;
   if (n === 'hero') plan.push([n, 0]);
   else if (n === 'works') { plan.push([n + '-a', s.top + 200]); plan.push([n + '-b', frac(s, .55)]); }
-  else if (n === 'generic' || n === 'months' || n === 'taste') { const p = pins.find(x => { const t = s.top; return x.start >= t - 5 && x.start <= t + s.h; }); if (p) { plan.push([n + '-a', p.start + 5]); plan.push([n + '-b', p.start + (p.end - p.start) * .55]); plan.push([n + '-c', p.end - 5]); } else plan.push([n, s.top]); }
-  else if (n === 'flow' || n === 'people') { plan.push([n, s.top - 80]); plan.push([n + '-b', s.top + s.h * .5]); }
+  else if (n === 'generic' || n === 'months' || n === 'taste' || n === 'people') { const p = pins.find(x => { const t = s.top; return x.start >= t - 5 && x.start <= t + s.h; }); if (p) { plan.push([n + '-a', p.start + 5]); plan.push([n + '-b', p.start + (p.end - p.start) * .55]); plan.push([n + '-c', p.end - 5]); } else plan.push([n, s.top]); }
+  else if (n === 'flow' || n === 'works') { plan.push([n, s.top - 80]); plan.push([n + '-b', s.top + s.h * .5]); }
   else plan.push([n, s.top - 80]);
 }
 plan.push(['bottom', 99999]);

@@ -36,7 +36,7 @@
 
 <div class="page" id="top">
 
-<!-- ===== 00 הירו: כותרת בשורות נחשפות, מניפה של מוקאפים שנפתחת ונעה בעומק (G4 + G12 + G37) ===== -->
+<!-- ===== 00 הירו: כותרת בשורות, ושני טורים של כל 14 העבודות שזורמים בלופ אינסופי (G4 + CSS19) ===== -->
 <section class="hero grid" data-theme="light" aria-label="פתיח">
   <div class="hero-copy">
     <p class="mono kick">Liav Matzri · Premium web design</p>
@@ -45,27 +45,28 @@
     <p class="sub rv">אני נעזר בכלי בינה מלאכותית כדי לייעל את הפיתוח, אבל כל אתר עדיין נבנה מאפס, לפי העסק, הקהל והמטרות שלו.</p>
     <div class="ctas rv"><span class="mg"><a class="pill" href="#works">לצפייה בעבודות <span class="arr">↓</span></a></span><span class="mg"><a class="pill ghost" href="#contact">בואו נדבר</a></span></div>
   </div>
-  <div class="fan" id="fan" aria-hidden="true"></div>
+  <div class="wall" id="wall" aria-hidden="true"><div class="wall-col" data-dir="1"></div><div class="wall-col" data-dir="-1"></div></div>
   <div class="hero-foot"><span class="mono">Scroll</span><span class="mono">14 projects · 2020 to 2026</span></div>
 </section>
 
-<!-- ===== 01 העבודות מדברות: כרטיסים שנערמים זה על זה (stack) ===== -->
+<!-- ===== 01 העבודות מדברות: אינדקס עם תצוגה שעוקבת אחרי הסמן (G43) ===== -->
 <section class="works" id="works" data-theme="dark" aria-label="עבודות">
-  <div class="grid"><div class="sec-head"><span class="mono">01 / Selected work</span><span class="mono">6 of 14</span></div></div>
-  <div class="grid"><h2 class="t-lines">העבודות מדברות</h2></div>
-  <div class="stack" id="stack"></div>
+  <div class="grid"><div class="sec-head"><span class="mono">01 / Selected work</span><span class="mono">14 projects</span></div></div>
+  <div class="grid works-top"><h2 class="t-lines">העבודות מדברות</h2><p class="rv">שמות בלבד. מרחפים על שורה ורואים את הפרויקט.</p></div>
+  <div class="grid"><div class="pl" id="pl"></div></div>
 </section>
+<div class="pl-prev" id="pl-prev" aria-hidden="true"></div>
 
-<!-- ===== 02 מהיר לא אומר גנרי: שלושה משפטים מתחלפים על מסך מוצמד (G60) ===== -->
+<!-- ===== 02 מהיר לא אומר גנרי: שלושה משפטים מתחלפים על מסך מוצמד, כל אחד עם קו ליים (G60) ===== -->
 <section class="generic" id="method" data-theme="light" aria-label="מהיר לא אומר גנרי">
   <div class="grid"><div class="sec-head"><span class="mono">02 / Method</span><span class="mono">No templates</span></div></div>
   <div class="gen-pin grid">
     <div class="gen-text">
       <h2 class="t-lines">מהיר לא אומר גנרי</h2>
       <div class="gen-lines" id="gen-lines">
-        <p>אין פה תבנית שמחליפים בה לוגו, צבעים וטקסטים.</p>
-        <p>כל אתר מקבל עיצוב, מבנה, תנועה ושפה משלו.</p>
-        <p>הכלים החדשים פשוט מאפשרים לי להגיע לתוצאה הרבה יותר מהר.</p>
+        <p>אין פה <em class="u">תבנית</em> שמחליפים בה לוגו, צבעים וטקסטים.</p>
+        <p>כל אתר מקבל עיצוב, מבנה, <em class="u">תנועה ושפה משלו.</em></p>
+        <p>הכלים החדשים פשוט מאפשרים לי להגיע לתוצאה <em class="u">הרבה יותר מהר.</em></p>
       </div>
       <div class="gen-meta"><span class="mono ink" id="gen-idx">01 / 03</span><span class="gen-bar"><i></i></span></div>
     </div>
@@ -73,7 +74,7 @@
   </div>
 </section>
 
-<!-- ===== 03 חודשים → ימים: המילה נמחקת והחלופה עולה (G70 + מסכות) ===== -->
+<!-- ===== 03 חודשים → ימים: המילה נמחקת והחלופה נצבעת, ואז שני הרווחים כשני לוחות גדולים ===== -->
 <section class="months" data-theme="dark" aria-label="מה שפעם לקח חודשים">
   <div class="mo-pin">
     <div class="grid">
@@ -81,17 +82,17 @@
     </div>
   </div>
   <div class="grid mo-body">
-    <p class="rv">הניסיון שצברתי בעיצוב, חוויית משתמש ופיתוח, יחד עם הכלים שיש היום, שינו לגמרי את הדרך שבה אני עובד.</p>
+    <p class="mo-lead t-lines">הניסיון שצברתי בעיצוב, חוויית משתמש ופיתוח, יחד עם הכלים שיש היום, שינו לגמרי את הדרך שבה אני עובד.</p>
     <div class="mo-two">
-      <p class="rv"><span class="mono">01</span>פחות זמן מתבזבז על עבודה טכנית.</p>
-      <p class="rv"><span class="mono">02</span>יותר זמן נשאר למה שבאמת קובע איך האתר ייראה וירגיש.</p>
+      <div class="mo-card rv"><b class="num">01</b><p>פחות זמן מתבזבז על עבודה טכנית.</p></div>
+      <div class="mo-card rv"><b class="num">02</b><p>יותר זמן נשאר למה שבאמת קובע איך האתר ייראה וירגיש.</p></div>
     </div>
   </div>
 </section>
 
-<!-- ===== 04 מהר, בלי להרגיש חפיף: שתי רצועות מוקאפים שמגיבות למהירות הגלילה (LM8) ===== -->
+<!-- ===== 04 מהר, בלי להרגיש חפיף: שתי רצועות בלופ אינסופי, מהירות הגלילה מאיצה אותן (LM8) ===== -->
 <section class="flow" data-theme="light" aria-label="עוד עבודות">
-  <div class="grid"><div class="sec-head"><span class="mono">03 / More work</span><span class="mono">Scroll velocity</span></div></div>
+  <div class="grid"><div class="sec-head"><span class="mono">03 / More work</span><span class="mono">Scroll to speed up</span></div></div>
   <div class="grid"><h2 class="t-lines">מהר, בלי להרגיש חפיף</h2></div>
   <div class="mq-wrap" id="mq" aria-hidden="true">
     <div class="mq" data-dir="1"><div class="mq-in"></div></div>
@@ -99,25 +100,30 @@
   </div>
 </section>
 
-<!-- ===== 05 הכלים השתנו: פרומפט שנכתב לבד, ואז הטקסט שמסביר מה הוא לא יודע ===== -->
+<!-- ===== 05 הכלים השתנו: פרומפט שנכתב לבד ומייצר שלד גנרי, ומולו מה שפרומפט לא יודע ===== -->
 <section class="tools" data-theme="dark" aria-label="הכלים השתנו">
   <div class="grid"><div class="sec-head"><span class="mono">04 / Tools</span><span class="mono">Not a prompt</span></div></div>
+  <div class="grid"><h2 class="t-lines tools-h">הכלים השתנו</h2></div>
   <div class="grid tools-in">
-    <div class="prompt" id="prompt" aria-hidden="true"><span class="mono">Prompt</span><p><span id="prompt-txt"></span><i class="caret"></i></p><span class="prompt-btn mono">Generate</span></div>
+    <div class="prompt" id="prompt" aria-hidden="true">
+      <div class="prompt-head"><span class="mono">Prompt</span><span class="mono prompt-btn">Generate</span></div>
+      <p class="prompt-line"><span id="prompt-txt"></span><i class="caret"></i></p>
+      <div class="skel" id="skel"><i class="s-nav"></i><i class="s-h"></i><i class="s-p"></i><i class="s-p short"></i><i class="s-btn"></i><span class="s-img"></span><span class="s-img"></span><span class="s-img"></span></div>
+      <p class="prompt-note"><span class="mono">Result</span>עוד אתר שנראה כמו כולם.</p>
+    </div>
     <div class="tools-text">
-      <h2 class="t-lines">הכלים השתנו</h2>
       <p class="big t-words" id="tools-p">היום אפשר להגיע הרבה יותר מהר לאתר עובד. אבל לדעת מה נכון לעסק, איך הוא צריך להיראות, מה להבליט ומה להעיף, זה כבר לא עניין של פרומפט.</p>
       <p class="rv">בשביל זה צריך ניסיון, עין טובה והרבה החלטות קטנות בדרך.</p>
     </div>
   </div>
 </section>
 
-<!-- ===== 06 הטעם: מסך ליים מוצמד, אותיות בגל, אריחים שנעים עם העכבר (G35 + G37) ===== -->
-<section class="taste" data-theme="lime" aria-label="הטעם">
+<!-- ===== 06 הטעם: מסך לבן מוצמד, אותיות בגל, ארבעה אריחים בפינות שנעים עם העכבר (G35 + G37) ===== -->
+<section class="taste" data-theme="white" aria-label="הטעם">
   <div class="taste-pin">
     <div class="tiles" id="tiles" aria-hidden="true"></div>
-    <div class="grid taste-in">
-      <h2 class="wave" id="wave">כשהבנייה נהיית קלה, הטעם נהיה חשוב יותר</h2>
+    <div class="taste-in">
+      <h2 class="wave" id="wave">כשהבנייה נהיית קלה, <em class="u">הטעם</em> נהיה חשוב יותר</h2>
       <div class="taste-lines">
         <p class="rv">אפשר לתת לכלי לייצר.</p>
         <p class="rv strong">אי אפשר לתת לו להכיר את העסק במקומכם.</p>
@@ -126,15 +132,17 @@
   </div>
 </section>
 
-<!-- ===== 07 אנשים שעבדו איתי: וידאו נגרר, ומרקי של המלצות כתובות ===== -->
+<!-- ===== 07 אנשים שעבדו איתי: רצועת וידאו מוצמדת שנגללת לרוחב (G65), ומרקי המלצות כתובות ===== -->
 <section class="people" id="clients" data-theme="dark" aria-label="לקוחות">
   <div class="grid"><div class="sec-head"><span class="mono">05 / Clients</span><span class="mono">Unedited</span></div></div>
   <div class="grid people-top">
     <h2 class="t-lines">אנשים שעבדו איתי</h2>
     <p class="rv">אני יכול לספר לכם איך זה לעבוד איתי. עדיף שהם יספרו.</p>
   </div>
-  <div class="vrow-wrap"><div class="vrow" id="vrow"></div></div>
-  <div class="grid vrow-meta"><span class="mono" id="v-idx">01 / 06</span><span class="mono">Drag · Tap to watch</span></div>
+  <div class="vt-pin">
+    <div class="vt-strip"><div class="vt-track" id="vt-track"></div></div>
+    <div class="vt-foot"><span class="mono ink" id="vt-idx">01 / 06</span><div class="vt-bar"><i></i></div><span class="mono">Scroll · Tap to watch</span></div>
+  </div>
   <div class="tq" id="tq" aria-label="המלצות כתובות"></div>
 </section>
 <div class="vt-lb" id="vt-lb" role="dialog" aria-modal="true" aria-label="סרטון המלצה">
@@ -144,10 +152,10 @@
   <div class="vt-lb-cap"><b></b><span class="mono"></span></div>
 </div>
 
-<!-- ===== 08 נעים מאוד: פורטרט בפרלקס בלי חיתוך, ומספרים שנספרים (G12 + G15) ===== -->
+<!-- ===== 08 נעים מאוד: פורטרט ענק שנחשף מלמטה, ומספרים שנספרים (G15) ===== -->
 <section class="about grid" id="about" data-theme="light" aria-label="מי אני">
   <div class="sec-head"><span class="mono">06 / About</span><span class="mono">Tel Aviv, IL</span></div>
-  <div class="portrait" data-depth="0.1"><div class="disc" data-depth="0.28"></div><img src="../img/liav.webp" alt="ליאב מצרי" width="846" height="1800" loading="lazy"></div>
+  <div class="portrait" id="portrait"><img src="../img/liav.webp" alt="ליאב מצרי" width="846" height="1800" loading="lazy"></div>
   <div class="about-text">
     <h2 class="t-lines">נעים מאוד, ליאב</h2>
     <p class="rv">6 שנים בתחום ויותר מ-100 פרויקטים מאחוריי. אני מעצב ומפתח אתרים, ובמקביל מלמד קהילה של יותר מ-200 בוני אתרים.</p>
@@ -164,20 +172,22 @@
 <section class="contact grid" id="contact" data-theme="dark" aria-label="דברו איתי">
   <div class="sec-head"><span class="mono">07 / Contact</span><span class="mono">Reply within 1 business day</span></div>
   <div class="inner">
-    <h2 class="t-lines">האתר הבא שלכם מתחיל כאן</h2>
     <div class="c-copy">
+      <h2 class="t-lines">האתר הבא שלכם מתחיל כאן</h2>
       <p class="lead rv">אם העסק כבר התקדם אבל האתר נשאר מאחור, בואו נדבר.</p>
       <p class="rv">שיחת היכרות וייעוץ ללא עלות וללא התחייבות. משאירים פרטים ואני חוזר אליכם עד יום עסקים אחד.</p>
     </div>
-    <div class="rv">
+    <div class="c-form rv">
       <form class="ff" novalidate>
         <div class="ff-field"><input type="text" id="fn" name="name" placeholder=" " autocomplete="name"><label for="fn">שם</label><small class="ff-err">צריך שם כדי לדעת למי לחזור</small></div>
         <div class="ff-field"><input type="tel" id="fp" name="phone" placeholder=" " autocomplete="tel" inputmode="tel"><label for="fp">טלפון</label><small class="ff-err">מספר טלפון ישראלי, 10 ספרות</small></div>
         <input class="hp" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true">
-        <span class="mg"><button class="pill ff-btn main-cta" type="submit"><span class="s1">שריון שיחת היכרות</span><span class="s2"><i class="ff-spin"></i></span><span class="s3">קיבלתי. מדברים בקרוב.</span></button></span>
+        <div class="ff-actions">
+          <span class="mg"><button class="pill big ff-btn main-cta" type="submit"><span class="s1">שריון שיחת היכרות</span><span class="s2"><i class="ff-spin"></i></span><span class="s3">קיבלתי. מדברים בקרוב.</span></button></span>
+          <span class="or mono">or</span>
+          <span class="mg"><a class="pill big ghost wa main-cta" href="https://wa.me/972503223399?text=%D7%94%D7%99%D7%99%20%D7%9C%D7%99%D7%90%D7%91%2C%20%D7%A8%D7%90%D7%99%D7%AA%D7%99%20%D7%90%D7%AA%20%D7%94%D7%90%D7%AA%D7%A8" target="_blank" rel="noopener">וואטסאפ <span class="arr">↗</span></a></span>
+        </div>
       </form>
-      <p class="or mono">or</p>
-      <span class="mg"><a class="pill ghost wa main-cta" href="https://wa.me/972503223399?text=%D7%94%D7%99%D7%99%20%D7%9C%D7%99%D7%90%D7%91%2C%20%D7%A8%D7%90%D7%99%D7%AA%D7%99%20%D7%90%D7%AA%20%D7%94%D7%90%D7%AA%D7%A8" target="_blank" rel="noopener">וואטסאפ <span class="arr">↗</span></a></span>
     </div>
   </div>
 </section>

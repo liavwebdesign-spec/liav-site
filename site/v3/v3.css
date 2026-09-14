@@ -8,6 +8,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:var
   transition:background-color .9s ease,color .9s ease}
 /* נושאים. הרקע מגיע מ-body ומתחלף בטווין, כל השאר יורש */
 body.t-dark{--bg:#0A0A0B;--bg-2:#141416;--ink:#F1F1F1;--ink-2:#DADADA;--ink-dim:#8E8E8E;--grey:#A7A7A7;--grey-2:#8E8E8E;--line:rgba(241,241,241,.16);--line-strong:rgba(241,241,241,.6)}
+body.t-white{--bg:#FFFFFF;--bg-2:#F1F1F1}
 body.t-lime{--bg:#D8FC73;--bg-2:#E4FF95;--ink:#0A0A0B;--ink-2:#232323;--ink-dim:#4E5A22;--grey:#3E4A16;--grey-2:#55621F;--line:rgba(10,10,11,.2);--line-strong:rgba(10,10,11,.7)}
 img{max-width:100%;display:block}
 a{color:inherit;text-decoration:none}
@@ -78,37 +79,56 @@ body.t-lime .tg a.cta{background:var(--ink);color:var(--accent)}
 .nv-foot a{color:#8E8E8E}
 @media (max-width:899px){.tg{display:none}.nv-toggle{display:inline-flex}.hd{padding:14px var(--gm)}}
 
-/* ===== 00 הירו ===== */
+/* ===== 00 הירו: טקסט מימין, קיר עבודות משמאל ===== */
 .hero{min-height:100svh;padding-top:var(--hero-top);padding-bottom:32px;align-content:space-between;row-gap:48px;position:relative;overflow:hidden}
-.hero-copy{grid-column:1/8;display:grid;gap:22px;align-content:center;justify-items:start}
+.hero-copy{grid-column:1/7;display:grid;gap:22px;align-content:center;justify-items:start}
 .hero .kick{margin-bottom:6px}
 .hero h1{font-size:clamp(36px,4.9vw,84px);max-width:12ch}
-.hero h1 em{position:relative;display:inline-block;white-space:nowrap}
-.hero h1 em::after{content:"";position:absolute;inset-inline:0;bottom:.04em;height:.14em;background:var(--accent);z-index:-1;transform:scaleX(var(--u,0));transform-origin:right center}
+.hero h1 em,.u{position:relative;display:inline-block;white-space:nowrap}
+.hero h1 em::after,.u::after{content:"";position:absolute;inset-inline:0;bottom:.04em;height:.14em;background:var(--accent);z-index:-1;transform:scaleX(var(--u,0));transform-origin:right center}
 .hero .lead{font-size:var(--fs-lead);line-height:1.4;max-width:34ch;color:var(--ink)}
 .hero .sub{color:var(--grey);max-width:44ch}
 .hero .ctas{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px}
-.fan{grid-column:8/13;position:relative;aspect-ratio:16/14;align-self:center;justify-self:stretch}
-.fan figure{position:absolute;left:9%;width:82%;top:8%;aspect-ratio:16/10;background:var(--dark);overflow:hidden;box-shadow:0 30px 80px rgba(10,10,11,.25);transform-origin:50% 120%;will-change:transform}
-.fan img{width:100%;height:100%;object-fit:cover}
+/* קיר: שני טורים של כל 14 העבודות, זורמים בכיוונים מנוגדים, בלופ. מסכה רכה למעלה ולמטה */
+.wall{grid-column:7/13;align-self:stretch;height:min(72svh,760px);display:grid;grid-template-columns:1fr 1fr;gap:var(--gg);overflow:hidden;transform:rotate(-4deg) scale(1.12);
+  -webkit-mask-image:linear-gradient(to bottom,transparent,#000 14%,#000 86%,transparent);mask-image:linear-gradient(to bottom,transparent,#000 14%,#000 86%,transparent)}
+.wall-col{display:grid;gap:var(--gg);align-content:start;will-change:transform}
+.wall-col figure{aspect-ratio:16/10;overflow:hidden;background:var(--dark)}
+.wall-col img{width:100%;height:100%;object-fit:cover}
 .hero-foot{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:14px}
 @media (max-width:899px){
   .hero{padding-top:96px;row-gap:32px}
-  .hero-copy,.fan{grid-column:1/-1}
-  .fan{aspect-ratio:4/3;order:-1;margin-top:8px}
-  .fan figure{left:5%;width:90%;top:4%}
+  .hero-copy,.wall{grid-column:1/-1}
+  .wall{height:46svh;order:-1;margin-top:8px;transform:rotate(-3deg) scale(1.1)}
   .hero h1{max-width:none}
 }
 
-/* ===== 01 עבודות: ערימה ===== */
-.works h2{grid-column:1/-1;margin-bottom:48px}
-.stack{padding-inline:var(--pad-x);display:grid;row-gap:8vh;padding-bottom:12vh}
-.sc{position:sticky;top:calc(12vh + var(--i,0) * 10px);display:grid;grid-template-columns:repeat(12,1fr);column-gap:var(--gg);align-items:end;background:var(--bg);transform-origin:50% 0;will-change:transform,filter;transition:background-color .9s ease}
-.sc-media{grid-column:1/-1;aspect-ratio:16/9;overflow:hidden;background:var(--dark-2);max-height:66vh}
-.sc-media img{width:100%;height:100%;object-fit:cover}
-.sc-row{grid-column:1/-1;display:grid;grid-template-columns:5ch 1fr auto;align-items:baseline;gap:16px;padding:16px 0 0;border-top:1px solid var(--line);margin-top:16px}
-.sc-row h3{font-size:var(--fs-h3)}
-@media (min-width:900px){.sc{grid-template-rows:auto}.sc-media{grid-column:1/-1}}
+/* ===== 01 עבודות: אינדקס עם תצוגה שעוקבת אחרי הסמן (G43) ===== */
+.works-top{align-items:end;row-gap:16px;margin-bottom:48px}
+.works h2{grid-column:1/8}
+.works-top p{grid-column:9/13;color:var(--grey);font-size:var(--fs-lead);line-height:1.4;max-width:24ch;align-self:end}
+.pl{grid-column:1/-1;position:relative;padding-bottom:var(--sec)}
+.pl-row{display:grid;grid-template-columns:5ch 1fr auto;align-items:baseline;gap:18px;padding:20px 0;border-top:1px solid var(--line);cursor:pointer;position:relative;transition:border-color .9s ease}
+.pl-row:last-child{border-bottom:1px solid var(--line)}
+.pl-row h3{font-size:clamp(26px,3.6vw,64px);transition:transform .45s var(--ease),opacity .3s}
+.pl-row>.mono:first-child{transition:color .3s}
+.pl.hovering .pl-row h3{opacity:.3}
+.pl-row.on h3{opacity:1;transform:translateX(-16px)}
+.pl-row.on>.mono:first-child{color:var(--accent)}
+.pl-row .thumb{display:none}
+.pl-prev{position:fixed;top:0;left:0;width:min(400px,32vw);aspect-ratio:16/12;overflow:hidden;pointer-events:none;z-index:40;opacity:0;transform:scale(.94);will-change:transform;box-shadow:0 30px 70px rgba(10,10,11,.28);background:var(--dark)}
+.pl-prev img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .25s}
+.pl-prev img.on{opacity:1}
+@media (min-width:900px){.pl-row{padding:28px 0}}
+@media (max-width:899px){
+  .works h2,.works-top p{grid-column:1/-1}
+  .pl-prev{display:none}
+  .pl-row{grid-template-columns:4ch 1fr;grid-template-rows:auto auto;row-gap:12px}
+  .pl-row .tag{grid-column:2;grid-row:2}
+  .pl-row .thumb{display:block;grid-column:1/-1;overflow:hidden;aspect-ratio:16/10;background:var(--dark)}
+  .pl-row .thumb img{width:100%;height:100%;object-fit:cover}
+  .pl.hovering .pl-row h3{opacity:1}.pl-row.on h3{transform:none}
+}
 
 /* ===== 02 מהיר לא אומר גנרי ===== */
 .gen-pin{min-height:100svh;align-items:center;row-gap:32px}
@@ -116,12 +136,15 @@ body.t-lime .tg a.cta{background:var(--ink);color:var(--accent)}
 .gen-lines{position:relative;min-height:5.5em;font-size:clamp(22px,2.4vw,40px);line-height:1.3}
 .gen-lines p{position:absolute;inset-inline:0;top:0;max-width:22ch;font-family:var(--head);font-weight:500;letter-spacing:-.01em;opacity:0}
 .gen-lines p:first-child{opacity:1}
+.gen-lines .u{white-space:normal}
+.gen-lines .u::after{bottom:.02em;height:.12em}
 .gen-meta{display:flex;align-items:center;gap:16px}
-.gen-bar{flex:0 0 140px;height:1px;background:var(--line);position:relative}
-.gen-bar i{position:absolute;inset:0;background:var(--ink);transform:scaleX(0);transform-origin:right center}
+.gen-bar{flex:0 0 140px;height:2px;background:var(--line);position:relative}
+.gen-bar i{position:absolute;inset:0;background:var(--accent);transform:scaleX(0);transform-origin:right center}
 .gen-media{grid-column:8/13;aspect-ratio:4/5;position:relative;overflow:hidden;background:var(--dark);max-height:74svh;justify-self:stretch}
 .gen-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transform:scale(1.06)}
 .gen-media img:first-child{opacity:1;transform:none}
+.gen-media::after{content:"";position:absolute;inset:auto 0 0;height:6px;background:var(--accent)}
 @media (max-width:899px){
   .gen-text,.gen-media{grid-column:1/-1}
   .gen-media{aspect-ratio:16/10;max-height:40svh;order:-1}
@@ -135,62 +158,72 @@ body.t-lime .tg a.cta{background:var(--ink);color:var(--accent)}
 .mo-l2{color:color-mix(in srgb,var(--ink) calc(var(--mix,0)*100%),var(--ink-dim));transition:color .9s ease}
 .strike{position:relative;display:inline-block}
 .strike i{position:absolute;inset-inline:0;top:52%;height:.08em;background:var(--accent);transform:scaleX(0);transform-origin:right center}
-.mk{position:relative;display:inline-block;padding-inline:.1em;color:var(--ink)}
+.mk{position:relative;display:inline-block;padding-inline:.1em}
 .mk::before{content:"";position:absolute;inset:.08em 0;background:var(--accent);z-index:-1;transform:scaleX(var(--fill,0));transform-origin:right center}
 .mk span{position:relative;z-index:1}
 .mo-l2 .mk{color:color-mix(in srgb,var(--accent-ink) calc(var(--fill,0)*100%),currentColor)}
-.mo-body{padding-block:32px var(--sec);row-gap:40px;align-items:start}
-.mo-body>p{grid-column:1/7;font-size:var(--fs-lead);line-height:1.4;max-width:34ch}
-.mo-two{grid-column:8/13;display:grid;gap:22px}
-.mo-two p{display:flex;gap:16px;align-items:baseline;font-size:var(--fs-lead);line-height:1.4;padding-top:18px;border-top:1px solid var(--line);max-width:40ch}
-.mo-two .mono{flex:0 0 auto}
-@media (max-width:899px){.mo-body>p,.mo-two{grid-column:1/-1}.mo-pin{min-height:70svh}}
+/* הגוף: אמירה גדולה על כל הרוחב, ושני לוחות גדולים עם מספרי ליים */
+.mo-body{padding-block:var(--sec);row-gap:64px}
+.mo-lead{grid-column:1/10;font-family:var(--head);font-weight:500;font-size:clamp(24px,3vw,52px);line-height:1.2;letter-spacing:-.015em;max-width:24ch}
+.mo-two{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:var(--gg)}
+.mo-card{display:grid;gap:24px;padding:32px 0 0;border-top:1px solid var(--line);align-content:start;transition:border-color .9s ease}
+.mo-card .num{font-family:var(--head);font-weight:500;font-size:clamp(56px,7vw,120px);line-height:.9;letter-spacing:-.03em;color:var(--accent);font-variant-numeric:tabular-nums}
+.mo-card p{font-family:var(--head);font-weight:500;font-size:clamp(22px,2.2vw,36px);line-height:1.25;letter-spacing:-.01em;max-width:20ch}
+@media (max-width:899px){.mo-lead{grid-column:1/-1}.mo-two{grid-template-columns:1fr;gap:32px}.mo-pin{min-height:70svh}.mo-body{row-gap:48px}}
 
 /* ===== 04 רצועות ===== */
 .flow h2{grid-column:1/-1;margin-bottom:48px}
 .mq-wrap{display:grid;gap:var(--gg);padding-block:24px var(--sec);transform:rotate(-2.5deg) scale(1.06);will-change:transform}
-.mq{overflow:hidden}
+.mq{overflow:hidden;direction:ltr}   /* בלי זה הרצועה נצמדת לימין וגולשת שמאלה מחוץ למסך */
 .mq-in{display:flex;gap:var(--gg);width:max-content;direction:ltr;will-change:transform}
 .mq-in figure{flex:0 0 clamp(220px,24vw,380px);aspect-ratio:16/10;overflow:hidden;background:var(--dark)}
 .mq-in img{width:100%;height:100%;object-fit:cover}
 
 /* ===== 05 הכלים ===== */
+.tools-h{grid-column:1/-1;margin-bottom:56px}
 .tools-in{row-gap:48px;align-items:center;padding-bottom:var(--sec)}
-.prompt{grid-column:8/13;display:grid;gap:14px;padding:22px;border:1px solid var(--line);background:var(--bg-2);align-self:start;min-height:180px;transition:background-color .9s ease,border-color .9s ease}
-.prompt p{font-family:var(--mono);font-size:clamp(15px,1.2vw,19px);line-height:1.5;letter-spacing:0;text-transform:none;direction:rtl;min-height:3em;color:var(--ink)}
+.prompt{grid-column:1/7;display:grid;gap:18px;padding:24px;border:1px solid var(--line);background:var(--bg-2);transition:background-color .9s ease,border-color .9s ease}
+.prompt-head{display:flex;justify-content:space-between;align-items:center}
+.prompt-btn{padding:8px 14px;border:1px solid var(--line);color:var(--grey)}
+.prompt-line{font-family:var(--mono);font-size:clamp(15px,1.2vw,19px);line-height:1.5;letter-spacing:0;text-transform:none;direction:rtl;min-height:3em;color:var(--ink);padding-bottom:18px;border-bottom:1px solid var(--line)}
 .caret{display:inline-block;width:.55em;height:1.05em;background:var(--accent);vertical-align:-.15em;margin-inline-start:2px;animation:blink 1s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
-.prompt-btn{justify-self:end;padding:8px 14px;border:1px solid var(--line);color:var(--grey)}
-.tools-text{grid-column:1/7;display:grid;gap:28px}
+/* השלד הגנרי שהפרומפט מייצר */
+.skel{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;opacity:.28}
+.skel i,.skel span{display:block;background:var(--grey-2);opacity:.55;transform-origin:right center;transform:scaleX(0)}
+.skel i{height:10px;grid-column:1/-1}
+.skel .s-nav{height:14px}.skel .s-h{height:22px;width:60%}.skel .s-p{width:85%}.skel .s-p.short{width:45%}.skel .s-btn{height:30px;width:26%;background:var(--accent)}
+.skel .s-img{aspect-ratio:16/10;transform-origin:50% 100%}
+.prompt-note{display:flex;gap:14px;align-items:baseline;color:var(--grey);font-size:15px;opacity:0}
+.tools-text{grid-column:8/13;display:grid;gap:28px;align-self:center}
 .tools-text .big{font-family:var(--head);font-weight:500;font-size:clamp(22px,2.4vw,40px);line-height:1.3;letter-spacing:-.01em;max-width:24ch}
 .tools-text .big .w{color:color-mix(in srgb,var(--ink) calc(var(--on,0)*100%),var(--ink-dim));display:inline-block;transition:color .9s ease}
 .tools-text .big .mk{color:color-mix(in srgb,var(--accent-ink) calc(var(--fill,0)*100%),currentColor)}
 .tools-text>p:not(.big){color:var(--grey);font-size:var(--fs-lead);line-height:1.4;max-width:32ch}
-@media (max-width:899px){.prompt,.tools-text{grid-column:1/-1}.prompt{order:-1}}
+@media (max-width:899px){.prompt,.tools-text{grid-column:1/-1}.tools-h{margin-bottom:32px}}
 
-/* ===== 06 הטעם ===== */
-.taste{padding:0}
+/* ===== 06 הטעם: לבן, טקסט במרכז, אריחים רק בפינות ===== */
+.taste{padding:0;background:var(--bg-2)}
 .taste-pin{min-height:100svh;position:relative;overflow:hidden;display:grid;align-content:center}
 .tiles{position:absolute;inset:0;pointer-events:none}
-.tiles figure{position:absolute;width:var(--w);aspect-ratio:16/10;overflow:hidden;background:var(--dark);opacity:.92;will-change:transform;box-shadow:0 20px 50px rgba(10,10,11,.18)}
-.tiles .tin{display:block;width:100%;height:100%;will-change:transform}
+.tiles figure{position:absolute;width:var(--w);aspect-ratio:16/10;overflow:hidden;background:var(--dark);will-change:transform;box-shadow:0 20px 50px rgba(10,10,11,.14)}
 .tiles img{width:100%;height:100%;object-fit:cover}
-.taste-in{position:relative;z-index:1;row-gap:32px;padding-block:var(--sec)}
-.taste h2{grid-column:1/-1;font-size:clamp(38px,6.6vw,116px);max-width:12ch;line-height:1.05}
+.taste-in{position:relative;z-index:1;display:grid;gap:36px;justify-items:center;text-align:center;padding:var(--sec) var(--pad-x);max-width:min(72vw,1100px);margin-inline:auto}
+.taste h2{font-size:clamp(34px,5.2vw,92px);line-height:1.06}
 .wave .char{display:inline-block;will-change:transform}
-.taste-lines{grid-column:1/8;display:grid;gap:10px;font-size:var(--fs-lead);line-height:1.4;max-width:40ch}
+.taste-lines{display:grid;gap:10px;font-size:var(--fs-lead);line-height:1.4;max-width:40ch;justify-items:center}
 .taste-lines .strong{font-family:var(--head);font-weight:500;font-size:clamp(24px,2.6vw,44px);line-height:1.2;letter-spacing:-.01em;max-width:20ch}
-@media (max-width:899px){.taste-lines{grid-column:1/-1}.tiles figure{opacity:.55}}
+@media (max-width:899px){.taste-in{max-width:none}.tiles figure:nth-child(n+3){display:none}}
 
-/* ===== 07 אנשים ===== */
-.people-top{row-gap:20px;align-items:end;margin-bottom:40px}
+/* ===== 07 אנשים: רצועת וידאו מוצמדת (G65) ומרקי כתוב ===== */
+.people-top{row-gap:20px;align-items:end}
 .people h2{grid-column:1/8}
 .people-top p{grid-column:9/13;color:var(--grey);font-size:var(--fs-lead);line-height:1.4;max-width:28ch;align-self:end}
-.vrow-wrap{overflow:hidden;padding-inline:var(--pad-x)}
-.vrow{display:flex;gap:var(--gg);width:max-content;cursor:grab;touch-action:pan-y;user-select:none;will-change:transform}
-.vrow:active{cursor:grabbing}
-.vt-card{--w:clamp(220px,18vw,300px);flex:0 0 var(--w);display:grid;gap:12px;text-align:start;cursor:pointer}
-.vt-media{display:block;position:relative;aspect-ratio:9/16;overflow:hidden;background:var(--dark-2);max-height:60svh}
+.vt-pin{height:100svh;display:grid;grid-template-columns:minmax(0,1fr);align-content:center;gap:28px;overflow:hidden}
+.vt-strip{position:relative;padding-inline:var(--pad-x)}
+.vt-track{display:flex;gap:var(--gg);width:max-content;will-change:transform;padding-block:24px}
+.vt-card{--w:clamp(220px,19vw,330px);flex:0 0 var(--w);position:relative;display:grid;gap:12px;text-align:start;cursor:pointer;transform-origin:50% 60%}
+.vt-media{display:block;position:relative;aspect-ratio:9/16;overflow:hidden;background:var(--dark-2);max-height:62svh}
 .vt-media img,.vt-media video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .vt-media video{opacity:0;transition:opacity .4s ease}
 .vt-card.live .vt-media video{opacity:1}
@@ -200,19 +233,34 @@ body.t-lime .tg a.cta{background:var(--ink);color:var(--accent)}
 .vt-play i{width:0;height:0;border-block:5px solid transparent;border-inline-end:8px solid currentColor}
 .vt-meta{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
 .vt-meta b{font-family:var(--body);font-weight:500;font-size:16px}
-.vrow-meta{display:flex;justify-content:space-between;padding-block:24px 0;margin-bottom:48px}
-.tq{display:grid;gap:var(--gg);padding-bottom:var(--sec);overflow:hidden}
+.vt-card .vt-meta,.vt-card .vt-q,.vt-card .vt-play{transition:opacity .4s ease}
+.vt-foot{margin-inline:var(--pad-x);display:flex;align-items:center;gap:18px}
+.vt-bar{flex:1;height:1px;background:var(--line);position:relative}
+.vt-bar i{position:absolute;inset:0;background:var(--accent);transform:scaleX(0);transform-origin:right center}
+/* מרקי כתוב: דהייה בצדדים, כל כרטיס שלישי בליים, השורה השנייה מוסטת */
+.tq{display:grid;gap:var(--gg);padding-block:24px var(--sec);overflow:hidden;
+  -webkit-mask-image:linear-gradient(to right,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(to right,transparent,#000 12%,#000 88%,transparent)}
 .tq-row{display:flex;gap:var(--gg);width:max-content;animation:tq var(--d,60s) linear infinite}
-.tq-row[data-dir="-1"]{animation-direction:reverse}
+.tq-row[data-dir="-1"]{animation-direction:reverse;margin-inline-start:-120px}
 .tq:hover .tq-row{animation-play-state:paused}
 @keyframes tq{to{transform:translateX(50%)}}
-.tq-card{flex:0 0 clamp(280px,26vw,400px);display:grid;grid-template-columns:56px 1fr;gap:14px;padding:20px;border:1px solid var(--line);background:var(--bg-2);align-items:start;transition:background-color .9s ease,border-color .9s ease}
+.tq-card{flex:0 0 clamp(280px,26vw,400px);display:grid;grid-template-columns:56px 1fr;gap:14px;padding:22px;border:1px solid var(--line);background:var(--bg-2);align-items:start;position:relative;transition:background-color .9s ease,border-color .9s ease}
+.tq-card::before{content:"\201D";position:absolute;top:6px;inset-inline-end:16px;font-family:var(--head);font-size:56px;line-height:1;color:var(--accent);opacity:.9}
 .tq-card img{width:56px;height:56px;object-fit:cover;filter:grayscale(1)}
 .tq-card img.logo{object-fit:contain;background:#F1F1F1;padding:4px}
-.tq-card p{font-size:15px;line-height:1.45;color:var(--ink)}
+.tq-card p{font-size:15px;line-height:1.45;color:var(--ink);padding-inline-end:28px}
 .tq-card small{display:block;margin-top:10px;color:var(--grey);font-size:13px}
 .tq-card small b{color:var(--ink);font-weight:500}
-@media (max-width:899px){.people h2,.people-top p{grid-column:1/-1}.vt-card{--w:min(62vw,280px)}}
+.tq-card.lime{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.tq-card.lime::before{color:var(--accent-ink);opacity:.35}
+.tq-card.lime p,.tq-card.lime small b{color:var(--accent-ink)}
+.tq-card.lime small{color:#3E4A16}
+@media (max-width:899px){.people h2,.people-top p{grid-column:1/-1}.vt-card{--w:min(62vw,300px)}.vt-media{max-height:58svh}.vt-pin{gap:20px}}
+@media (prefers-reduced-motion:reduce){
+  .vt-pin{height:auto;padding-block:48px 0}
+  .vt-strip{overflow-x:auto;scroll-snap-type:x mandatory}
+  .vt-card{scroll-snap-align:center}
+}
 
 /* ===== נגן ===== */
 .vt-lb{position:fixed;inset:0;z-index:300;visibility:hidden}
@@ -228,55 +276,55 @@ body.t-lime .tg a.cta{background:var(--ink);color:var(--accent)}
 body.vt-open .stickycta{opacity:0;pointer-events:none}
 body.cursor-on .vt-lb,body.cursor-on .vt-lb button,body.cursor-on .vt-lb video{cursor:auto}
 
-/* ===== 08 מי אני ===== */
-/* גזירת דמות לא נחתכת: גובה טבעי ומסכת דהייה בתחתית */
+/* ===== 08 מי אני: פורטרט ענק במסגרת 4/5, נחשף מלמטה, נמס לרקע ===== */
 section.about{padding-bottom:0;align-items:end;row-gap:0}
-.about .portrait{grid-column:1/6;position:relative;align-self:end;display:flex;justify-content:center}
-.about .portrait img{width:auto;max-width:100%;height:auto;max-height:min(78vh,780px);
-  -webkit-mask-image:linear-gradient(to bottom,#000 0,#000 80%,transparent 100%);mask-image:linear-gradient(to bottom,#000 0,#000 80%,transparent 100%)}
-.about .disc{position:absolute;width:min(380px,46vw);aspect-ratio:1;border-radius:50%;background:var(--accent);z-index:-1;inset-inline-start:50%;translate:50% 0;bottom:18%}
-.about-text{grid-column:7/13;align-self:center;padding-bottom:96px;display:grid;gap:22px}
+.about .portrait{grid-column:1/8;align-self:end;position:relative;aspect-ratio:4/5;overflow:hidden;max-height:92svh;
+  -webkit-mask-image:linear-gradient(to bottom,#000 0,#000 72%,transparent 100%);mask-image:linear-gradient(to bottom,#000 0,#000 72%,transparent 100%);
+  clip-path:inset(100% 0 0 0)}
+.about .portrait img{width:100%;height:100%;object-fit:cover;object-position:50% 0;transform:scale(1.18);transform-origin:50% 100%}
+.about-text{grid-column:8/13;align-self:center;padding-bottom:96px;display:grid;gap:22px}
 .about-text p{font-size:var(--fs-lead);color:var(--grey);max-width:34ch;line-height:1.4}
 .stats{display:grid;grid-template-columns:repeat(3,auto);gap:32px;justify-content:start;margin-top:18px;padding-top:24px;border-top:1px solid var(--line)}
 .stats b{display:block;font-family:var(--head);font-weight:500;font-size:clamp(34px,4vw,64px);line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .stats span{display:block;margin-top:8px;color:var(--grey);font-size:14px}
 @media (max-width:899px){
-  .about .portrait,.about-text{grid-column:1/-1}
   .about .sec-head{order:-2}
+  .about .portrait,.about-text{grid-column:1/-1}
   .about-text{order:-1;padding-bottom:0;margin-bottom:32px}
-  .about .portrait img{max-height:62vh}
+  .about .portrait{max-height:80svh}
   .stats{gap:20px}
 }
 
 /* ===== 09 דברו איתי + פוטר ===== */
 .page{position:relative;z-index:2;overflow-x:clip;background:var(--bg);transition:background-color .9s ease}
 .contact{min-height:90vh;align-content:center;padding-bottom:var(--sec)}
-.contact .inner{grid-column:2/12;display:grid;grid-template-columns:1fr 1fr;column-gap:var(--gg);row-gap:40px;align-items:start}
-.contact h2{grid-column:1/-1;max-width:14ch}
-.c-copy{display:grid;gap:14px}
+.contact .inner{grid-column:1/-1;display:grid;grid-template-columns:5fr 7fr;column-gap:calc(var(--gg) * 2);row-gap:40px;align-items:center}
+.c-copy{display:grid;gap:18px}
+.contact h2{max-width:12ch;margin-bottom:8px}
 .contact .lead{color:var(--ink);font-size:var(--fs-lead);max-width:26ch;line-height:1.4}
 .c-copy p:not(.lead){color:var(--grey);max-width:40ch}
-.ff{display:grid;gap:12px;justify-items:start}
-.contact .inner>.rv{display:grid;justify-items:start}
+.c-form{padding:40px;border:1px solid var(--line);background:var(--bg-2);transition:background-color .9s ease,border-color .9s ease}
+.ff{display:grid;gap:20px;justify-items:stretch}
 .ff-field{position:relative}
-.ff-field input{width:100%;font:inherit;font-size:17px;color:inherit;background:transparent;border:0;border-bottom:1px solid var(--line-strong);border-radius:0;padding:26px 0 12px;transition:border-color .25s}
+.ff-field input{width:100%;font:inherit;font-size:20px;color:inherit;background:transparent;border:0;border-bottom:1px solid var(--line-strong);border-radius:0;padding:32px 0 14px;transition:border-color .25s}
 .ff-field input:focus{outline:0;border-color:var(--accent)}
-.ff-field label{position:absolute;inset-inline-start:0;top:24px;color:var(--grey-2);pointer-events:none;transform-origin:100% 0;transition:transform .22s var(--ease),color .22s}
-.ff-field input:focus+label,.ff-field input:not(:placeholder-shown)+label{transform:translateY(-20px) scale(.72)}
+.ff-field label{position:absolute;inset-inline-start:0;top:30px;color:var(--grey-2);pointer-events:none;transform-origin:100% 0;transition:transform .22s var(--ease),color .22s;font-size:18px}
+.ff-field input:focus+label,.ff-field input:not(:placeholder-shown)+label{transform:translateY(-24px) scale(.7)}
 .ff-err{display:block;font-size:13px;color:#FF8A8A;margin-top:6px;height:0;opacity:0;transition:opacity .25s}
 .ff-field.bad .ff-err{height:auto;opacity:1}
 .ff-field.bad input{border-color:#FF8A8A;animation:ffshake .34s}
 @keyframes ffshake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
 .hp{position:absolute;left:-9999px;opacity:0}
-.ff-btn{position:relative;overflow:hidden;margin-top:18px;min-height:52px}
+.ff-actions{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:12px}
+.pill.big{min-height:60px;padding:0 32px;font-size:17px}
+.ff-btn{position:relative;overflow:hidden}
 .ff-btn span{display:block;transition:transform .3s var(--ease),opacity .25s}
 .ff-btn .s2,.ff-btn .s3{position:absolute;inset:0;display:grid;place-items:center;transform:translateY(110%);opacity:0}
 .ff-btn.load .s1{transform:translateY(-110%);opacity:0}.ff-btn.load .s2{transform:none;opacity:1}
 .ff-btn.done .s1,.ff-btn.done .s2{transform:translateY(-110%);opacity:0}.ff-btn.done .s3{transform:none;opacity:1}
 .ff-spin{width:16px;height:16px;border-radius:50%;border:2px solid rgba(10,10,11,.3);border-top-color:var(--ink);animation:ffspin .7s linear infinite;display:inline-block}
 @keyframes ffspin{to{transform:rotate(360deg)}}
-.contact .or{margin:16px 0 8px;direction:rtl;text-align:start}
-@media (max-width:899px){.contact .inner{grid-column:1/-1;grid-template-columns:1fr}}
+@media (max-width:899px){.contact .inner{grid-template-columns:1fr}.c-form{padding:24px 16px}.ff-actions{flex-direction:column;align-items:stretch}.pill.big{justify-content:center}}
 .rvf-footer{position:fixed;inset-inline:0;bottom:0;z-index:1;min-height:var(--rvf-h,56vh);background:#0A0A0B;color:#F1F1F1;display:grid;align-content:end;gap:28px;padding:40px var(--pad-x)}
 .rvf-footer .big{width:100%;max-width:1100px;height:auto}
 .rvf-cols{display:flex;gap:clamp(20px,4vw,60px);flex-wrap:wrap;color:#8E8E8E;align-items:center}
@@ -303,5 +351,8 @@ section.about{padding-bottom:0;align-items:end;row-gap:0}
   .mk::before{transform:none}
   .pre-mark img{transform:none}
   .tq-row{animation:none}
+  .about .portrait{clip-path:none}.about .portrait img{transform:none}
+  .skel i,.skel span{transform:none}.prompt-note{opacity:1}
+  .u{--u:1}
   *{transition-duration:.01ms!important;animation-duration:.01ms!important}
 }

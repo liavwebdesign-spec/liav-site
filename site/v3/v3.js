@@ -5,7 +5,6 @@
 gsap.registerPlugin(ScrollTrigger, SplitText, Draggable, InertiaPlugin);
 const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const FINE = matchMedia('(hover:hover) and (pointer:fine)').matches;
-const DESK = () => innerWidth >= 900;
 const EASE = 'power3.out';
 const QA = /[?&](at|qa|st|rm)=/.test(location.search);
 const QA_AT = +new URLSearchParams(location.search).get('at');
@@ -27,22 +26,23 @@ const QUOTES = [
   { n:'עמנואל כוגן', t:'עיצוב תעשייתי', i:'10', q:'ליאב בנה עבורי אתר שיווקי מקצה לקצה. מקצועי ומבין עניין, חי את חוויית הלקוח, בעל הבנה עיצובית גבוהה ויכולת ירידה לפרטים.' },
   { n:'טל אליהו', t:'תילתן ייעוץ משכנתאות', i:'11', q:'ליאב בנה לי את האתר לעסק בצורה מקצועית ויצירתית. התהליך היה יעיל, מסודר ומאורגן בשקיפות מלאה בכל שלב.' },
 ];
-const FEATURED = [3, 1, 5, 9, 11, 14];                 /* לערימה */
-const REST = works.map((w, i) => i + 1).filter(i => !FEATURED.includes(i));
-const GEN_IMGS = [2, 8, 12];                          /* שלושה מוקאפים לשלושת המשפטים */
-const TILES = [4, 6, 7, 10, 13];
+const ALL = works.map((w, i) => i + 1);
+const GEN_IMGS = [2, 8, 12];
+const TILES = [4, 6, 7, 10];
 
 /* ---------- תוכן דינמי ---------- */
 (function build(){
-  document.getElementById('fan').innerHTML = FEATURED.slice(0, 5).map((i, k) => `<figure style="--k:${k}"><img src="${src(i)}" alt="" ${k > 1 ? 'loading="lazy"' : ''}></figure>`).join('');
-  document.getElementById('stack').innerHTML = FEATURED.map((i, k) => `<article class="sc" style="--i:${k}"><div class="sc-media"><img src="${src(i)}" alt="${works[i-1].n}" loading="lazy"></div><div class="sc-row"><span class="mono">${pad(k+1)}</span><h3>${works[i-1].n}</h3><span class="mono">${works[i-1].tag}</span></div></article>`).join('');
+  /* הקיר: שני טורים, כל אחד עם 7 עבודות, משוכפל פעמיים ללופ */
+  document.querySelectorAll('#wall .wall-col').forEach((col, c) => { const list = ALL.filter((_, i) => i % 2 === c); col.innerHTML = [...list, ...list].map((i, k) => `<figure><img src="${src(i, 1)}" alt="" ${k > 3 ? 'loading="lazy"' : ''}></figure>`).join(''); });
+  document.getElementById('pl').innerHTML = works.map((w, i) => `<div class="pl-row" data-i="${i}"><span class="mono">${pad(i+1)}</span><h3>${w.n}</h3><span class="mono tag">${w.tag}</span><div class="thumb"><img src="${src(i+1, 1)}" alt="" loading="lazy"></div></div>`).join('');
+  document.getElementById('pl-prev').innerHTML = works.map((w, i) => `<img src="${src(i+1, 1)}" alt="" loading="lazy">`).join('');
   document.getElementById('gen-media').innerHTML = GEN_IMGS.map(i => `<img src="${src(i)}" alt="" loading="lazy">`).join('');
-  document.querySelectorAll('.mq-in').forEach((row, r) => { const list = r ? [...REST.slice(4), ...REST.slice(0, 4)] : REST; row.innerHTML = [...list, ...list].map(i => `<figure><img src="${src(i, 1)}" alt=""></figure>`).join(''); });
-  document.getElementById('tiles').innerHTML = TILES.map((i, k) => `<figure data-k="${k}"><span class="tin"><img src="${src(i, 1)}" alt=""></span></figure>`).join('');
-  document.getElementById('vrow').innerHTML = clients.map((c, i) => `<button class="vt-card" type="button" data-i="${i}" aria-label="צפייה בהמלצה של ${c.n}"><span class="vt-media"><img src="../video/${c.v}.webp" alt="" loading="lazy"><video muted playsinline loop preload="none" src="../video/${c.v}.mp4" tabindex="-1" aria-hidden="true"></video><span class="vt-q">${c.q}</span><span class="vt-play"><i></i>צפייה</span></span><span class="vt-meta"><b>${c.n}</b><span class="mono">${c.r}</span></span></button>`).join('');
-  const card = q => `<div class="tq-card"><img src="../img/testi/${q.i}.webp" alt="" loading="lazy"${q.logo ? ' class="logo"' : ''}><div><p>${q.q}</p><small><b>${q.n}</b> · ${q.t}</small></div></div>`;
+  document.querySelectorAll('.mq-in').forEach((row, r) => { const list = r ? [...ALL.slice(7), ...ALL.slice(0, 7)] : ALL; row.innerHTML = list.map(i => `<figure><img src="${src(i, 1)}" alt=""></figure>`).join(''); });
+  document.getElementById('tiles').innerHTML = TILES.map((i, k) => `<figure data-k="${k}"><img src="${src(i, 1)}" alt=""></figure>`).join('');
+  document.getElementById('vt-track').innerHTML = clients.map((c, i) => `<button class="vt-card" type="button" data-i="${i}" aria-label="צפייה בהמלצה של ${c.n}"><span class="vt-media"><img src="../video/${c.v}.webp" alt="" loading="lazy"><video muted playsinline loop preload="none" src="../video/${c.v}.mp4" tabindex="-1" aria-hidden="true"></video><span class="vt-q">${c.q}</span><span class="vt-play"><i></i>צפייה</span></span><span class="vt-meta"><b>${c.n}</b><span class="mono">${c.r}</span></span></button>`).join('');
+  const card = (q, k) => `<div class="tq-card${k % 3 === 1 ? ' lime' : ''}"><img src="../img/testi/${q.i}.webp" alt="" loading="lazy"${q.logo ? ' class="logo"' : ''}><div><p>${q.q}</p><small><b>${q.n}</b> · ${q.t}</small></div></div>`;
   const a = QUOTES.slice(0, 6), b = QUOTES.slice(6);
-  document.getElementById('tq').innerHTML = `<div class="tq-row" data-dir="1" style="--d:70s">${[...a, ...a].map(card).join('')}</div><div class="tq-row" data-dir="-1" style="--d:62s">${[...b, ...b].map(card).join('')}</div>`;
+  document.getElementById('tq').innerHTML = `<div class="tq-row" data-dir="1" style="--d:64s">${[...a, ...a].map(card).join('')}</div><div class="tq-row" data-dir="-1" style="--d:56s">${[...b, ...b].map(card).join('')}</div>`;
 })();
 
 /* ---------- G38: Lenis ---------- */
@@ -57,7 +57,7 @@ if(!REDUCE){
 const scrollToId = id => { const el = document.querySelector(id); if(!el) return; lenis ? lenis.scrollTo(el, {duration:1.4, offset:-20}) : el.scrollIntoView({behavior:'smooth'}); };
 document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); scrollToId(a.getAttribute('href')); }));
 
-/* ---------- SplitText לשורות, פעם אחת, לכל הכותרות ---------- */
+/* ---------- SplitText לשורות, אחרי שהפונטים נטענו ---------- */
 const splitLines = el => new SplitText(el, { type:'lines', linesClass:'line' }).lines.map(l => { const s = document.createElement('span'); while(l.firstChild) s.appendChild(l.firstChild); l.appendChild(s); return s; });
 const LINES = new Map();
 const FONTS = Promise.race([document.fonts ? document.fonts.ready : Promise.resolve(), new Promise(r => setTimeout(r, 1800))]);
@@ -68,19 +68,18 @@ const READY = FONTS.then(() => { document.querySelectorAll('.t-lines, .h-lines')
   const pre = document.getElementById('pre');
   const heroIn = () => {
     const h1 = document.querySelector('.hero h1');
-    const tl = gsap.timeline({ defaults:{ ease:EASE } });
-    tl.from(LINES.get(h1), { yPercent:110, duration:1.1, stagger:.1 }, 0)
+    gsap.timeline({ defaults:{ ease:EASE } })
+      .from(LINES.get(h1), { yPercent:110, duration:1.1, stagger:.1 }, 0)
       .from('.hero .kick', { autoAlpha:0, y:10, duration:.6 }, .2)
       .to(h1.querySelector('em'), { '--u':1, duration:.8, ease:'power2.inOut' }, .9)
       .to('.hero .rv', { y:0, autoAlpha:1, duration:.9, stagger:.1 }, .5)
       .from('.hd', { y:-20, autoAlpha:0, duration:.8 }, .3)
+      .from('.wall', { autoAlpha:0, x:-40, duration:1.2 }, .3)
       .from('.hero-foot', { autoAlpha:0, duration:.6 }, 1);
-    tl.fromTo('#fan figure', { rotate:0, y:60, autoAlpha:0 }, { rotate:k => (k - 2) * 7, y:k => Math.abs(k - 2) * 14, autoAlpha:1, duration:1.2, stagger:.06, ease:'power3.out' }, .3);
   };
   if(REDUCE || QA){
     pre.style.display = 'none'; lenis && lenis.start();
     gsap.set('.hero .rv', {autoAlpha:1, y:0}); gsap.set('.hero h1 em', {'--u':1});
-    gsap.set('#fan figure', { rotate:k => (k - 2) * 7, y:k => Math.abs(k - 2) * 14 });
     READY.then(() => ScrollTrigger.refresh());
     return;
   }
@@ -92,15 +91,16 @@ const READY = FONTS.then(() => { document.querySelectorAll('.t-lines, .h-lines')
   });
 })();
 
-/* ---------- G12 + G37: המניפה נעה בעומק בגלילה, ומגיבה לעכבר ---------- */
+/* ---------- 00 CSS19: הקיר זורם בלופ, שני הטורים בכיוונים מנוגדים, ומאט בהובר ---------- */
 (function(){
-  const figs = gsap.utils.toArray('#fan figure'); if(!figs.length || REDUCE) return;
-  gsap.to('#fan', { y:-120, ease:'none', scrollTrigger:{ trigger:'.hero', start:'top top', end:'bottom top', scrub:.6 } });
+  const cols = gsap.utils.toArray('#wall .wall-col'); if(!cols.length || REDUCE) return;
+  /* שני עותקים זהים, אז חצי מהגובה הוא מחזור שלם. yPercent על הטור, בלי חישובי פיקסלים */
+  const tweens = cols.map(col => { const dir = +col.dataset.dir; return gsap.fromTo(col, { yPercent: dir > 0 ? 0 : -50 }, { yPercent: dir > 0 ? -50 : 0, duration: 38, ease:'none', repeat:-1 }); });
+  const wall = document.getElementById('wall');
+  wall.addEventListener('mouseenter', () => tweens.forEach(t => gsap.to(t, { timeScale:.25, duration:.6 })));
+  wall.addEventListener('mouseleave', () => tweens.forEach(t => gsap.to(t, { timeScale:1, duration:.6 })));
+  ScrollTrigger.create({ trigger:'.hero', start:'top bottom', end:'bottom top', onToggle(self){ tweens.forEach(t => self.isActive ? t.play() : t.pause()); } });
   gsap.to('.hero-copy', { y:-60, autoAlpha:0, ease:'none', scrollTrigger:{ trigger:'.hero', start:'40% top', end:'bottom top', scrub:.6 } });
-  if(!FINE) return;
-  const fan = document.getElementById('fan');
-  const xs = figs.map(f => gsap.quickTo(f, 'x', {duration:.8, ease:'power3'}));
-  fan.closest('.hero').addEventListener('mousemove', e => { const r = fan.getBoundingClientRect(); const dx = (e.clientX - (r.left + r.width/2)) / r.width; figs.forEach((f, k) => xs[k](dx * (k + 1) * 14)); });
 })();
 
 /* ---------- B23: תפריט נייד ---------- */
@@ -118,34 +118,49 @@ const READY = FONTS.then(() => { document.querySelectorAll('.t-lines, .h-lines')
   addEventListener('keydown', e => { if(open && e.key==='Escape') set(false); });
 })();
 
-/* ---------- תוויות סקשן + reveal בסיסי + כותרות בשורות (G4) ---------- */
+/* ---------- תוויות סקשן + reveal בסיסי + כותרות בשורות (G4) + קווי ליים ---------- */
 gsap.utils.toArray('.sec-head').forEach(h => ScrollTrigger.create({ trigger:h, start:'top 85%', once:true, onEnter(){ h.classList.add('in'); } }));
 gsap.utils.toArray('section:not(.hero) .rv').forEach(el => gsap.to(el, { autoAlpha:1, y:0, duration:.9, ease:EASE, scrollTrigger:{ trigger:el, start:'top 88%', once:true } }));
 if(!REDUCE) READY.then(() => document.querySelectorAll('.t-lines').forEach(h => gsap.from(LINES.get(h), { yPercent:110, duration:1, stagger:.1, ease:EASE, scrollTrigger:{ trigger:h, start:'top 85%', once:true } })));
+if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--u':1, duration:.8, ease:'power2.inOut', scrollTrigger:{ trigger:u, start:'top 80%', once:true } }));
 
-/* ---------- 01 ערימה: כל כרטיס נדבק, והקודם מתכווץ ומתעמעם כשהבא עולה עליו ---------- */
+/* ---------- 01 G43: אינדקס עם תצוגה שעוקבת אחרי הסמן ---------- */
 (function(){
-  const cards = gsap.utils.toArray('.sc'); if(REDUCE) return;
-  cards.forEach((c, i) => {
-    const next = cards[i + 1]; if(!next) return;
-    gsap.to(c, { scale:.94, filter:'brightness(.45)', ease:'none', scrollTrigger:{ trigger:next, start:'top bottom', end:'top 12vh', scrub:true } });
-  });
-  gsap.from(cards[0], { y:60, autoAlpha:0, duration:1, ease:EASE, scrollTrigger:{ trigger:cards[0], start:'top 85%', once:true } });
+  const list = document.getElementById('pl'), prev = document.getElementById('pl-prev');
+  const rows = [...list.querySelectorAll('.pl-row')], shots = [...prev.querySelectorAll('img')];
+  if(!REDUCE) gsap.from(rows, { y:30, autoAlpha:0, duration:.8, ease:EASE, stagger:.05, scrollTrigger:{ trigger:list, start:'top 85%', once:true } });
+  if(!FINE) return;
+  const xTo = gsap.quickTo(prev, 'x', {duration:.55, ease:'power3'}), yTo = gsap.quickTo(prev, 'y', {duration:.55, ease:'power3'});
+  let shown = false, placed = false;
+  function place(e){
+    let x = e.clientX - prev.offsetWidth - 26; if(x < 12) x = e.clientX + 26;
+    const y = gsap.utils.clamp(12, innerHeight - prev.offsetHeight - 12, e.clientY - prev.offsetHeight/2);
+    if(!placed){ placed = true; gsap.set(prev, {x, y}); }
+    xTo(x); yTo(y);
+  }
+  list.addEventListener('pointermove', place);
+  rows.forEach(r => r.addEventListener('pointerenter', () => {
+    rows.forEach(x => x.classList.toggle('on', x===r)); shots.forEach((s,i) => s.classList.toggle('on', i===+r.dataset.i));
+    if(!shown){ shown = true; list.classList.add('hovering'); gsap.to(prev, {opacity:1, scale:1, duration:.35, ease:'power3.out'}); }
+  }));
+  list.addEventListener('pointerleave', () => { shown = false; list.classList.remove('hovering'); rows.forEach(x => x.classList.remove('on')); gsap.to(prev, {opacity:0, scale:.94, duration:.25, ease:'power2.in'}); });
 })();
 
-/* ---------- 02 G60: שלושה משפטים מתחלפים על מסך מוצמד, והתמונה איתם ---------- */
+/* ---------- 02 G60: שלושה משפטים מתחלפים על מסך מוצמד, כל אחד עם קו ליים, והתמונה איתם ---------- */
 (function(){
   const lines = gsap.utils.toArray('#gen-lines p'), imgs = gsap.utils.toArray('#gen-media img'), idx = document.getElementById('gen-idx'), bar = document.querySelector('.gen-bar i');
-  if(REDUCE) return;
+  if(REDUCE){ lines.forEach(p => gsap.set(p.querySelector('.u'), {'--u':1})); return; }
   const N = lines.length;
   const tl = gsap.timeline({ scrollTrigger:{ trigger:'.gen-pin', start:'top top', end:'+=' + N * 70 + '%', pin:true, scrub:.5,
     onUpdate(self){ const k = Math.min(N - 1, Math.floor(self.progress * N)); idx.textContent = `${pad(k+1)} / ${pad(N)}`; bar.style.transform = `scaleX(${self.progress})`; } } });
+  tl.to(lines[0].querySelector('.u'), { '--u':1, duration:.4, ease:'power2.inOut' }, .15);
   lines.forEach((p, i) => {
     if(i === 0) return;
     const at = i;
     tl.to(lines[i-1], { y:-40, autoAlpha:0, duration:.35, ease:'power2.in' }, at)
       .to(imgs[i-1], { autoAlpha:0, scale:1.06, duration:.5, ease:'power2.inOut' }, at)
       .fromTo(p, { y:40, autoAlpha:0 }, { y:0, autoAlpha:1, duration:.45, ease:'power2.out' }, at + .3)
+      .to(p.querySelector('.u'), { '--u':1, duration:.4, ease:'power2.inOut' }, at + .6)
       .fromTo(imgs[i], { autoAlpha:0, scale:1.06 }, { autoAlpha:1, scale:1, duration:.6, ease:'power2.out' }, at + .2);
   });
   tl.to({}, { duration:.6 });
@@ -163,30 +178,50 @@ if(!REDUCE) READY.then(() => document.querySelectorAll('.t-lines').forEach(h => 
     .to(l2, { '--mix':1, duration:.4 }, 1.2)
     .to(h.querySelector('.mk'), { '--fill':1, duration:.5, ease:'power2.inOut' }, 1.4)
     .to({}, { duration:.5 });
+  gsap.utils.toArray('.mo-card .num').forEach(n => gsap.from(n, { yPercent:40, autoAlpha:0, duration:1, ease:EASE, scrollTrigger:{ trigger:n, start:'top 85%', once:true } }));
 })();
 
-/* ---------- 04 LM8: שתי רצועות במרקי, ומהירות הגלילה דוחפת אותן ומטה אותן ---------- */
+/* ---------- 04 LM8: שתי רצועות בלופ אינסופי. הגלילה רק מאיצה ומטה, אף פעם לא מזיזה מיקום ---------- */
 (function(){
   const rows = gsap.utils.toArray('.mq'); if(!rows.length) return;
   const wrap = document.getElementById('mq');
-  const state = rows.map(r => ({ el:r.querySelector('.mq-in'), dir:+r.dataset.dir, x:0, w:0 }));
-  const measure = () => state.forEach(s => { s.w = s.el.scrollWidth / 2; });
-  measure(); addEventListener('resize', measure);
+  const tweens = [];
+  const build = () => {
+    tweens.splice(0).forEach(t => t.kill());
+    rows.forEach(row => {
+      const inner = row.querySelector('.mq-in');
+      const base = [...inner.children].slice(0, 14);
+      inner.innerHTML = ''; base.forEach(f => inner.appendChild(f));
+      gsap.set(inner, { x:0 });
+      /* עותק אחד = מחזור. משכפלים עד שהרצועה מכסה פעמיים את המסך, כך שאין רגע ריק */
+      const gap = parseFloat(getComputedStyle(inner).columnGap) || 0;
+      const setW = inner.scrollWidth + gap;
+      const copies = Math.max(2, Math.ceil((innerWidth * 2) / setW) + 1);
+      for(let c = 1; c < copies; c++) base.forEach(f => inner.appendChild(f.cloneNode(true)));
+      const dir = +row.dataset.dir;
+      const t = gsap.fromTo(inner, { x: dir > 0 ? 0 : -setW }, { x: dir > 0 ? -setW : 0, duration: setW / 90, ease:'none', repeat:-1 });
+      if(REDUCE) t.pause();
+      tweens.push(t);
+    });
+  };
+  build();
+  let rw = innerWidth; addEventListener('resize', () => { if(Math.abs(innerWidth - rw) > 60){ rw = innerWidth; build(); } });
   if(REDUCE) return;
   let vel = 0;
-  ScrollTrigger.create({ trigger:wrap, start:'top bottom', end:'bottom top', onUpdate(self){ vel = self.getVelocity(); } });
+  ScrollTrigger.create({ trigger:wrap, start:'top bottom', end:'bottom top', onUpdate(self){ vel = self.getVelocity(); }, onToggle(self){ tweens.forEach(t => self.isActive ? t.play() : t.pause()); } });
   const skewTo = gsap.quickTo(wrap, 'skewX', { duration:.5, ease:'power3' });
-  gsap.ticker.add((t, dt) => {
-    const v = gsap.utils.clamp(-2500, 2500, vel); vel *= .9;
-    const speed = (40 + Math.abs(v) * .12) * dt / 1000;
-    state.forEach(s => { s.x = (s.x + speed * s.dir * (v < 0 ? -1 : 1)) % s.w; if(s.x > 0) s.x -= s.w; gsap.set(s.el, { x:s.x }); });
-    skewTo(gsap.utils.clamp(-8, 8, v / 250));
+  gsap.ticker.add(() => {
+    const v = gsap.utils.clamp(-3000, 3000, vel); vel *= .92;
+    const ts = 1 + Math.abs(v) / 900;
+    tweens.forEach(t => t.timeScale(ts));
+    skewTo(gsap.utils.clamp(-6, 6, v / 400));
   });
 })();
 
-/* ---------- 05 פרומפט שנכתב לבד, ואז הפסקה נצבעת מילה-מילה (G48) ---------- */
+/* ---------- 05 הפרומפט נכתב לבד, מייצר שלד גנרי, והפסקה מולו נצבעת מילה-מילה (G48) ---------- */
 (function(){
   const txt = document.getElementById('prompt-txt'), FULL = 'תבנה לי אתר יפה לעסק שלי, עם עיצוב מודרני ואנימציות';
+  const skel = gsap.utils.toArray('#skel > *'), note = document.querySelector('.prompt-note');
   const p = document.getElementById('tools-p'), MARK = ['פרומפט'];
   const bare = w => w.replace(/[.,:;!?"'׳״]/g, '');
   const words = p.textContent.trim().split(/\s+/); p.textContent = '';
@@ -194,34 +229,39 @@ if(!REDUCE) READY.then(() => document.querySelectorAll('.t-lines').forEach(h => 
   const mk = p.querySelector('.mk');
   if(REDUCE){ txt.textContent = FULL; gsap.set(spans, {'--on':1}); mk && gsap.set(mk, {'--fill':1}); return; }
   const o = { n:0 };
-  gsap.to(o, { n:FULL.length, ease:'none', onUpdate(){ txt.textContent = FULL.slice(0, Math.round(o.n)); }, scrollTrigger:{ trigger:'.tools-in', start:'top 75%', end:'top 25%', scrub:.3 } });
-  const tl = gsap.timeline({ scrollTrigger:{ trigger:p, start:'top 78%', end:'bottom 45%', scrub:.4 } });
-  tl.to(spans, { '--on':1, duration:.4, stagger:.35, ease:'none' }, 0);
-  mk && tl.to(mk, { '--fill':1, duration:.6, ease:'power2.out' }, spans.length * .35 - 1);
+  gsap.timeline({ scrollTrigger:{ trigger:'.prompt', start:'top 80%', end:'bottom 40%', scrub:.3 } })
+    .to(o, { n:FULL.length, duration:1, ease:'none', onUpdate(){ txt.textContent = FULL.slice(0, Math.round(o.n)); } })
+    .to(skel, { scaleX:1, scaleY:1, duration:.5, stagger:.06, ease:'power2.out' }, 1.1)
+    .to(note, { opacity:1, duration:.3 }, 1.6);
+  const tw = gsap.timeline({ scrollTrigger:{ trigger:p, start:'top 78%', end:'bottom 45%', scrub:.4 } });
+  tw.to(spans, { '--on':1, duration:.4, stagger:.35, ease:'none' }, 0);
+  mk && tw.to(mk, { '--fill':1, duration:.6, ease:'power2.out' }, spans.length * .35 - 1);
 })();
 
-/* ---------- 06 G35 + G37: אותיות בגל לפי הגלילה, ואריחים שנעים עם העכבר ובעומק ---------- */
+/* ---------- 06 G35 + G37: אותיות בגל לפי הגלילה, אריחים בפינות שנעים עם העכבר ---------- */
 (function(){
   const h = document.getElementById('wave');
   const chars = new SplitText(h, { type:'words,chars', charsClass:'char' }).chars;
   const tiles = gsap.utils.toArray('#tiles figure');
-  const POS = [[3, 5, .19], [72, 3, .14], [79, 70, .17], [2, 62, .16], [40, 84, .12]];   /* אחוזי מיקום ורוחב יחסי */
-  tiles.forEach((f, k) => { const [l, t, w] = POS[k]; f.style.left = l + '%'; f.style.top = t + '%'; f.style.setProperty('--w', `max(90px, ${w * 100}vw)`); f.dataset.depth = (.4 + k * .12).toFixed(2); });
+  const POS = [[2, 6, .15], [84, 8, .13], [83, 68, .15], [2, 66, .13]];   /* פינות בלבד, רחוק מהטקסט */
+  tiles.forEach((f, k) => { const [l, t, w] = POS[k]; f.style.left = l + '%'; f.style.top = t + '%'; f.style.setProperty('--w', `max(120px, ${w * 100}vw)`); f.dataset.depth = (.5 + k * .18).toFixed(2); });
   if(REDUCE) return;
   gsap.from(chars, { yPercent:120, autoAlpha:0, duration:.9, stagger:{ each:.012, from:'start' }, ease:EASE, scrollTrigger:{ trigger:h, start:'top 85%', once:true } });
-  const pin = document.querySelector('.taste-pin'), inners = tiles.map(f => f.querySelector('.tin'));
-  ScrollTrigger.create({ trigger:pin, start:'top top', end:'+=100%', pin:true, scrub:true,
-    onUpdate(self){ const p = self.progress; chars.forEach((c, i) => { c.style.transform = `translateY(${(Math.sin(i * .55 + p * 9) * 10 * Math.sin(p * Math.PI)).toFixed(2)}px)`; });
-      inners.forEach((el, k) => gsap.set(el, { y: -p * 160 * +tiles[k].dataset.depth })); } });
+  gsap.from(tiles, { autoAlpha:0, y:40, duration:1, stagger:.08, ease:EASE, scrollTrigger:{ trigger:'.taste-pin', start:'top 70%', once:true } });
+  const pin = document.querySelector('.taste-pin');
+  ScrollTrigger.create({ trigger:pin, start:'top top', end:'+=80%', pin:true, scrub:true,
+    onUpdate(self){ const p = self.progress; chars.forEach((c, i) => { c.style.transform = `translateY(${(Math.sin(i * .55 + p * 9) * 10 * Math.sin(p * Math.PI)).toFixed(2)}px)`; }); } });
   if(!FINE) return;
-  const setX = tiles.map(f => gsap.quickTo(f, 'x', { duration:1, ease:'power3' })), setY = tiles.map(f => gsap.quickTo(f, 'y', { duration:1, ease:'power3' }));
-  pin.addEventListener('mousemove', e => { const dx = (e.clientX / innerWidth - .5), dy = (e.clientY / innerHeight - .5); tiles.forEach((f, k) => { const d = +f.dataset.depth * 60; setX[k](-dx * d); setY[k](-dy * d); }); });
+  const setX = tiles.map(f => gsap.quickTo(f, 'x', { duration:1.2, ease:'power3' })), setY = tiles.map(f => gsap.quickTo(f, 'y', { duration:1.2, ease:'power3' }));
+  pin.addEventListener('mousemove', e => { const dx = (e.clientX / innerWidth - .5), dy = (e.clientY / innerHeight - .5); tiles.forEach((f, k) => { const d = +f.dataset.depth * 40; setX[k](-dx * d); setY[k](-dy * d); }); });
 })();
 
-/* ---------- 07 וידאו: שורה נגררת עם אינרציה (G06), הקרוב למרכז מתנגן, ולחיצה פותחת נגן ---------- */
+/* ---------- 07 G65: רצועת וידאו מוצמדת שנגללת לרוחב, הכרטיס שבמרכז גדל ומתנגן. לחיצה פותחת נגן ---------- */
 (function(){
-  const row = document.getElementById('vrow'), wrap = row.parentElement, cards = [...row.children], clips = cards.map(c => c.querySelector('video')), idx = document.getElementById('v-idx');
-  const N = cards.length;
+  const sec = document.getElementById('clients');
+  const track = document.getElementById('vt-track'), strip = sec.querySelector('.vt-strip');
+  const idx = document.getElementById('vt-idx'), bar = sec.querySelector('.vt-bar i');
+  const cards = [...track.children], clips = cards.map(c => c.querySelector('video')), N = cards.length;
   let live = -1, inView = false;
   const setLive = i => {
     if(REDUCE) return; if(!inView) i = -1; if(i === live) return;
@@ -229,25 +269,42 @@ if(!REDUCE) READY.then(() => document.querySelectorAll('.t-lines').forEach(h => 
     live = i;
     if(i >= 0){ const v = clips[i]; v.play().then(() => { if(live === i) cards[i].classList.add('live'); }).catch(() => {}); }
   };
-  const nearest = () => { const cx = innerWidth / 2; let best = 0, bd = 1e9; cards.forEach((c, i) => { const r = c.getBoundingClientRect(); const d = Math.abs(r.left + r.width/2 - cx); if(d < bd){ bd = d; best = i; } }); return best; };
-  const update = () => { const n = nearest(); idx.textContent = `${pad(n+1)} / ${pad(N)}`; setLive(n); };
-  ScrollTrigger.create({ trigger:wrap, start:'top 80%', end:'bottom 20%', onToggle(self){ inView = self.isActive; const l = live; live = -2; setLive(inView ? Math.max(0, l) : -1); if(inView) update(); } });
-  /* ב-RTL הרצועה מתחילה בימין וגולשת שמאלה, אז גוררים ימינה כדי לראות עוד */
-  const bounds = () => { const cs = getComputedStyle(wrap); const over = row.scrollWidth - (wrap.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)); return { minX:0, maxX:Math.max(0, over) }; };
-  const d = Draggable.create(row, { type:'x', inertia:true, edgeResistance:.8, bounds:bounds(), onDrag:update, onThrowUpdate:update, onThrowComplete:update })[0];
-  addEventListener('resize', () => d.applyBounds(bounds()));
-  if(!REDUCE) gsap.from(cards, { y:40, autoAlpha:0, duration:.9, stagger:.07, ease:EASE, scrollTrigger:{ trigger:wrap, start:'top 85%', once:true } });
-
+  const pinEl = sec.querySelector('.vt-pin');
+  ScrollTrigger.create({ trigger:pinEl, start:'top 55%', end:'bottom 45%', onToggle(self){ inView = self.isActive; const l = live; live = -2; setLive(inView ? Math.max(0, l) : -1); } });
+  let G = null;
+  if(!REDUCE){
+    const geo = () => {
+      const cs = getComputedStyle(strip), inner = strip.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      const w = cards[0].offsetWidth, g = parseFloat(getComputedStyle(track).columnGap) || 0;
+      return { inner, w, g, x0: w/2 - inner/2, x1: (N-1)*(w+g) + w/2 - inner/2 };
+    };
+    G = geo();
+    const layout = () => {
+      const x = gsap.getProperty(track, 'x'), step = G.w + G.g, pos = (x - G.x0) / step;
+      cards.forEach((c, i) => {
+        const d = Math.min(Math.abs(i - pos), 1.4);
+        gsap.set(c, { scale: 1 - d*.12 });
+        c.querySelector('.vt-meta').style.opacity = 1 - d*.5;
+        c.querySelector('.vt-q').style.opacity = c.querySelector('.vt-play').style.opacity = Math.max(0, 1 - d*1.6);
+      });
+      bar.style.transform = `scaleX(${gsap.utils.clamp(0, 1, pos/(N-1))})`;
+      const near = gsap.utils.clamp(0, N-1, Math.round(pos));
+      idx.textContent = `${pad(near+1)} / ${pad(N)}`;
+      setLive(near);
+    };
+    gsap.fromTo(track, { x: () => G.x0 }, { x: () => G.x1, ease:'none', onUpdate: layout,
+      scrollTrigger:{ trigger:pinEl, start:'top top', end: () => '+=' + (G.x1 - G.x0), pin:true, scrub:.5, invalidateOnRefresh:true, onRefreshInit(){ G = geo(); } } });
+    layout();
+  }
   /* נגן: הכרטיס מתרחב למסך מלא עם קול, ונסגר חזרה למקום שלו */
   const lb = document.getElementById('vt-lb'), frame = lb.querySelector('.vt-lb-frame'), lv = frame.querySelector('video');
   const bg = lb.querySelector('.vt-lb-bg'), close = lb.querySelector('.vt-lb-close'), cap = lb.querySelector('.vt-lb-cap');
-  let open = -1, back = null, moved = false;
-  d.addEventListener('dragstart', () => moved = true); d.addEventListener('press', () => moved = false);
+  let open = -1, back = null;
   const rectOf = i => { const r = cards[i].querySelector('.vt-media').getBoundingClientRect(); return { left:r.left, top:r.top, width:r.width, height:r.height }; };
   const fit = i => { const img = cards[i].querySelector('img'), ar = img.naturalWidth ? img.naturalWidth / img.naturalHeight : 9/16; const maxH = innerHeight - 150, maxW = innerWidth - 32; let h = maxH, w = h * ar; if(w > maxW){ w = maxW; h = w / ar; } return { left:(innerWidth - w)/2, top:(innerHeight - h)/2, width:w, height:h }; };
   const D = REDUCE ? 0 : 1;
   function show(i){
-    if(open >= 0 || moved) return;
+    if(open >= 0) return;
     open = i; back = document.activeElement; const c = clients[i];
     setLive(-1); inView = false;
     lv.poster = `../video/${c.v}.webp`; lv.src = `../video/${c.v}.mp4`; lv.muted = false; lv.play().catch(() => {});
@@ -264,7 +321,7 @@ if(!REDUCE) READY.then(() => document.querySelectorAll('.t-lines').forEach(h => 
     gsap.timeline({ defaults:{ ease:'power3.inOut' }, onComplete(){
       cards[i].querySelector('.vt-media').style.visibility = ''; lb.classList.remove('open'); document.body.classList.remove('vt-open');
       lv.removeAttribute('src'); lv.load(); lenis ? lenis.start() : (document.body.style.overflow = '');
-      open = -1; back && back.focus({ preventScroll:true }); inView = ScrollTrigger.isInViewport(wrap, .2); live = -2; update();
+      open = -1; back && back.focus({ preventScroll:true }); inView = ScrollTrigger.isInViewport(pinEl, .2); live = -2; setLive(inView ? +idx.textContent.slice(0, 2) - 1 : -1);
     }}).to([close, cap], { opacity:0, duration:.2*D }, 0).to(frame, { ...rectOf(i), duration:.6*D }, 0).to(bg, { opacity:0, duration:.45*D }, .15*D);
   }
   cards.forEach((c, i) => c.addEventListener('click', () => show(i)));
@@ -273,11 +330,14 @@ if(!REDUCE) READY.then(() => document.querySelectorAll('.t-lines').forEach(h => 
   addEventListener('resize', () => { if(open >= 0) gsap.set(frame, fit(open)); });
 })();
 
-/* ---------- 08 G12 פרלקס לפורטרט + G15 מספרים שנספרים ---------- */
+/* ---------- 08 הפורטרט נחשף מלמטה ומתיישב, ואז המספרים נספרים (G15) ---------- */
 (function(){
+  const fig = document.getElementById('portrait');
   if(!REDUCE){
-    const RANGE = 140;
-    gsap.utils.toArray('.about [data-depth]').forEach(el => { const d = +el.dataset.depth; gsap.fromTo(el, {y:d*RANGE}, {y:-d*RANGE, ease:'none', scrollTrigger:{ trigger:'.about', start:'top bottom', end:'bottom top', scrub:.4 }}); });
+    gsap.timeline({ scrollTrigger:{ trigger:fig, start:'top 80%', once:true } })
+      .to(fig, { clipPath:'inset(0% 0 0 0)', duration:1.4, ease:'power3.inOut' }, 0)
+      .to(fig.querySelector('img'), { scale:1, duration:1.8, ease:'power3.out' }, .1);
+    gsap.to(fig, { y:-40, ease:'none', scrollTrigger:{ trigger:'.about', start:'top bottom', end:'bottom top', scrub:.4 } });
   }
   document.querySelectorAll('.stats .num').forEach(b => {
     const n = +b.dataset.n, plus = b.dataset.plus ? '+' : '';
@@ -306,7 +366,7 @@ if(!REDUCE) READY.then(() => document.querySelectorAll('.t-lines').forEach(h => 
   document.addEventListener('mouseleave', () => { fo.style.opacity=0; shown=false; });
   gsap.ticker.add(() => { px+=(mx-px)*.22; py+=(my-py)*.22; gsap.set(fo, {x:px-7, y:py-7}); });
   const grow = s => () => gsap.to(fo, {scale:s, duration:.3, ease:'power2.out'});
-  document.querySelectorAll('a, button, input, .sc, .vrow').forEach(t => { t.addEventListener('mouseenter', grow(3)); t.addEventListener('mouseleave', grow(1)); });
+  document.querySelectorAll('a, button, input, .pl-row').forEach(t => { t.addEventListener('mouseenter', grow(3)); t.addEventListener('mouseleave', grow(1)); });
 })();
 
 /* ---------- B61: מגנט ---------- */
@@ -354,7 +414,7 @@ if(!REDUCE) READY.then(() => document.querySelectorAll('.t-lines').forEach(h => 
 /* ---------- B29 מוכלל: הסקשן שמרכז המסך נמצא בו קובע את הנושא של body ----------
    נמדד לפי getBoundingClientRect בכל עדכון, ולא לפי טווחי טריגרים, כי ההצמדות משנות את הגבהים. */
 (function(){
-  const secs = [...document.querySelectorAll('[data-theme]')], THEMES = ['t-light', 't-dark', 't-lime'];
+  const secs = [...document.querySelectorAll('[data-theme]')], THEMES = ['t-light', 't-dark', 't-lime', 't-white'];
   let cur = '';
   const pick = () => {
     const mid = innerHeight / 2; let t = cur || 'light';
@@ -366,7 +426,7 @@ if(!REDUCE) READY.then(() => document.querySelectorAll('.t-lines').forEach(h => 
   pick();
 })();
 
-/* ---------- B55: מחוון מחליק בניווט ---------- */
+/* ---------- B55: מחוון מחליק בניווט. נוצר אחרון, אחרי ההצמדות, כדי שהטווחים יימדדו נכון ---------- */
 (function(){
   const nav = document.querySelector('.tg'); if(!nav) return;
   const pill = nav.querySelector('.tg-pill'), links = [...nav.querySelectorAll('a:not(.cta)')];
