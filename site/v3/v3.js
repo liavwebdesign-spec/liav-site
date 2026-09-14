@@ -86,6 +86,10 @@ const READY = FONTS.then(() => { document.querySelectorAll('.t-lines, .h-lines')
   const intro = gsap.timeline()
     .to('.pre-mark img', { y:0, duration:.9, ease:'power3.out' })
     .to('.pre-line i', { scaleX:1, duration:.9, ease:'power2.inOut' }, .2);
+  gsap.utils.toArray('.pre-shp .b').forEach((s, k, all) => {
+    intro.fromTo(s, { opacity:1, scale:.3, rotate:-90 }, { scale:1, rotate:0, duration:.16, ease:'back.out(2.4)', immediateRender:false }, .05 + k * .15);
+    if(k < all.length - 1) intro.set(s, { opacity:0 }, .05 + (k + 1) * .15);
+  });
   Promise.all([READY, intro.then()]).then(() => {
     gsap.to(pre, { yPercent:-100, duration:.9, ease:'power3.inOut', onStart(){ lenis && lenis.start(); heroIn(); ScrollTrigger.refresh(); }, onComplete(){ pre.style.display = 'none'; } });
   });
@@ -189,7 +193,7 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
 (function(){
   const lines = gsap.utils.toArray('#gen-lines p'), imgs = gsap.utils.toArray('#gen-media img'), idx = document.getElementById('gen-idx'), bar = document.querySelector('.gen-bar i');
   if(REDUCE){ lines.forEach(p => gsap.set(p.querySelector('.u'), {'--u':1})); return; }
-  const N = lines.length;
+  const N = lines.length, shp = gsap.utils.toArray('.gen-shp .b');
   const tl = gsap.timeline({ scrollTrigger:{ trigger:'.gen-pin', start:'top top', end:'+=' + N * 70 + '%', pin:true, anticipatePin:1, scrub:.5,
     onUpdate(self){ const k = Math.min(N - 1, Math.floor(self.progress * N)); idx.textContent = `${pad(k+1)} / ${pad(N)}`; bar.style.transform = `scaleX(${self.progress})`; } } });
   tl.to(lines[0].querySelector('.u'), { '--u':1, duration:.4, ease:'power2.inOut' }, .15);
@@ -200,7 +204,10 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
       .to(imgs[i-1], { autoAlpha:0, scale:1.06, duration:.5, ease:'power2.inOut' }, at)
       .fromTo(p, { y:40, autoAlpha:0 }, { y:0, autoAlpha:1, duration:.45, ease:'power2.out' }, at + .3)
       .to(p.querySelector('.u'), { '--u':1, duration:.4, ease:'power2.inOut' }, at + .6)
-      .fromTo(imgs[i], { autoAlpha:0, scale:1.06 }, { autoAlpha:1, scale:1, duration:.6, ease:'power2.out' }, at + .2);
+      .fromTo(imgs[i], { autoAlpha:0, scale:1.06 }, { autoAlpha:1, scale:1, duration:.6, ease:'power2.out' }, at + .2)
+      /* סמל אחר לכל משפט: הקודם מסתובב החוצה, הבא נכנס בקפיצה. "כל אתר מקבל שפה משלו" */
+      .to(shp[i-1], { scale:0, rotate:120, opacity:0, duration:.3, ease:'power2.in' }, at)
+      .fromTo(shp[i], { scale:0, rotate:-120, opacity:1 }, { scale:1, rotate:0, duration:.45, ease:'back.out(2)' }, at + .3);
   });
   tl.to({}, { duration:.6 });
 })();
@@ -242,6 +249,7 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
     .to(mk, { '--fill':1, duration:.5, ease:'power2.inOut' }, 1.6)
     .fromTo(flag, { opacity:0, y:8 }, { opacity:1, y:0, duration:.2, ease:'back.out(2)' }, 1.92)
     .fromTo(ring, { '--ring':1, '--ringo':0 }, { '--ring':3.2, '--ringo':1, duration:.45, ease:'power2.out' }, 1.94)
+    .fromTo(h.querySelector('.mk-spark'), { scale:0, rotate:-160 }, { scale:1, rotate:0, duration:.35, ease:'back.out(3)' }, 1.98)
     .to({}, { duration:.45 });
 
   /* פעם / היום: פסי זמן בשני הלוחות. נכנס למסך ומתחלף ל"היום", ובלחיצה אפשר להשוות */
@@ -413,7 +421,11 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
     gsap.timeline({ scrollTrigger:{ trigger:fig, start:'top 80%', once:true } })
       .to(fig, { clipPath:'inset(0% 0 0 0)', duration:1.4, ease:'power3.inOut' }, 0)
       .to(fig.querySelector('img'), { scale:1, duration:1.8, ease:'power3.out' }, .1);
-    gsap.to(fig, { y:-40, ease:'none', scrollTrigger:{ trigger:'.about', start:'top bottom', end:'bottom top', scrub:.4 } });
+    gsap.to(fig.parentNode, { y:-40, ease:'none', scrollTrigger:{ trigger:'.about', start:'top bottom', end:'bottom top', scrub:.4 } });
+    /* הסטיקר קופץ כשהפורטרט נחשף, ומסתובב עם הגלילה */
+    const st = document.querySelector('.about .sticker');
+    gsap.to(st, { scale:1, duration:.7, ease:'back.out(2.2)', scrollTrigger:{ trigger:fig, start:'top 45%', once:true } });
+    gsap.fromTo(st, { rotate:-40 }, { rotate:220, ease:'none', scrollTrigger:{ trigger:'.about', start:'top bottom', end:'bottom top', scrub:.8 } });
   }
   document.querySelectorAll('.stats .num').forEach(b => {
     const n = +b.dataset.n, plus = b.dataset.plus ? '+' : '';
@@ -427,10 +439,93 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
 /* ---------- B40: פוטר קבוע מאחורי העמוד, ורענון כשגובה העמוד משתנה ---------- */
 (function(){
   const page = document.querySelector('.page'), footer = document.querySelector('.rvf-footer');
-  const fit = () => { page.style.marginBottom = footer.offsetHeight + 'px'; ScrollTrigger.refresh(); };
+  /* padding על body ולא margin על העמוד: margin של הילד האחרון קורס החוצה מ-body, ו-Lenis (content: body) מודד
+     את body.scrollHeight בלי הרווח. התוצאה הייתה שבגלגלת אי אפשר היה לגלול עד הפוטר בכלל */
+  const fit = () => { document.body.style.paddingBottom = footer.offsetHeight + 'px'; lenis && lenis.resize(); ScrollTrigger.refresh(); };
   fit(); addEventListener('resize', fit); document.fonts && document.fonts.ready.then(fit);
   let h = page.offsetHeight, t = 0;
   new ResizeObserver(() => { const nh = page.offsetHeight; if(Math.abs(nh - h) < 2) return; h = nh; clearTimeout(t); t = setTimeout(() => ScrollTrigger.refresh(), 150); }).observe(page);
+})();
+
+/* ---------- מגרש הסמלים בפוטר: פיזיקה קטנה על gsap.ticker ----------
+   כל סמל הוא עיגול לצורך התנגשות. כבידה, ריצפה על הקצה העליון של הלוגו, קירות, התנגשות בין סמלים,
+   וגלגול: על הרצפה הסיבוב נגזר מהמהירות האופקית. גרירה בעכבר או באצבע, והמהירות של השחרור נשמרת.
+   הלולאה רצה רק כשמשהו זז, ונעצרת כשהכול נח. */
+(function(){
+  const box = document.querySelector('.toys'), footer = document.querySelector('.rvf-footer'), logo = footer && footer.querySelector('.big');
+  if(!box || !logo) return;
+  const els = [...box.children], G = 2600, DT = 1 / 120;
+  let W = 0, H = 0, run = false, calm = 0, dropped = false;
+  const B = els.map(el => ({ el, r:0, x:0, y:0, vx:0, vy:0, a:0, va:0, drag:false, px:0, py:0, t:0 }));
+  const measure = () => {
+    box.style.height = Math.max(120, logo.offsetTop + logo.offsetHeight * .18) + 'px';
+    W = box.clientWidth; H = box.clientHeight;
+    B.forEach(b => { b.s = b.el.offsetWidth; b.r = b.s * .46; b.x = Math.min(Math.max(b.x, b.s / 2), W - b.s / 2); b.y = Math.min(b.y, H - b.r); });
+  };
+  const draw = () => B.forEach(b => { b.el.style.transform = `translate3d(${(b.x - b.s / 2).toFixed(1)}px,${(b.y - b.s / 2).toFixed(1)}px,0) rotate(${b.a.toFixed(3)}rad)`; });
+  const step = () => {
+    for(const b of B){
+      if(b.drag) continue;
+      b.vy += G * DT; b.x += b.vx * DT; b.y += b.vy * DT;
+      /* הקירות לפי חצי הרוחב הנראה ולא לפי רדיוס ההתנגשות, כדי שאף סמל לא יחרוג מהמסך */
+      const hw = b.s / 2;
+      if(b.x < hw){ b.x = hw; b.vx = Math.abs(b.vx) * .5; }
+      if(b.x > W - hw){ b.x = W - hw; b.vx = -Math.abs(b.vx) * .5; }
+      if(b.y > H - b.r){ b.y = H - b.r; b.vy = Math.abs(b.vy) > 120 ? -b.vy * .38 : 0; b.vx *= .985; b.va = b.vx / b.r; }
+      else b.va *= .998;
+      b.a += b.va * DT;
+    }
+    for(let i = 0; i < B.length; i++) for(let k = i + 1; k < B.length; k++){
+      const p = B[i], q = B[k], dx = q.x - p.x, dy = q.y - p.y, min = p.r + q.r, d2 = dx * dx + dy * dy;
+      if(d2 >= min * min || d2 === 0) continue;
+      const d = Math.sqrt(d2), nx = dx / d, ny = dy / d, o = min - d;
+      const wp = p.drag ? 0 : (q.drag ? 1 : .5), wq = q.drag ? 0 : (p.drag ? 1 : .5);
+      p.x -= nx * o * wp; p.y -= ny * o * wp; q.x += nx * o * wq; q.y += ny * o * wq;
+      const rel = (q.vx - p.vx) * nx + (q.vy - p.vy) * ny;
+      if(rel < 0){ const jn = -rel * .7; if(!p.drag){ p.vx -= nx * jn * (wp ? 1 : 0); p.vy -= ny * jn * (wp ? 1 : 0); } if(!q.drag){ q.vx += nx * jn; q.vy += ny * jn; } p.va += (q.vy - p.vy) * .0015; q.va -= (q.vy - p.vy) * .0015; }
+    }
+  };
+  let acc = 0;
+  const tick = (t, dt) => {
+    acc += Math.min(dt, 50) / 1000;
+    while(acc >= DT){ step(); acc -= DT; }
+    draw();
+    const moving = B.some(b => b.drag || Math.abs(b.vx) > 30 || Math.abs(b.vy) > 60);
+    calm = moving ? 0 : calm + 1;
+    if(calm > 30) stop();
+  };
+  const start = () => { if(run) return; run = true; calm = 0; acc = 0; gsap.ticker.add(tick); };
+  const stop = () => { if(!run) return; run = false; gsap.ticker.remove(tick); };
+  /* הנחה ראשונית: שורה על הלוגו, בלי תנועה. משמשת גם ל-reduced motion ולמצב QA */
+  const rest = () => { B.forEach((b, i) => { b.x = b.s / 2 + (W - b.s) * i / (B.length - 1); b.y = H - b.r; b.vx = b.vy = b.va = 0; b.a = (i % 2 ? -1 : 1) * .25; b.el.style.visibility = 'visible'; }); draw(); };
+  const drop = () => {
+    if(dropped) return; dropped = true;
+    B.forEach((b, i) => { b.x = W * (i + .5) / B.length + (i % 2 ? -1 : 1) * b.r * .4; b.y = -b.r - i * b.s * .55 - 40; b.vx = (Math.random() - .5) * 160; b.vy = 0; b.a = Math.random() * 3; b.va = (Math.random() - .5) * 6; b.el.style.visibility = 'visible'; });
+    start();
+  };
+  measure();
+  if(REDUCE || QA){ rest(); dropped = true; }
+  /* לפי סוף הגלילה ולא לפי סקשן: הפוטר נחשף רק בגובה שלו האחרון, והסמלים נופלים כשחצי ממנו כבר על המסך */
+  else ScrollTrigger.create({ start:() => ScrollTrigger.maxScroll(window) - footer.offsetHeight * .6, end:() => ScrollTrigger.maxScroll(window) + 1, onEnter:drop });
+  addEventListener('resize', () => { measure(); if(dropped){ draw(); start(); } });
+  if(REDUCE) return;
+  B.forEach(b => {
+    const at = e => { const r = box.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+    b.el.addEventListener('pointerdown', e => {
+      if(!dropped){ rest(); dropped = true; }
+      b.el.setPointerCapture(e.pointerId); b.drag = true; b.el.classList.add('drag');
+      const [x, y] = at(e); b.ox = b.x - x; b.oy = b.y - y; b.px = b.x; b.py = b.y; b.t = performance.now(); b.vx = b.vy = 0; start();
+    });
+    b.el.addEventListener('pointermove', e => {
+      if(!b.drag) return;
+      const [x, y] = at(e), now = performance.now(), dt = Math.max(8, now - b.t) / 1000;
+      b.x = Math.min(Math.max(x + b.ox, b.s / 2), W - b.s / 2); b.y = Math.min(y + b.oy, H - b.r);
+      b.vx = b.vx * .5 + (b.x - b.px) / dt * .5; b.vy = b.vy * .5 + (b.y - b.py) / dt * .5; b.va = b.vx / b.r * .6;
+      b.px = b.x; b.py = b.y; b.t = now;
+    });
+    const up = () => { if(!b.drag) return; b.drag = false; b.el.classList.remove('drag'); if(performance.now() - b.t > 80){ b.vx *= .2; b.vy *= .2; } start(); };
+    b.el.addEventListener('pointerup', up); b.el.addEventListener('pointercancel', up);
+  });
 })();
 
 /* ---------- G08: סמן ---------- */
@@ -442,7 +537,7 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
   document.addEventListener('mouseleave', () => { fo.style.opacity=0; shown=false; });
   gsap.ticker.add(() => { px+=(mx-px)*.22; py+=(my-py)*.22; gsap.set(fo, {x:px-7, y:py-7}); });
   const grow = s => () => gsap.to(fo, {scale:s, duration:.3, ease:'power2.out'});
-  document.querySelectorAll('a, button, input, .pl-row').forEach(t => { t.addEventListener('mouseenter', grow(3)); t.addEventListener('mouseleave', grow(1)); });
+  document.querySelectorAll('a, button, input, .pl-row, .toy').forEach(t => { t.addEventListener('mouseenter', grow(3)); t.addEventListener('mouseleave', grow(1)); });
 })();
 
 /* ---------- B61: מגנט ---------- */
@@ -503,6 +598,8 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
     const rects = secs.map(s => s.getBoundingClientRect()), mid = innerHeight / 2;
     let t = cur;
     for(let i = 0; i < secs.length; i++){ if(rects[i].top <= mid && rects[i].bottom > mid){ t = secs[i].dataset.theme; break; } }
+    /* אמצע המסך מעל הפוטר (אין שם סקשן): הנושא של הסקשן האחרון שכבר עבר, גם אחרי קפיצה ישירה לסוף */
+    if(rects[secs.length - 1].bottom <= mid) t = secs[secs.length - 1].dataset.theme;
     if(t !== cur){
       cur = t;
       layers.forEach(l => { const on = l.dataset.t === t; if(on) l.style.zIndex = ++z; l.classList.toggle('on', on); });
