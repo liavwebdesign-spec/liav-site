@@ -322,8 +322,10 @@ body.t-dark .tg{box-shadow:none}
 
 /* ===== 07 אנשים: רצועת וידאו מוצמדת (G65) ומרקי כתוב ===== */
 .people-top{row-gap:20px;align-items:end}
-.people h2{grid-column:1/8}
-.people-top p{grid-column:9/13;color:var(--grey);font-size:var(--fs-lead);line-height:1.4;max-width:28ch;align-self:end}
+.people h2{grid-column:1/8;grid-row:1}
+/* ניצוץ קטן בין הכותרת לפסקה, שמנצנץ מדי פעם כמו כוכב של ביקורת */
+.pp-spark{grid-column:8/9;grid-row:1;justify-self:center;align-self:center;width:clamp(28px,2.8vw,48px);aspect-ratio:1}
+.people-top p{grid-column:9/13;grid-row:1;color:var(--grey);font-size:var(--fs-lead);line-height:1.4;max-width:28ch;align-self:end}
 .vt-pin{height:100svh;display:grid;grid-template-columns:minmax(0,1fr);align-content:center;gap:28px;overflow:hidden}
 .vt-strip{position:relative;padding-inline:var(--pad-x)}
 .vt-track{display:flex;gap:var(--gg);width:max-content;will-change:transform;padding-block:24px}
@@ -342,6 +344,8 @@ body.t-dark .tg{box-shadow:none}
 .vt-foot{margin-inline:var(--pad-x);display:flex;align-items:center;gap:18px}
 .vt-bar{flex:1;height:1px;background:var(--line);position:relative}
 .vt-bar i{position:absolute;inset:0;background:var(--accent);transform:scaleX(0);transform-origin:right center}
+/* ריבוע כתום שמתגלגל על הקו בקצה המילוי: הסיבוב נגזר מהמרחק, כך שהוא באמת מתגלגל ולא מחליק */
+.vt-roll{position:absolute;right:0;bottom:0;width:22px;height:22px;margin-right:-11px;will-change:transform}
 /* מרקי כתוב: דהייה בצדדים, כל כרטיס שלישי בליים, השורה השנייה מוסטת */
 .tq{display:grid;gap:var(--gg);padding-block:24px var(--sec);overflow:hidden;
   -webkit-mask-image:linear-gradient(to right,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(to right,transparent,#000 12%,#000 88%,transparent)}
@@ -356,7 +360,7 @@ body.t-dark .tg{box-shadow:none}
 .tq-card p{font-size:15px;line-height:1.45;color:var(--ink);padding-inline-end:28px}
 .tq-card small{display:block;margin-top:10px;color:var(--grey);font-size:13px}
 .tq-card small b{color:var(--ink);font-weight:500}
-@media (max-width:899px){.people h2,.people-top p{grid-column:1/-1}.vt-card{--w:min(62vw,300px)}.vt-media{max-height:58svh}.vt-pin{gap:20px}}
+@media (max-width:899px){.people h2,.people-top p{grid-column:1/-1;grid-row:auto}.pp-spark{display:none}.vt-card{--w:min(62vw,300px)}.vt-media{max-height:58svh}.vt-pin{gap:20px}}
 @media (prefers-reduced-motion:reduce){
   .vt-pin{height:auto;padding-block:48px 0}
   .vt-strip{overflow-x:auto;scroll-snap-type:x mandatory}
@@ -416,7 +420,11 @@ section.about{padding-bottom:0;align-items:end;row-gap:0}
 .contact h2{max-width:12ch;margin-bottom:8px}
 .contact .lead{color:var(--ink);font-size:var(--fs-lead);max-width:26ch;line-height:1.4}
 .c-copy p:not(.lead){color:var(--grey);max-width:40ch}
-.c-form{padding:40px;border:1px solid var(--line);background:var(--bg-2)}
+.c-form{position:relative;padding:40px;border:1px solid var(--line);background:var(--bg-2)}
+/* כוכבית על הפינה הפנימית של כרטיס הטופס, כמו מדבקה. וכששולחים, סמלים מתפוצצים מהכפתור */
+.cf-shp{position:absolute;z-index:2;top:-38px;right:-38px;width:clamp(64px,6vw,96px);aspect-ratio:1;transform:scale(0);pointer-events:none}
+.burst{position:fixed;inset:0;z-index:70;pointer-events:none;overflow:hidden}
+.burst span{position:absolute;display:block}
 .ff{display:grid;gap:20px;justify-items:stretch}
 .ff-field{position:relative}
 .ff-field input{width:100%;font:inherit;font-size:20px;color:inherit;background:transparent;border:0;border-bottom:1px solid var(--line-strong);border-radius:0;padding:32px 0 14px;transition:border-color .25s}
@@ -437,7 +445,7 @@ section.about{padding-bottom:0;align-items:end;row-gap:0}
 .ff-btn.done .s1,.ff-btn.done .s2{transform:translateY(-110%);opacity:0}.ff-btn.done .s3{transform:none;opacity:1}
 .ff-spin{width:16px;height:16px;border-radius:50%;border:2px solid rgba(10,10,11,.3);border-top-color:var(--ink);animation:ffspin .7s linear infinite;display:inline-block}
 @keyframes ffspin{to{transform:rotate(360deg)}}
-@media (max-width:899px){.contact .inner{grid-template-columns:1fr}.c-form{padding:24px 16px}.ff-actions{flex-direction:column;align-items:stretch}.pill.big{justify-content:center}}
+@media (max-width:899px){.cf-shp{top:-28px;right:12px;width:56px}.contact .inner{grid-template-columns:1fr}.c-form{padding:24px 16px}.ff-actions{flex-direction:column;align-items:stretch}.pill.big{justify-content:center}}
 .rvf-footer{position:fixed;inset-inline:0;bottom:0;z-index:1;min-height:var(--rvf-h,64vh);background:#0A0A0B;color:#F1F1F1;display:grid;align-content:end;gap:28px;padding:40px var(--pad-x)}
 .rvf-footer .big{width:100%;max-width:1100px;height:auto}
 .rvf-cols{display:flex;gap:clamp(20px,4vw,60px);flex-wrap:wrap;color:#8E8E8E;align-items:center}
@@ -470,7 +478,7 @@ section.about{padding-bottom:0;align-items:end;row-gap:0}
   .gen-media img{opacity:1;transform:none}
   .strike i{transform:none}
   .mk::before{transform:none}
-  .mk-spark,.hs-m,.ts-a,.ts-b{transform:none}
+  .mk-spark,.hs-m,.ts-a,.ts-b,.cf-shp{transform:none}
   .mo-wheel{transform:none;opacity:.35}
   .tq-row{animation:none}
   .about .portrait{clip-path:none}.about .portrait img{transform:none}

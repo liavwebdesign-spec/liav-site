@@ -363,7 +363,7 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
 (function(){
   const sec = document.getElementById('clients');
   const track = document.getElementById('vt-track'), strip = sec.querySelector('.vt-strip');
-  const idx = document.getElementById('vt-idx'), bar = sec.querySelector('.vt-bar i');
+  const idx = document.getElementById('vt-idx'), bar = sec.querySelector('.vt-bar i'), roll = sec.querySelector('.vt-roll');
   const cards = [...track.children], clips = cards.map(c => c.querySelector('video')), N = cards.length;
   let live = -1, inView = false;
   const setLive = i => {
@@ -390,7 +390,9 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
         c.querySelector('.vt-meta').style.opacity = 1 - d*.5;
         c.querySelector('.vt-q').style.opacity = c.querySelector('.vt-play').style.opacity = Math.max(0, 1 - d*1.6);
       });
-      bar.style.transform = `scaleX(${gsap.utils.clamp(0, 1, pos/(N-1))})`;
+      const pr = gsap.utils.clamp(0, 1, pos/(N-1)), dx = -pr * bar.parentNode.clientWidth;
+      bar.style.transform = `scaleX(${pr})`;
+      roll.style.transform = `translateX(${dx.toFixed(1)}px) rotate(${(dx / 11).toFixed(3)}rad)`;
       const near = gsap.utils.clamp(0, N-1, Math.round(pos));
       idx.textContent = `${pad(near+1)} / ${pad(N)}`;
       setLive(near);
@@ -574,6 +576,41 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
   addEventListener('scroll', () => { if(visible.size===0) sticky.classList.toggle('show', scrollY > innerHeight*.8); }, {passive:true});
 })();
 
+/* ---------- 07 + 09: הניצוץ ליד "אנשים שעבדו איתי" מנצנץ מדי פעם, והכוכבית נדבקת לכרטיס הטופס ---------- */
+(function(){
+  if(REDUCE) return;
+  const sp = document.querySelector('.pp-spark .b');
+  if(sp){
+    const tw = gsap.timeline({ repeat:-1, repeatDelay:2.2, paused:true })
+      .to(sp, { scale:1.4, rotate:'+=90', duration:.35, ease:'back.out(3)' })
+      .to(sp, { scale:1, duration:.5, ease:'power2.out' });
+    gsap.from(sp, { scale:0, rotate:-180, duration:.9, ease:'back.out(2)', scrollTrigger:{ trigger:'.people-top', start:'top 80%', once:true } });
+    ScrollTrigger.create({ trigger:'.people-top', start:'top bottom', end:'bottom top', onToggle(self){ self.isActive ? tw.play() : tw.pause(); } });
+  }
+  const cf = document.querySelector('.cf-shp');
+  if(cf){
+    gsap.fromTo(cf, { scale:0, rotate:-160 }, { scale:1, rotate:0, duration:1, ease:'back.out(1.8)', scrollTrigger:{ trigger:'.c-form', start:'top 75%', once:true } });
+    gsap.to(cf.querySelector('.b'), { rotate:240, ease:'none', scrollTrigger:{ trigger:'.contact', start:'top bottom', end:'bottom top', scrub:.8 } });
+  }
+  /* אחרי שליחה מוצלחת: 18 סמלים יוצאים מהכפתור בקשת, נופלים בכבידה ודוהים */
+  document.addEventListener('lead:sent', () => {
+    const btn = document.querySelector('.ff-btn'), r = btn.getBoundingClientRect(), K = ['squircle', 'comb', 'aster', 'pin', 'diamond', 'spark'];
+    const layer = document.createElement('div'); layer.className = 'burst'; document.body.appendChild(layer);
+    for(let i = 0; i < 18; i++){
+      const k = K[i % 6], s = document.createElement('span'); s.innerHTML = `<svg class="b k-${k}"><use href="#b-${k}"/></svg>`; layer.appendChild(s);
+      const a = -Math.PI / 2 + (Math.random() - .5) * Math.PI * 1.2, v = 140 + Math.random() * 280, size = 18 + Math.random() * 28;
+      gsap.set(s, { left:r.left + r.width / 2, top:r.top + r.height / 2, width:size, height:size, xPercent:-50, yPercent:-50, scale:0 });
+      gsap.timeline({ onComplete(){ s.remove(); if(!layer.children.length) layer.remove(); } })
+        .to(s, { scale:1, duration:.25, ease:'back.out(3)' }, 0)
+        .to(s, { x:Math.cos(a) * v, duration:1.5, ease:'power2.out' }, 0)
+        .to(s, { y:Math.sin(a) * v, duration:.55, ease:'power2.out' }, 0)
+        .to(s, { y:`+=${220 + Math.random() * 140}`, duration:.95, ease:'power2.in' }, .55)
+        .to(s, { rotate:(Math.random() - .5) * 720, duration:1.5, ease:'power1.out' }, 0)
+        .to(s, { opacity:0, duration:.4 }, 1.1);
+    }
+  });
+})();
+
 /* ---------- B32: טופס ---------- */
 (function(){
   const form = document.querySelector('.ff'), btn = form.querySelector('.ff-btn'), fields = [...form.querySelectorAll('.ff-field')];
@@ -592,7 +629,7 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
       const res = await fetch(ENDPOINT, { method:'POST', headers:{ 'Content-Type':'application/json', apikey:ANON, Authorization:'Bearer '+ANON }, body:JSON.stringify({ name:form.name.value.trim(), phone:form.phone.value.trim(), company:form.company.value, site_type:'האתר החדש (v3)', page_url:location.href, utm:utm() }) });
       const data = await res.json().catch(()=>({}));
       if(!res.ok || data.error) throw new Error(data.error || res.status);
-      btn.classList.remove('load'); btn.classList.add('done');
+      btn.classList.remove('load'); btn.classList.add('done'); document.dispatchEvent(new CustomEvent('lead:sent'));
     }catch(err){ console.error('[lead]', err); btn.classList.remove('load'); fields[1].querySelector('.ff-err').textContent = 'לא הצלחנו לשלוח. כתבו לי בוואטסאפ'; fields[1].classList.add('bad'); }
   });
 })();
