@@ -8,6 +8,15 @@ const FINE = matchMedia('(hover:hover) and (pointer:fine)').matches;
 const EASE = 'power3.out';
 const QA = /[?&](at|qa|st|rm)=/.test(location.search);
 const QA_AT = +new URLSearchParams(location.search).get('at');
+/* עברית היא ברירת המחדל. /en/ טוען את אותו קובץ עם lang="en": מחרוזות מ-T, וכל תנועה אופקית שתלויה בכיוון מוכפלת ב-FLIP */
+const EN = document.documentElement.lang === 'en', FLIP = EN ? -1 : 1;
+const T = EN ? {
+  watch:'Watch', watchOf:n => `Watch ${n}'s testimonial`, prompt:'Build me a nice website for my business with a modern design and animations', mark:['prompt'],
+  fail:'Could not send. Message me on WhatsApp', phoneOk:v => /^\+?[\d\s().-]{7,20}$/.test(v), site:'האתר החדש (v3, EN)'
+} : {
+  watch:'צפייה', watchOf:n => `צפייה בהמלצה של ${n}`, prompt:'תבנה לי אתר יפה לעסק שלי, עם עיצוב מודרני ואנימציות', mark:['פרומפט'],
+  fail:'לא הצלחנו לשלוח. כתבו לי בוואטסאפ', phoneOk:v => /^0\d{8,9}$/.test(v.replace(/[\s-]/g,'')), site:'האתר החדש (v3)'
+};
 const { clients } = window.SITE, works = window.SITE.worksV3 || window.SITE.works;
 const pad = n => String(n).padStart(2, '0');
 const src = (i, s) => `../img/works/${pad(i)}${s ? '-s' : ''}.webp`;
@@ -15,7 +24,7 @@ const src = (i, s) => `../img/works/${pad(i)}${s ? '-s' : ''}.webp`;
 const lapHTML = clips => `<div class="lap"><div class="lap-stage"><i class="lap-glow"></i><i class="lap-shade"></i><i class="lap-contact"></i><div class="lap-screen">${clips.map(c => `<img src="../img/clips/${c}.webp" alt="" loading="lazy" data-clip="${c}">`).join('')}<video muted playsinline loop preload="none" tabindex="-1" aria-hidden="true"></video></div><img class="lap-frame" src="../img/laptop.webp" alt="" width="819" height="919" loading="lazy"></div></div>`;
 
 /* המלצות כתובות מהאתר הישן, כמו שהן */
-const QUOTES = [
+const QUOTES = window.QUOTES_EN || [
   { n:'שון בלו', t:'זמר ויזם', i:'01', q:'ליאב בנה לי אתר מושקע עד לפרטים הקטנים ואפשר לראות את התוצאות בלידים שמגיעים.' },
   { n:'אמיר בלדיגה', t:'יזם, מרצה ומלווה עסקים', i:'02', q:'מקצוען, שירותי ובעיקר ייחודי. לעבוד עם ליאב זו זכות שנפלה על העסק שלי משמיים.' },
   { n:'נורית בר', t:'יועצת עסקית', i:'03', q:'קיבלתי מליאב שירות מקצועי, קשוב ואכפתי עד לפרטים הקטנים. דף המכירה שלי שודרג מקצה לקצה.' },
@@ -39,7 +48,7 @@ const STRIP = [4, 7, 10];
   document.getElementById('gen-media').innerHTML = GEN_IMGS.map(i => `<img class="gm" src="${src(i)}" alt="" loading="lazy">`).join('');
   document.querySelectorAll('.mq-in').forEach((row, r) => { const list = r ? [...ALL.slice(7), ...ALL.slice(0, 7)] : ALL; row.innerHTML = list.map(i => `<figure><img src="${src(i, 1)}" alt=""></figure>`).join(''); });
   document.getElementById('sp-img').innerHTML = STRIP.map(i => `<figure><img src="${src(i)}" alt="" loading="lazy"></figure>`).join('');
-  document.getElementById('vt-track').innerHTML = clients.map((c, i) => `<button class="vt-card" type="button" data-i="${i}" aria-label="צפייה בהמלצה של ${c.n}"><span class="vt-media"><img src="../video/${c.v}.webp" alt="" loading="lazy"><video muted playsinline loop preload="none" src="../video/${c.v}.mp4" tabindex="-1" aria-hidden="true"></video><span class="vt-q">${c.q}</span><span class="vt-play"><i></i>צפייה</span></span><span class="vt-meta"><b>${c.n}</b><span class="mono">${c.r}</span></span></button>`).join('');
+  document.getElementById('vt-track').innerHTML = clients.map((c, i) => `<button class="vt-card" type="button" data-i="${i}" aria-label="${T.watchOf(c.n)}"><span class="vt-media"><img src="../video/${c.v}.webp" alt="" loading="lazy"><video muted playsinline loop preload="none" src="../video/${c.v}.mp4" tabindex="-1" aria-hidden="true"></video><span class="vt-q">${c.q}</span><span class="vt-play"><i></i>${T.watch}</span></span><span class="vt-meta"><b>${c.n}</b><span class="mono">${c.r}</span></span></button>`).join('');
   const card = (q, k) => `<div class="tq-card"><img src="../img/testi/${q.i}.webp" alt="" loading="lazy"${q.logo ? ' class="logo"' : ''}><div><p>${q.q}</p><small><b>${q.n}</b> · ${q.t}</small></div></div>`;
   const tqBuild = () => {
     const el = document.getElementById('tq');
@@ -53,7 +62,7 @@ const STRIP = [4, 7, 10];
     if(REDUCE) return;
     document.querySelectorAll('#tq .tq-row').forEach(row => {
       const dir = +row.dataset.dir, d = parseFloat(row.style.getPropertyValue('--d')) || 60;
-      TQ.tweens.push(gsap.fromTo(row, { xPercent: dir > 0 ? 0 : 50 }, { xPercent: dir > 0 ? 50 : 0, duration:d, ease:'none', repeat:-1 }));
+      TQ.tweens.push(gsap.fromTo(row, { xPercent: dir > 0 ? 0 : 50 * FLIP }, { xPercent: dir > 0 ? 50 * FLIP : 0, duration:d, ease:'none', repeat:-1 }));
     });
   };
   tqBuild(); tqRun();
@@ -385,9 +394,9 @@ function laptop(root){
 
 /* ---------- 05 הפרומפט נכתב לבד, מייצר שלד גנרי, והפסקה מולו נצבעת מילה-מילה (G48) ---------- */
 (function(){
-  const txt = document.getElementById('prompt-txt'), FULL = 'תבנה לי אתר יפה לעסק שלי, עם עיצוב מודרני ואנימציות';
+  const txt = document.getElementById('prompt-txt'), FULL = T.prompt;
   const skel = gsap.utils.toArray('#skel > *'), note = document.querySelector('.prompt-note');
-  const p = document.getElementById('tools-p'), MARK = ['פרומפט'];
+  const p = document.getElementById('tools-p'), MARK = T.mark;
   const bare = w => w.replace(/[.,:;!?"'׳״]/g, '');
   const words = p.textContent.trim().split(/\s+/); p.textContent = '';
   const spans = words.map((w, i) => { const s = document.createElement('span'); s.className = 'w'; if(MARK.includes(bare(w))){ s.innerHTML = `<span class="mk"><span>${bare(w)}</span></span>${w.slice(bare(w).length)}`; } else s.textContent = w; p.appendChild(s); if(i < words.length - 1) p.appendChild(document.createTextNode(' ')); return s; });
@@ -416,7 +425,8 @@ function laptop(root){
   mm.add('(min-width:900px)', () => {
     const pad = () => parseFloat(getComputedStyle(pin).paddingLeft) || 0;
     /* בהתחלה המילים הראשונות כבר מציצות משמאל (30% מהמסך), כדי שהסקשן לא ייפתח על מסך לבן ריק */
-    const x0 = () => -(h.offsetLeft + h.offsetWidth) + pin.clientWidth * .3, x1 = () => pad() - h.offsetLeft;
+    const x0 = () => EN ? pin.clientWidth * .7 - h.offsetLeft : -(h.offsetLeft + h.offsetWidth) + pin.clientWidth * .3;
+    const x1 = () => EN ? pin.clientWidth - pad() - (h.offsetLeft + h.offsetWidth) : pad() - h.offsetLeft;
     gsap.set(u, {'--u':0});
     const skew = gsap.quickTo(h, 'skewX', { duration:.5, ease:'power3' });
     /* הסמלים: p הוא הרגע בנסיעה (0 עד 1) שבו הסמל עובר בנקודה s על רוחב המסך, בגובה y. d הוא העומק:
@@ -442,11 +452,11 @@ function laptop(root){
       const X = gsap.getProperty(h, 'x');
       FLY.forEach((f, i) => {
         const dx = (X - (X0 + (X1 - X0) * f.p)) * f.d, r = f.z / 2;
-        els[i].style.transform = `translate3d(${(f.s * W + dx - r).toFixed(1)}px,${(f.y * H - r + Math.sin(dx / 260) * 14).toFixed(1)}px,0) rotate(${(dx / r).toFixed(3)}rad)`;
+        els[i].style.transform = `translate3d(${((EN ? 1 - f.s : f.s) * W + dx - r).toFixed(1)}px,${(f.y * H - r + Math.sin(dx / 260) * 14).toFixed(1)}px,0) rotate(${(dx / r).toFixed(3)}rad)`;
       });
       if(roll) roll.style.transform = `rotate(${((X - X1) / (roll.offsetWidth / 2)).toFixed(3)}rad)`;
     };
-    const tl = gsap.timeline({ scrollTrigger:{ trigger:pin, start:'top top', end:() => '+=' + Math.round((x1() - x0()) * .55), pin:true, anticipatePin:1, scrub:.7, invalidateOnRefresh:true,
+    const tl = gsap.timeline({ scrollTrigger:{ trigger:pin, start:'top top', end:() => '+=' + Math.round(Math.abs(x1() - x0()) * .55), pin:true, anticipatePin:1, scrub:.7, invalidateOnRefresh:true,
       onRefresh(){ measure(); place(); },
       onUpdate(self){ skew(gsap.utils.clamp(-8, 8, self.getVelocity() / -260)); } } })
       .fromTo(h, { x:x0 }, { x:x1, duration:1, ease:'none', onUpdate:place }, 0)
@@ -490,18 +500,18 @@ function laptop(root){
     const geo = () => {
       const cs = getComputedStyle(strip), inner = strip.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
       const w = cards[0].offsetWidth, g = parseFloat(getComputedStyle(track).columnGap) || 0;
-      return { inner, w, g, x0: w/2 - inner/2, x1: (N-1)*(w+g) + w/2 - inner/2 };
+      return { inner, w, g, x0: FLIP * (w/2 - inner/2), x1: FLIP * ((N-1)*(w+g) + w/2 - inner/2) };
     };
     G = geo();
     const layout = () => {
-      const x = gsap.getProperty(track, 'x'), step = G.w + G.g, pos = (x - G.x0) / step;
+      const x = gsap.getProperty(track, 'x'), step = G.w + G.g, pos = (x - G.x0) / step * FLIP;
       cards.forEach((c, i) => {
         const d = Math.min(Math.abs(i - pos), 1.4);
         gsap.set(c, { scale: 1 - d*.12 });
         c.querySelector('.vt-meta').style.opacity = 1 - d*.5;
         c.querySelector('.vt-q').style.opacity = c.querySelector('.vt-play').style.opacity = Math.max(0, 1 - d*1.6);
       });
-      const pr = gsap.utils.clamp(0, 1, pos/(N-1)), dx = -pr * bar.parentNode.clientWidth;
+      const pr = gsap.utils.clamp(0, 1, pos/(N-1)), dx = -FLIP * pr * bar.parentNode.clientWidth;
       bar.style.transform = `scaleX(${pr})`;
       roll.style.transform = `translateX(${dx.toFixed(1)}px) rotate(${(dx / 11).toFixed(3)}rad)`;
       const near = gsap.utils.clamp(0, N-1, Math.round(pos));
@@ -509,7 +519,7 @@ function laptop(root){
       setLive(near);
     };
     gsap.fromTo(track, { x: () => G.x0 }, { x: () => G.x1, ease:'none', onUpdate: layout,
-      scrollTrigger:{ trigger:pinEl, start:'top top', end: () => '+=' + (G.x1 - G.x0), pin:true, anticipatePin:1, scrub:.5, invalidateOnRefresh:true, onRefreshInit(){ G = geo(); } } });
+      scrollTrigger:{ trigger:pinEl, start:'top top', end: () => '+=' + Math.abs(G.x1 - G.x0), pin:true, anticipatePin:1, scrub:.5, invalidateOnRefresh:true, onRefreshInit(){ G = geo(); } } });
     layout();
   }
   /* נגן: הכרטיס מתרחב למסך מלא עם קול, ונסגר חזרה למקום שלו */
@@ -736,7 +746,7 @@ function laptop(root){
   const form = document.querySelector('.ff'), btn = form.querySelector('.ff-btn'), fields = [...form.querySelectorAll('.ff-field')];
   const ENDPOINT = 'https://hkywmjyvdbaarwqzpzme.supabase.co/functions/v1/public-pricing-lead';
   const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhreXdtanl2ZGJhYXJ3cXpwem1lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NDQwNzMsImV4cCI6MjEwMzEyMDA3M30.I8Quoq72ApZ83DIQQtwLAznowADZudaq3wbmg3jbw_U';
-  const bad = f => { const el = f.querySelector('input'), v = el.value.trim(); return el.type==='tel' ? !/^0\d{8,9}$/.test(v.replace(/[\s-]/g,'')) : v.length < 2; };
+  const bad = f => { const el = f.querySelector('input'), v = el.value.trim(); return el.type==='tel' ? !T.phoneOk(v) : v.length < 2; };
   fields.forEach(f => { const el = f.querySelector('input'); el.addEventListener('input', () => { if(f.classList.contains('bad') && !bad(f)) f.classList.remove('bad'); }); });
   const utm = () => { const p = new URLSearchParams(location.search), o = {}; ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','fbclid'].forEach(k => { if(p.get(k)) o[k]=p.get(k); }); return o; };
   form.addEventListener('submit', async e => {
@@ -746,11 +756,11 @@ function laptop(root){
     if(btn.classList.contains('done') || btn.classList.contains('load')) return;
     btn.classList.add('load');
     try{
-      const res = await fetch(ENDPOINT, { method:'POST', headers:{ 'Content-Type':'application/json', apikey:ANON, Authorization:'Bearer '+ANON }, body:JSON.stringify({ name:form.name.value.trim(), phone:form.phone.value.trim(), company:form.company.value, site_type:'האתר החדש (v3)', page_url:location.href, utm:utm() }) });
+      const res = await fetch(ENDPOINT, { method:'POST', headers:{ 'Content-Type':'application/json', apikey:ANON, Authorization:'Bearer '+ANON }, body:JSON.stringify({ name:form.name.value.trim(), phone:form.phone.value.trim(), company:form.company.value, site_type:T.site, page_url:location.href, utm:utm() }) });
       const data = await res.json().catch(()=>({}));
       if(!res.ok || data.error) throw new Error(data.error || res.status);
       btn.classList.remove('load'); btn.classList.add('done'); document.dispatchEvent(new CustomEvent('lead:sent'));
-    }catch(err){ console.error('[lead]', err); btn.classList.remove('load'); fields[1].querySelector('.ff-err').textContent = 'לא הצלחנו לשלוח. כתבו לי בוואטסאפ'; fields[1].classList.add('bad'); }
+    }catch(err){ console.error('[lead]', err); btn.classList.remove('load'); fields[1].querySelector('.ff-err').textContent = T.fail; fields[1].classList.add('bad'); }
   });
 })();
 

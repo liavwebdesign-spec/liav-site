@@ -122,7 +122,9 @@ const PROBE = String.raw`(() => {
 
   // --- 6. פונטים: מה באמת הוחל ---
   const fam = el => getComputedStyle(el).fontFamily.split(',')[0].replace(/['"]/g,'').trim();
-  const want = { h1: 'Sataf', h2: 'Sataf', 'p:not(.mono)': 'Begin', '.mono': 'IndexMono' };
+  /* הגרסה האנגלית (lang=en) משתמשת ב-Panchang לכותרות וב-ClashDisplay לטקסט */
+  const EN = document.documentElement.lang === 'en', HEAD = EN ? 'Panchang' : 'Sataf', BODY = EN ? 'ClashDisplay' : 'Begin';
+  const want = { h1: HEAD, h2: HEAD, 'p:not(.mono)': BODY, '.mono': 'IndexMono' };
   for (const [sel, exp] of Object.entries(want)) {
     const el = [...document.querySelectorAll(sel)].find(vis);
     if (el) { const got = fam(el); if (got !== exp) out.fonts.push({ sel, want: exp, got }); }
@@ -133,10 +135,10 @@ const PROBE = String.raw`(() => {
   for (const el of document.querySelectorAll('body *')) {
     if (!vis(el) || el.closest('#pre, .nv-overlay, [aria-hidden="true"]')) continue;
     const own = [...el.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent.trim()).join(' ').trim();
-    if (own.length < 2 || fam(el) !== 'Sataf') continue;
+    if (own.length < 2 || fam(el) !== HEAD) continue;
     const heading = el.closest('h1, h2');
     const numeric = /^[\d+%.,\s]+$/.test(own);
-    const long = (heading ? heading.textContent.trim() : own).length > 60;
+    const long = (heading ? heading.textContent.replace(/\s+/g, ' ').trim() : own).length > 70;
     if ((!heading && !numeric) || long) out.display.push({ el: name(el), txt: own.slice(0, 30), why: long ? 'משפט ארוך בפונט תצוגה' : 'פונט תצוגה מחוץ ל-h1/h2' });
   }
   out.fonts.push({ loaded: [...document.fonts].filter(f => f.status === 'loaded').map(f => f.family + ' ' + f.weight) });

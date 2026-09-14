@@ -83,6 +83,12 @@ body.t-dark .tg{box-shadow:none}
 .tg a{position:relative;z-index:1;padding:9px 16px;border-radius:999px;font-family:var(--mono);font-size:var(--fs-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--grey);white-space:nowrap;transition:color .22s}
 .tg a.hot{color:var(--bg)}
 .hd-cta .pill{min-height:42px;padding:0 20px}
+/* צד הסיום של ההדר: מתג שפה, כפתור, ובנייד כפתור התפריט */
+.hd-end{display:flex;align-items:center;gap:10px}
+.hd .lang{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;padding:0 12px;border:1px solid var(--line);border-radius:999px;font-family:var(--mono);font-size:var(--fs-mono);letter-spacing:.08em;color:var(--ink);transition:background .25s,color .25s}
+.hd .lang:lang(he){font-family:var(--body);font-size:14px;letter-spacing:0}
+.hd .lang:hover{background:var(--ink);color:var(--bg)}
+body.nv-open .hd .lang{color:#F1F1F1;border-color:rgba(241,241,241,.3)}
 .nv-toggle{display:none;align-items:center;gap:10px;min-height:44px;font-family:var(--mono);font-size:var(--fs-mono);letter-spacing:.08em;text-transform:uppercase;padding:8px;color:var(--ink);}
 .nv-burger{width:24px;height:12px;position:relative;display:block}
 .nv-burger i{position:absolute;inset-inline:0;height:1.5px;background:currentColor;transition:transform .4s var(--ease),opacity .25s}

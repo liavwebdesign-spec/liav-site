@@ -1,0 +1,58 @@
+/* ===== English mirror (/en/): LTR, Panchang for headings, ClashDisplay for text =====
+   Loaded after v3.css. Everything here is scoped to html[lang="en"], so the Hebrew page is untouched.
+   1. Fonts and sizes: Panchang runs about as wide as Sataf per sentence, but its letters are taller, so headings are 85%.
+      ClashDisplay is ~20% wider than Begin, so running text is a notch smaller.
+   2. Direction: every rule that assumed RTL (fill origins, timeline, corner stickers) is mirrored. */
+@font-face{font-family:'Panchang';src:url('../fonts/Panchang-Medium.woff2') format('woff2');font-weight:500;font-display:swap}
+@font-face{font-family:'Panchang';src:url('../fonts/Panchang-Semibold.woff2') format('woff2');font-weight:600;font-display:swap}
+@font-face{font-family:'ClashDisplay';src:url('../fonts/ClashDisplay-Regular.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'ClashDisplay';src:url('../fonts/ClashDisplay-Medium.woff2') format('woff2');font-weight:500;font-display:swap}
+
+html[lang="en"]{
+  --head:'Panchang','Arial Black',system-ui,sans-serif;
+  --body:'ClashDisplay',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --fs-h2:clamp(28px,3.9vw,68px);
+  --fs-lead:clamp(17px,1.3vw,22px);
+  --fs-body:clamp(15px,.95vw,17px);
+}
+html[lang="en"] h1,html[lang="en"] h2{letter-spacing:-.01em;line-height:1.08}
+
+/* ---------- sizes ---------- */
+html[lang="en"] .hero h1{font-size:clamp(28px,4vw,70px);max-width:15ch}
+html[lang="en"] .nv-link{font-size:clamp(32px,7.4vw,84px)}
+html[lang="en"] .mo-h{font-size:clamp(28px,5vw,90px)}
+html[lang="en"] .sp-l{font-size:clamp(28px,4.3vw,78px)}
+html[lang="en"] .stats b{font-size:clamp(24px,2vw,34px)}
+@media (min-width:900px){html[lang="en"] .sp-h{font-size:clamp(74px,7.8vw,168px)}html[lang="en"] .sp-l{font-size:inherit}}
+@media (max-width:899px){
+  html[lang="en"] .hero h1{font-size:clamp(24px,7.6vw,44px)}
+  html[lang="en"] .gen-text h2{font-size:clamp(26px,8vw,40px)}
+  html[lang="en"] .sp-l{font-size:clamp(22px,7vw,46px)}
+  html[lang="en"] .stats b{font-size:clamp(18px,5.8vw,29px)}
+}
+@media (max-width:899px) and (max-height:700px){html[lang="en"] .sp-l{font-size:clamp(20px,6.2vw,34px)}}
+
+/* ---------- direction ---------- */
+html[dir="ltr"] .sec-head::before,html[dir="ltr"] .hero h1 em::after,html[dir="ltr"] .u::after,
+html[dir="ltr"] .gen-bar i,html[dir="ltr"] .strike i,html[dir="ltr"] .mk::before,html[dir="ltr"] .bar-fill,
+html[dir="ltr"] .tl-rail::before,html[dir="ltr"] .tl-seg::before,html[dir="ltr"] .skel i,html[dir="ltr"] .skel span,
+html[dir="ltr"] .vt-bar i{transform-origin:left center}
+html[dir="ltr"] .ff-field label{transform-origin:0 0}
+html[dir="ltr"] .pl-row.on h3{transform:translateX(16px)}
+@media (max-width:899px){html[dir="ltr"] .pl-m .pl-row.on-m h3{transform:translateX(8px)}}
+/* Wheel after "months" and spark on "in days": in LTR the end of the word is on the right */
+html[dir="ltr"] .mo-wheel{left:auto;right:-.8em}
+html[dir="ltr"] .mk-spark{left:auto;right:-.34em}
+/* Comparison bars and the brief-to-launch timeline grow from the left */
+html[dir="ltr"] .bar-fill,html[dir="ltr"] .bar-ghost{right:auto;left:0}
+html[dir="ltr"] .tl-seg,html[dir="ltr"] .tl-fill{right:auto;left:0}
+html[dir="ltr"] .tl-dot{right:auto;left:calc(var(--p,0) * 100%);margin:-7px 0 0 -7px}
+html[dir="ltr"] .tl-flag{left:auto;right:0;translate:-50% 0}
+@media (max-width:899px){html[dir="ltr"] .tl-flag{translate:-20% 0}}
+html[dir="ltr"] .ts-a{right:auto;left:0}
+html[dir="ltr"] .ts-b{left:auto;right:0}
+html[dir="ltr"] .prompt-line{direction:ltr}
+html[dir="ltr"] .vt-roll{right:auto;left:0;margin-right:0;margin-left:-11px}
+html[dir="ltr"] .cf-shp{right:auto;left:-38px}
+@media (max-width:899px){html[dir="ltr"] .cf-shp{left:12px}}
+html[dir="ltr"] .tq-card::before{content:"\201C"}
