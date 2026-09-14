@@ -56,8 +56,11 @@ const PROBE = String.raw`(() => {
 
   // --- 2. ניגודיות טקסט מול הרקע האפקטיבי ---
   const lum = ([r,g,b]) => { const f = v => { v/=255; return v<=.03928 ? v/12.92 : Math.pow((v+.055)/1.055,2.4); }; return .2126*f(r)+.7152*f(g)+.0722*f(b); };
-  const parse = c => { const m = c.match(/[\d.]+/g); return m ? m.slice(0,3).map(Number).concat(m[3]!==undefined?+m[3]:1) : null; };
-  const bgOf = el => { let p = el; while (p) { const c = parse(getComputedStyle(p).backgroundColor); if (c && c[3] > .5) return c.slice(0,3); p = p.parentElement; } return [255,255,255]; };
+  // color-mix מוחזר כ-color(srgb 0-1), לא כ-rgb(0-255). בלי ההמרה כל צבע מעורבב נקרא כמעט שחור
+  const parse = c => { const m = c.match(/[\d.]+/g); if (!m) return null; const srgb = /^color\(srgb/.test(c); const v = m.slice(0,3).map(Number).map(x => srgb ? x * 255 : x); const a = srgb ? (/\//.test(c) ? +m[3] : 1) : (m[3] !== undefined ? +m[3] : 1); return v.concat(a); };
+  // סקשן שקוף שהרקע שלו מגיע משכבה קבועה (v3) מכריז על הצבע ב---bg של data-theme
+  const hex = h => { h = h.trim().replace('#',''); if (h.length === 3) h = h.split('').map(x => x + x).join(''); return h.length === 6 ? [0,2,4].map(i => parseInt(h.slice(i, i + 2), 16)) : null; };
+  const bgOf = el => { let p = el; while (p) { const c = parse(getComputedStyle(p).backgroundColor); if (c && c[3] > .5) return c.slice(0,3); if (p.dataset && p.dataset.theme) { const v = hex(getComputedStyle(p).getPropertyValue('--bg')); if (v) return v; } p = p.parentElement; } return [255,255,255]; };
   const ratio = (a,b) => { const [l1,l2] = [lum(a),lum(b)].sort((x,y)=>y-x); return (l1+.05)/(l2+.05); };
   for (const el of document.querySelectorAll('p, h1, h2, h3, a, span, label, button, small, li')) {
     if (!vis(el)) continue;
@@ -107,10 +110,22 @@ const PROBE = String.raw`(() => {
 
   // --- 6. פונטים: מה באמת הוחל ---
   const fam = el => getComputedStyle(el).fontFamily.split(',')[0].replace(/['"]/g,'').trim();
-  const want = { h1: 'Sataf', h2: 'Sataf', h3: 'Sataf', 'p:not(.mono)': 'Begin', '.mono': 'IndexMono' };
+  const want = { h1: 'Sataf', h2: 'Sataf', 'p:not(.mono)': 'Begin', '.mono': 'IndexMono' };
   for (const [sel, exp] of Object.entries(want)) {
     const el = [...document.querySelectorAll(sel)].find(vis);
     if (el) { const got = fam(el); if (got !== exp) out.fonts.push({ sel, want: exp, got }); }
+  }
+  // --- 6ב. פונט תצוגה במקום לא נכון (ליאב, 14.9.2026: "הפונט כותרות לא הכי קריא, רק בכותרות גדולות") ---
+  // Sataf מותר רק ב-h1/h2 ובמספרים. כל אלמנט אחר שמרונדר בו, או משפט ארוך בו, הוא ממצא.
+  out.display = [];
+  for (const el of document.querySelectorAll('body *')) {
+    if (!vis(el) || el.closest('#pre, .nv-overlay, [aria-hidden="true"]')) continue;
+    const own = [...el.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent.trim()).join(' ').trim();
+    if (own.length < 2 || fam(el) !== 'Sataf') continue;
+    const heading = el.closest('h1, h2');
+    const numeric = /^[\d+%.,\s]+$/.test(own);
+    const long = (heading ? heading.textContent.trim() : own).length > 60;
+    if ((!heading && !numeric) || long) out.display.push({ el: name(el), txt: own.slice(0, 30), why: long ? 'משפט ארוך בפונט תצוגה' : 'פונט תצוגה מחוץ ל-h1/h2' });
   }
   out.fonts.push({ loaded: [...document.fonts].filter(f => f.status === 'loaded').map(f => f.family + ' ' + f.weight) });
 
@@ -195,6 +210,7 @@ for (const [W, r] of Object.entries(report)) {
   const lines = [];
   const add = (label, arr, fmt = JSON.stringify) => { if (arr && arr.length) { lines.push(`  ${label} (${arr.length}):`); arr.slice(0, 6).forEach(x => lines.push(`     ${typeof x === 'string' ? x : fmt(x)}`)); fails += arr.length; } };
   add("גלישה אופקית", r.overflow);
+  add("פונט תצוגה במקום לא נכון", r.display);
   add("ניגודיות", r.contrast);
   add("יעדי מגע", r.touch);
   add("מחוץ לסולם ריווח", r.spacing);

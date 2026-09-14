@@ -151,7 +151,7 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
   const lines = gsap.utils.toArray('#gen-lines p'), imgs = gsap.utils.toArray('#gen-media img'), idx = document.getElementById('gen-idx'), bar = document.querySelector('.gen-bar i');
   if(REDUCE){ lines.forEach(p => gsap.set(p.querySelector('.u'), {'--u':1})); return; }
   const N = lines.length;
-  const tl = gsap.timeline({ scrollTrigger:{ trigger:'.gen-pin', start:'top top', end:'+=' + N * 70 + '%', pin:true, scrub:.5,
+  const tl = gsap.timeline({ scrollTrigger:{ trigger:'.gen-pin', start:'top top', end:'+=' + N * 70 + '%', pin:true, anticipatePin:1, scrub:.5,
     onUpdate(self){ const k = Math.min(N - 1, Math.floor(self.progress * N)); idx.textContent = `${pad(k+1)} / ${pad(N)}`; bar.style.transform = `scaleX(${self.progress})`; } } });
   tl.to(lines[0].querySelector('.u'), { '--u':1, duration:.4, ease:'power2.inOut' }, .15);
   lines.forEach((p, i) => {
@@ -170,7 +170,7 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
 (function(){
   const h = document.getElementById('mo-h'), l2 = h.querySelector('.mo-l2');
   if(REDUCE){ gsap.set(l2, {'--mix':1}); gsap.set(h.querySelector('.mk'), {'--fill':1}); return; }
-  const tl = gsap.timeline({ scrollTrigger:{ trigger:'.mo-pin', start:'top top', end:'+=120%', pin:true, scrub:.6 } });
+  const tl = gsap.timeline({ scrollTrigger:{ trigger:'.mo-pin', start:'top top', end:'+=120%', pin:true, anticipatePin:1, scrub:.6 } });
   tl.from(h.querySelector('.mo-l1'), { yPercent:30, autoAlpha:0, duration:.4, ease:'power2.out' })
     .to(h.querySelector('.strike i'), { scaleX:1, duration:.5, ease:'power2.inOut' }, .5)
     .to(h.querySelector('.strike > span'), { opacity:.35, duration:.3 }, .7)
@@ -231,7 +231,7 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
   const o = { n:0 };
   gsap.timeline({ scrollTrigger:{ trigger:'.prompt', start:'top 80%', end:'bottom 40%', scrub:.3 } })
     .to(o, { n:FULL.length, duration:1, ease:'none', onUpdate(){ txt.textContent = FULL.slice(0, Math.round(o.n)); } })
-    .to(skel, { scaleX:1, scaleY:1, duration:.5, stagger:.06, ease:'power2.out' }, 1.1)
+    .fromTo(skel, { opacity:.1, scaleX:.4 }, { opacity:.55, scaleX:1, duration:.5, stagger:.06, ease:'power2.out' }, 1.1)
     .to(note, { opacity:1, duration:.3 }, 1.6);
   const tw = gsap.timeline({ scrollTrigger:{ trigger:p, start:'top 78%', end:'bottom 45%', scrub:.4 } });
   tw.to(spans, { '--on':1, duration:.4, stagger:.35, ease:'none' }, 0);
@@ -249,7 +249,7 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
   gsap.from(chars, { yPercent:120, autoAlpha:0, duration:.9, stagger:{ each:.012, from:'start' }, ease:EASE, scrollTrigger:{ trigger:h, start:'top 85%', once:true } });
   gsap.from(tiles, { autoAlpha:0, y:40, duration:1, stagger:.08, ease:EASE, scrollTrigger:{ trigger:'.taste-pin', start:'top 70%', once:true } });
   const pin = document.querySelector('.taste-pin');
-  ScrollTrigger.create({ trigger:pin, start:'top top', end:'+=80%', pin:true, scrub:true,
+  ScrollTrigger.create({ trigger:pin, start:'top top', end:'+=80%', pin:true, anticipatePin:1, scrub:true,
     onUpdate(self){ const p = self.progress; chars.forEach((c, i) => { c.style.transform = `translateY(${(Math.sin(i * .55 + p * 9) * 10 * Math.sin(p * Math.PI)).toFixed(2)}px)`; }); } });
   if(!FINE) return;
   const setX = tiles.map(f => gsap.quickTo(f, 'x', { duration:1.2, ease:'power3' })), setY = tiles.map(f => gsap.quickTo(f, 'y', { duration:1.2, ease:'power3' }));
@@ -293,7 +293,7 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
       setLive(near);
     };
     gsap.fromTo(track, { x: () => G.x0 }, { x: () => G.x1, ease:'none', onUpdate: layout,
-      scrollTrigger:{ trigger:pinEl, start:'top top', end: () => '+=' + (G.x1 - G.x0), pin:true, scrub:.5, invalidateOnRefresh:true, onRefreshInit(){ G = geo(); } } });
+      scrollTrigger:{ trigger:pinEl, start:'top top', end: () => '+=' + (G.x1 - G.x0), pin:true, anticipatePin:1, scrub:.5, invalidateOnRefresh:true, onRefreshInit(){ G = geo(); } } });
     layout();
   }
   /* נגן: הכרטיס מתרחב למסך מלא עם קול, ונסגר חזרה למקום שלו */
@@ -411,18 +411,31 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
   });
 })();
 
-/* ---------- B29 מוכלל: הסקשן שמרכז המסך נמצא בו קובע את הנושא של body ----------
-   נמדד לפי getBoundingClientRect בכל עדכון, ולא לפי טווחי טריגרים, כי ההצמדות משנות את הגבהים. */
+/* ---------- B29 מוכלל: הסקשן שמרכז המסך נמצא בו קובע את הנושא ----------
+   הרקע: שכבה קבועה לכל נושא, החדשה עולה מעל הקודמת ב-opacity (מאיץ גרפי, בלי ציור מחדש).
+   הטקסט: מתהפך בבת אחת באמצע המעבר, כשהרקע כבר חצי בדרך, כך שאין רגע של טקסט כהה על כהה.
+   בלי transition על צבעי טקסט: עשרות אלמנטים שמחשבים צבע בכל פריים הם מה שתקע את הגלילה. */
 (function(){
-  const secs = [...document.querySelectorAll('[data-theme]')], THEMES = ['t-light', 't-dark', 't-lime', 't-white'];
-  let cur = '';
-  const pick = () => {
-    const mid = innerHeight / 2; let t = cur || 'light';
-    for(const s of secs){ const r = s.getBoundingClientRect(); if(r.top <= mid && r.bottom > mid){ t = s.dataset.theme; break; } if(r.top > mid) break; }
+  const secs = [...document.querySelectorAll('[data-theme]')], THEMES = ['t-light', 't-dark', 't-white'];
+  const layers = [...document.querySelectorAll('#bg i')], bg = document.getElementById('bg'), page = document.querySelector('.page');
+  let cur = 'light', z = 1, flip = 0;
+  const apply = t => THEMES.forEach(c => document.body.classList.toggle(c, c === 't-' + t));
+  const set = t => {
     if(t === cur) return; cur = t;
-    THEMES.forEach(c => document.body.classList.toggle(c, c === 't-' + t));
+    layers.forEach(l => { const on = l.dataset.t === t; if(on) l.style.zIndex = ++z; l.classList.toggle('on', on); });
+    clearTimeout(flip); flip = setTimeout(() => apply(t), REDUCE ? 0 : 240);
+  };
+  const pick = () => {
+    const mid = innerHeight / 2; let t = cur;
+    for(const s of secs){ const r = s.getBoundingClientRect(); if(r.top <= mid && r.bottom > mid){ t = s.dataset.theme; break; } if(r.top > mid) break; }
+    set(t);
+    /* בסוף העמוד השכבה עולה יחד עם קצה הדף, כדי שהפוטר שמאחור ייחשף */
+    const end = page.getBoundingClientRect().bottom;
+    /* עיגול ושני פיקסלים של חפיפה: בחצי פיקסל נפתח תפר דק שרואים דרכו את הרקע של body */
+    gsap.set(bg, { y: Math.min(0, Math.round(end - innerHeight) + 2) });
   };
   ScrollTrigger.create({ trigger:document.body, start:0, end:'max', onUpdate:pick, onRefresh:pick });
+  addEventListener('resize', pick);
   pick();
 })();
 
