@@ -28,12 +28,10 @@ const QUOTES = [
 ];
 const ALL = works.map((w, i) => i + 1);
 const GEN_IMGS = [2, 8, 12];
-const CV = [1, 3, 5, 9, 2, 11, 6, 13, 8];
 const STRIP = [4, 7, 10];
 
 /* ---------- תוכן דינמי ---------- */
 (function build(){
-  document.getElementById('cv').innerHTML = CV.map(i => `<figure><img src="${src(i, 1)}" alt=""></figure>`).join('');
   document.getElementById('pl').innerHTML = works.map((w, i) => `<div class="pl-row" data-i="${i}"><span class="mono">${pad(i+1)}</span><h3>${w.n}</h3><span class="mono tag">${w.tag}</span><div class="thumb"><img src="${src(i+1, 1)}" alt="" loading="lazy"></div></div>`).join('');
   document.getElementById('pl-prev').innerHTML = '<div class="pl-prev-in">' + works.map((w, i) => `<img src="${src(i+1)}" alt="" loading="lazy">`).join('') + '</div>';
   document.getElementById('gen-media').innerHTML = GEN_IMGS.map(i => `<img src="${src(i)}" alt="" loading="lazy">`).join('');
@@ -75,42 +73,47 @@ const READY = FONTS.then(() => { document.querySelectorAll('.t-lines, .h-lines')
       .to('.hero .rv', { y:0, autoAlpha:1, duration:.9, stagger:.1 }, .5)
       .from('.hd', { y:-20, autoAlpha:0, duration:.8 }, .3)
       .from('.hero-foot', { autoAlpha:0, duration:.6 }, 1);
-    converge();
+    shapesIn();
   };
   if(REDUCE || QA){
     pre.style.display = 'none'; lenis && lenis.start();
-    gsap.set('.hero .rv', {autoAlpha:1, y:0}); gsap.set('.hero h1 em', {'--u':1});
+    gsap.set('.hero .rv', {autoAlpha:1, y:0}); gsap.set('.hero h1 em', {'--u':1}); gsap.set('#hs .hs-m', {scale:1});
     READY.then(() => ScrollTrigger.refresh());
     return;
   }
-  const intro = gsap.timeline()
-    .to('.pre-mark img', { y:0, duration:.9, ease:'power3.out' })
-    .to('.pre-line i', { scaleX:1, duration:.9, ease:'power2.inOut' }, .2);
-  gsap.utils.toArray('.pre-shp .b').forEach((s, k, all) => {
-    intro.fromTo(s, { opacity:1, scale:.3, rotate:-90 }, { scale:1, rotate:0, duration:.16, ease:'back.out(2.4)', immediateRender:false }, .05 + k * .15);
-    if(k < all.length - 1) intro.set(s, { opacity:0 }, .05 + (k + 1) * .15);
+  /* ששת סמלי המותג מתחלפים במרכז, וכל אחד מדליק את הגרסה הקטנה שלו בשורה מתחת. בלי לוגו ובלי פס טעינה */
+  const big = gsap.utils.toArray('.pre-shp .b'), mini = gsap.utils.toArray('.pre-row .b'), STEP = .26;
+  const intro = gsap.timeline({ delay:.1 });
+  big.forEach((s, k) => {
+    const at = k * STEP;
+    intro.fromTo(s, { opacity:1, scale:.2, rotate:-120 }, { scale:1, rotate:0, duration:.17, ease:'back.out(2.2)', immediateRender:false }, at)
+      .fromTo(mini[k], { opacity:.16, scale:1 }, { opacity:1, scale:1.6, duration:.12, ease:'power2.out', immediateRender:false }, at)
+      .to(mini[k], { scale:1, duration:.24, ease:'power2.out' }, at + .12);
+    if(k < big.length - 1) intro.to(s, { scale:0, rotate:120, duration:.07, ease:'power2.in' }, at + STEP - .07).set(s, { opacity:0 }, at + STEP);
   });
+  intro.to({}, { duration:.3 });
   Promise.all([READY, intro.then()]).then(() => {
     gsap.to(pre, { yPercent:-100, duration:.9, ease:'power3.inOut', onStart(){ lenis && lenis.start(); heroIn(); ScrollTrigger.refresh(); }, onComplete(){ pre.style.display = 'none'; } });
   });
 })();
 
-/* ---------- 00 G54: גריד מפוזר שמתכנס. כל עבודה יוצאת מכיוון שנגזר ממקומה בגריד, ביחידות xPercent,
-   כך שהפיזור נשאר פרופורציונלי בכל רוחב. ביציאה מההירו הגריד כולו נוטה לעומק ---------- */
-function converge(){
-  const cv = document.getElementById('cv'); if(!cv || REDUCE) return;
-  const items = [...cv.children], g = cv.getBoundingClientRect(), cx = g.left + g.width / 2, cy = g.top + g.height / 2;
-  items.forEach((el, k) => {
-    const r = el.getBoundingClientRect(), dx = (r.left + r.width / 2 - cx) / g.width, dy = (r.top + r.height / 2 - cy) / g.height;
-    const spin = (k % 2 ? -1 : 1) * 7;
-    gsap.fromTo(el, { xPercent:dx * 260, yPercent:dy * 230, scale:.42, rotate:dx * 30 + spin, rotateY:dx * -30, autoAlpha:0 },
-      { xPercent:0, yPercent:0, scale:1, rotate:0, rotateY:0, autoAlpha:1, duration:1.9, ease:'power3.out', delay:.75 + Math.hypot(dx, dy) * .45 });   /* ההשהיה: הפרילודר מתרומם ב-0.9 שניות, וההתכנסות צריכה לקרות מול העיניים ולא מאחוריו */
-  });
+/* ---------- 00 הירו: קונסטלציה של סמלי המותג ----------
+   נכנסים בקפיצה אחרי הפרילודר, מרחפים לאט, זזים עם העכבר לפי עומק (data-d), מסתובבים כשמרחפים מעליהם,
+   ומתפזרים בגלילה החוצה, כל אחד במהירות של העומק שלו */
+function shapesIn(){
+  if(REDUCE) return;
+  gsap.fromTo('#hs .hs-m', { scale:0, rotate:-120 }, { scale:1, rotate:0, duration:1.1, ease:'back.out(1.7)', stagger:{ each:.1, from:'random' }, delay:.6 });
 }
 (function(){
-  if(REDUCE) return;
-  gsap.to('#cv', { rotateX:26, rotateZ:-5, yPercent:-6, scale:.9, ease:'none', scrollTrigger:{ trigger:'.hero', start:'top top', end:'bottom top', scrub:.6 } });
+  const items = gsap.utils.toArray('#hs .hs-i'); if(!items.length || REDUCE) return;
+  const floats = items.map((it, k) => gsap.to(it.querySelector('.b'), { y:(k % 2 ? -1 : 1) * 10, rotate:(k % 2 ? -1 : 1) * 7, duration:2.8 + k * .5, ease:'sine.inOut', yoyo:true, repeat:-1 }));
+  ScrollTrigger.create({ trigger:'.hero', start:'top bottom', end:'bottom top', onToggle(self){ floats.forEach(t => self.isActive ? t.resume() : t.pause()); } });
+  items.forEach((it, k) => { const dp = +it.dataset.d; gsap.to(it, { yPercent:-70 * dp, rotate:(k % 2 ? -1 : 1) * 36 * dp, ease:'none', scrollTrigger:{ trigger:'.hero', start:'top top', end:'bottom top', scrub:.6 } }); });
   gsap.to('.hero-copy', { y:-60, autoAlpha:0, ease:'none', scrollTrigger:{ trigger:'.hero', start:'40% top', end:'bottom top', scrub:.6 } });
+  if(!FINE) return;
+  const set = items.map(it => { const m = it.querySelector('.hs-m'); return [gsap.quickTo(m, 'x', { duration:1.1, ease:'power3' }), gsap.quickTo(m, 'y', { duration:1.1, ease:'power3' })]; });
+  document.querySelector('.hero').addEventListener('mousemove', e => { const dx = e.clientX / innerWidth - .5, dy = e.clientY / innerHeight - .5; items.forEach((it, k) => { const dp = +it.dataset.d * 40; set[k][0](-dx * dp); set[k][1](-dy * dp); }); });
+  items.forEach(it => { const m = it.querySelector('.hs-m'); it.addEventListener('mouseenter', () => gsap.to(m, { rotate:'+=90', duration:.8, ease:'back.out(2)', overwrite:'auto' })); });
 })();
 
 /* ---------- B23: תפריט נייד ---------- */
@@ -237,6 +240,10 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
     /* חודשים: הנקודה זוחלת לאורך מסלול ארוך, בזמן שהמילה נמחקת */
     .to(h.querySelector('.strike i'), { scaleX:1, duration:.5, ease:'power2.inOut' }, .55)
     .to(h.querySelector('.strike > span'), { opacity:.35, duration:.3 }, .75)
+    /* השבשבת נכנסת עם הנקודה, מסתובבת כל זמן הזחילה, ודוהה יחד עם המילה שנמחקה */
+    .fromTo(h.querySelector('.mo-wheel'), { scale:0, rotate:-90 }, { scale:1, rotate:0, duration:.1, ease:'back.out(2)' }, .42)
+    .fromTo(h.querySelector('.mo-wheel .b'), { rotate:0 }, { rotate:720, duration:.6, ease:'none' }, .52)
+    .to(h.querySelector('.mo-wheel'), { opacity:.35, duration:.3 }, .8)
     .to(seg, { '--p':.28, duration:.55, ease:'none' }, .55)
     /* ימים: המסלול מתכווץ לקטע קצר והשורה השנייה מתעוררת */
     .from(l2, { yPercent:20, autoAlpha:0, duration:.5, ease:'power2.out' }, 1.1)
@@ -303,6 +310,18 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
     tweens.forEach(t => t.timeScale(ts));
     skewTo(gsap.utils.clamp(-6, 6, v / 400));
   });
+})();
+
+/* ---------- 05 שני סמלים בקצה שורת הכותרת: קופצים עם הכותרת, מסתובבים בכיוונים הפוכים לאורך הסקשן ---------- */
+(function(){
+  const a = document.querySelector('.ts-a'), bb = document.querySelector('.ts-b'); if(!a || REDUCE) return;
+  gsap.timeline({ scrollTrigger:{ trigger:'.tools-top', start:'top 80%', once:true } })
+    .fromTo(a, { scale:0, rotate:-140 }, { scale:1, rotate:0, duration:1, ease:'back.out(1.8)' }, .2)
+    .fromTo(bb, { scale:0, rotate:140 }, { scale:1, rotate:0, duration:.9, ease:'back.out(2.4)' }, .38);
+  gsap.to(a.querySelector('.b'), { rotate:200, ease:'none', scrollTrigger:{ trigger:'.tools', start:'top bottom', end:'bottom top', scrub:.8 } });
+  gsap.to(bb.querySelector('.b'), { rotate:-270, ease:'none', scrollTrigger:{ trigger:'.tools', start:'top bottom', end:'bottom top', scrub:.8 } });
+  if(!FINE) return;
+  [a, bb].forEach(el => el.addEventListener('mouseenter', () => gsap.to(el, { rotate:'+=90', duration:.8, ease:'back.out(2)', overwrite:'auto' })));
 })();
 
 /* ---------- 05 הפרומפט נכתב לבד, מייצר שלד גנרי, והפסקה מולו נצבעת מילה-מילה (G48) ---------- */
@@ -422,14 +441,10 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
       .to(fig, { clipPath:'inset(0% 0 0 0)', duration:1.4, ease:'power3.inOut' }, 0)
       .to(fig.querySelector('img'), { scale:1, duration:1.8, ease:'power3.out' }, .1);
     gsap.to(fig.parentNode, { y:-40, ease:'none', scrollTrigger:{ trigger:'.about', start:'top bottom', end:'bottom top', scrub:.4 } });
-    /* הסטיקר קופץ כשהפורטרט נחשף, ומסתובב עם הגלילה */
-    const st = document.querySelector('.about .sticker');
-    gsap.to(st, { scale:1, duration:.7, ease:'back.out(2.2)', scrollTrigger:{ trigger:fig, start:'top 45%', once:true } });
-    gsap.fromTo(st, { rotate:-40 }, { rotate:220, ease:'none', scrollTrigger:{ trigger:'.about', start:'top bottom', end:'bottom top', scrub:.8 } });
   }
   document.querySelectorAll('.stats .num').forEach(b => {
-    const n = +b.dataset.n, plus = b.dataset.plus ? '+' : '';
-    const write = v => { b.textContent = Math.round(v) + plus; };
+    const n = +b.dataset.n;
+    const write = v => { b.textContent = Math.round(v); };
     if(REDUCE){ write(n); return; }
     const o = { v:0 };
     ScrollTrigger.create({ trigger:b, start:'top 98%', once:true, onEnter(){ gsap.to(o, { v:n, duration:1.6, ease:'power3.out', onUpdate(){ write(o.v); } }); } });

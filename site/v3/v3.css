@@ -54,14 +54,15 @@ h2{font-size:var(--fs-h2)}
 
 /* ===== פרילודר: לוגו נחשף מאחורי קו, והמסך עולה ===== */
 #pre{position:fixed;inset:0;z-index:999;background:var(--dark);display:grid;place-content:center;gap:18px}
-/* סמלי המותג: כל סמל שומר על הצבע שליאב נתן לו. הלבנים והקרם רק על רקע כהה */
+/* סמלי המותג: הספרייט ב-currentColor, וכל סמל מקבל את הצבע שליאב נתן לו כברירת מחדל.
+   הלבנים והקרם רק על רקע כהה; בהירו הם מתהפכים לדיו */
 .b{display:block;width:100%;height:100%;overflow:visible}
-.pre-shp{position:relative;justify-self:center;width:clamp(34px,3vw,46px);aspect-ratio:1;margin-bottom:8px}
+.k-comb{color:#FEFFF9}.k-aster,.k-spark{color:#D8FC73}.k-squircle,.k-diamond{color:#F17105}.k-pin{color:#FFFFFF}
+.pre-shp{position:relative;justify-self:center;width:clamp(72px,7vw,112px);aspect-ratio:1}
 .pre-shp .b{position:absolute;inset:0;opacity:0}
-.pre-mark{width:clamp(180px,26vw,360px);overflow:hidden}
-.pre-mark img{width:100%;height:auto;transform:translateY(105%)}
-.pre-line{height:1px;background:var(--dark-line);position:relative}
-.pre-line i{position:absolute;inset:0;background:var(--accent);transform:scaleX(0);transform-origin:right center}
+/* במקום פס טעינה: ששת הסמלים בקטן, וכל אחד נדלק כשהגדול שלו עולה. האוסף נבנה מול העיניים */
+.pre-row{display:flex;gap:14px;justify-content:center;margin-top:34px}
+.pre-row .b{width:12px;height:12px;opacity:.16}
 
 /* ===== ניווט ===== */
 .hd{position:fixed;top:0;inset-inline:0;z-index:60;display:flex;align-items:center;justify-content:space-between;padding:18px var(--pad-x);pointer-events:none}
@@ -112,17 +113,17 @@ body.t-dark .tg{box-shadow:none}
 .hero .lead{font-size:var(--fs-lead);line-height:1.4;max-width:34ch;color:var(--ink)}
 .hero .sub{color:var(--grey);max-width:44ch}
 .hero .ctas{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px}
-/* G54: תשע עבודות בגריד 3x3. הן נכנסות מפוזרות, מסובבות וקטנות, ומתכנסות. היחס המקורי של המוקאפ, בלי חיתוך */
-.cv-stage{grid-column:7/13;align-self:center;perspective:1400px;min-width:0}
-.cv{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(8px,1vw,16px);transform-style:preserve-3d;transform-origin:50% 40%;will-change:transform}
-.cv figure{aspect-ratio:1400/1056;overflow:hidden;background:var(--bg-2,#F1F1F1);will-change:transform,opacity;box-shadow:0 18px 40px rgba(10,10,11,.10)}
-.cv img{width:100%;height:100%;object-fit:cover}
+/* הקונסטלציה: כל סמל ממוקם באחוזים מהמכולה (מרכז וגודל), כך שההרכב נשמר בכל רוחב.
+   שלוש שכבות: hs-i לגלילה, hs-m לעכבר ולהובר, והסמל עצמו לריחוף */
+.hs{grid-column:7/13;align-self:stretch;position:relative;min-height:min(62svh,620px)}
+.hs-i{position:absolute;left:calc(var(--x) * 1%);top:calc(var(--y) * 1%);width:calc(var(--s) * 1%);aspect-ratio:1;translate:-50% -50%}
+.hs-m{display:block;width:100%;height:100%;transform:scale(0)}
+.hs .k-comb,.hs .k-pin,.hs .k-spark{color:var(--ink)}
 .hero-foot{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:14px}
 @media (max-width:899px){
   .hero{padding-top:96px;row-gap:32px}
-  .hero-copy,.cv-stage{grid-column:1/-1}
-  .cv-stage{order:-1;margin-top:8px}
-  .cv{gap:8px}
+  .hero-copy,.hs{grid-column:1/-1}
+  .hs{order:-1;min-height:0;height:34svh;margin-top:8px}
   /* "בהישג ידכם" לא נשבר: הגודל צמוד לרוחב המסך כדי שלא ייכנס לשוליים ב-320 עד 390 */
   .hero h1{max-width:none;font-size:clamp(28px,9.2vw,52px)}
 }
@@ -197,7 +198,10 @@ body.t-dark .tg{box-shadow:none}
 .mk{position:relative;display:inline-block;padding-inline:.1em}
 .mk::before{content:"";position:absolute;inset:.08em 0;background:var(--accent);z-index:-1;transform:scaleX(var(--fill,0));transform-origin:right center}
 .mk span{position:relative;z-index:1}
-/* ניצוץ שקופץ בפינה של "בתוך ימים" כשהמילה נצבעת. בפינה החיצונית, כדי לא לשבת על הליים */
+/* ניצוץ שקופץ בפינה של "בתוך ימים" כשהמילה נצבעת, בכתום ולא בליים כדי שלא ייבלע ליד הסימון.
+   ושבשבת לבנה ליד "חודשים" שמסתובבת בזמן שהנקודה זוחלת, ודוהה עם המחיקה */
+.mk-spark .k-spark{color:#F17105}
+.mo-wheel{position:absolute;left:-.8em;top:50%;width:.5em;height:.5em;margin-top:-.25em;transform:scale(0);pointer-events:none}
 .mk-spark{position:absolute;z-index:2;width:.6em;height:.6em;left:-.34em;bottom:-.34em;transform:scale(0);pointer-events:none}
 .mo-l2 .mk{color:color-mix(in srgb,var(--accent-ink) calc(var(--fill,0)*100%),currentColor)}
 /* הגוף: אמירה גדולה על כל הרוחב, ושני לוחות גדולים עם מספרי ליים */
@@ -260,7 +264,12 @@ body.t-dark .tg{box-shadow:none}
 .mq-in img{width:100%;height:100%;object-fit:cover}
 
 /* ===== 05 הכלים ===== */
-.tools-h{grid-column:1/-1;margin-bottom:56px}
+.tools-h{grid-column:1/9;grid-row:1;margin-bottom:56px;align-self:end}
+/* שני סמלים בקצה שורת הכותרת: מה שפרומפט לא מייצר. כוכבית גדולה ויהלום קטן, מסתובבים בכיוונים הפוכים */
+.tools-shp{grid-column:9/13;grid-row:1;justify-self:end;align-self:end;position:relative;width:clamp(96px,11vw,180px);aspect-ratio:1;margin-bottom:56px}
+.tools-shp span{position:absolute;display:block}
+.ts-a{width:76%;aspect-ratio:1;top:0;right:0;transform:scale(0)}
+.ts-b{width:44%;aspect-ratio:1;left:0;bottom:0;transform:scale(0)}
 .tools-in{row-gap:48px;align-items:center;padding-bottom:var(--sec)}
 .prompt{grid-column:1/7;display:grid;gap:18px;padding:24px;border:1px solid var(--line);background:var(--bg-2)}
 .prompt-head{display:flex;justify-content:space-between;align-items:center}
@@ -281,7 +290,7 @@ body.t-dark .tg{box-shadow:none}
 .tools-text .big .w{color:color-mix(in srgb,var(--ink) calc(var(--on,0)*100%),var(--ink-dim));display:inline-block;}
 .tools-text .big .mk{color:color-mix(in srgb,var(--accent-ink) calc(var(--fill,0)*100%),currentColor)}
 .tools-text>p:not(.big){color:var(--grey);font-size:var(--fs-lead);line-height:1.4;max-width:32ch}
-@media (max-width:899px){.prompt,.tools-text{grid-column:1/-1}.tools-h{margin-bottom:32px}}
+@media (max-width:899px){.prompt,.tools-text{grid-column:1/-1}.tools-h{grid-column:1/10;margin-bottom:32px}.tools-shp{grid-column:10/13;width:min(100%,84px);margin-bottom:32px}}
 
 /* ===== 06 הטעם: G108. שתי שורות שנפתחות, ורצועה של שלוש עבודות נחשפת ביניהן מהאמצע =====
    ה-h2 ב-display:contents כדי שהרצועה תשב בין השורות באותו גריד. חשיפה ב-clip-path ולא scaleY, כדי שהמוקאפים לא יימעכו. */
@@ -372,30 +381,31 @@ body.cursor-on .vt-lb,body.cursor-on .vt-lb button,body.cursor-on .vt-lb video{c
    התמונה גזירה ביחס 1054/1156, אז אין מסגרת עם object-fit שחותכת כתפיים. הגובה מוגבל, והרוחב נגזר ממנו.
    הפורטרט יושב בקצה העמודה שפונה לטקסט (justify-self:end ב-RTL = שמאל), כדי שלא יהיה רווח ריק ביניהם. */
 section.about{padding-bottom:0;align-items:end;row-gap:0}
-/* הסטיקר יושב בפינה שאליה ליאב מסתכל, מחוץ ל-clip ולמסכה של הפורטרט, ולכן העטיפה נושאת את מיקום הגריד */
+/* העטיפה נושאת את מיקום הגריד, והפורטרט בתוכה את ה-clip והמסכה */
 .about .portrait-wrap{grid-column:1/7;justify-self:end;align-self:end;position:relative;width:min(100%, calc(84svh * 1054 / 1156))}
-.sticker{position:absolute;z-index:2;left:4%;top:7%;width:clamp(60px,7vw,118px);aspect-ratio:1;transform:scale(0)}
 .about .portrait{position:relative;width:100%;
   -webkit-mask-image:linear-gradient(to bottom,#000 0,#000 78%,transparent 100%);mask-image:linear-gradient(to bottom,#000 0,#000 78%,transparent 100%);
   clip-path:inset(100% 0 0 0)}
 .about .portrait img{display:block;width:100%;height:auto;transform:scale(1.12);transform-origin:50% 100%}
-.about-text{grid-column:7/13;align-self:center;padding-bottom:96px;padding-inline-start:clamp(8px,2vw,40px);display:grid;gap:22px;min-width:0}
+.about-text{grid-column:8/13;align-self:center;padding-bottom:96px;display:grid;gap:22px;min-width:0}
 .about-text p{font-size:var(--fs-lead);color:var(--grey);max-width:34ch;line-height:1.4}
 .stats{display:grid;grid-template-columns:repeat(3,auto);gap:clamp(24px,3vw,48px);min-width:0;justify-content:start;margin-top:18px;padding-top:24px;border-top:1px solid var(--line)}
 /* המספר עד פי 2.5 מהתווית שמתחתיו, לא פי 4. ליאב: עצומים ביחס לכותרת שתחתם */
 .stats b{display:block;font-family:var(--head);font-weight:500;font-size:clamp(28px,2.4vw,40px);line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .stats span{display:block;margin-top:10px;color:var(--grey);font-size:15px;line-height:1.3}
+/* ה"+" קטן וצמוד למעלה, כמו אינדקס. חוסך רוחב ב-Sataf הרחב */
+.stats b[data-plus]::after{content:"+";font-size:.62em;vertical-align:.42em;margin-inline-start:.08em}
 @media (max-width:899px){
   .about .sec-head{order:-2}
   .about .portrait-wrap,.about-text{grid-column:1/-1}
-  .about-text{order:-1;padding-bottom:0;margin-bottom:32px}
+  .about-text{order:-1;padding-bottom:0;margin-bottom:64px}
   .about .portrait-wrap{justify-self:center;width:min(100%, calc(70svh * 1054 / 1156))}
-  .about-text{padding-inline-start:0}
   /* Sataf רחב מאוד: "+200" צריך ~140px ולכל עמודה בטלפון יש ~106px. בנייד המספרים בשורות, כל מספר ליד התווית שלו */
-  .stats{grid-template-columns:1fr;gap:16px}
-  .stats>div{display:flex;align-items:baseline;gap:16px}
-  .stats b{font-size:clamp(26px,7vw,32px);min-width:3.6em}
-  .stats span{margin-top:0}
+  .stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:0}
+  .stats>div{padding-inline:10px;border-inline-start:1px solid var(--line)}
+  .stats>div:first-child{padding-inline-start:0;border-inline-start:0}
+  .stats b{font-size:clamp(20px,7vw,34px)}
+  .stats span{margin-top:8px;font-size:13px}
 }
 
 /* ===== 09 דברו איתי + פוטר ===== */
@@ -460,8 +470,8 @@ section.about{padding-bottom:0;align-items:end;row-gap:0}
   .gen-media img{opacity:1;transform:none}
   .strike i{transform:none}
   .mk::before{transform:none}
-  .pre-mark img{transform:none}
-  .mk-spark,.sticker{transform:none}
+  .mk-spark,.hs-m,.ts-a,.ts-b{transform:none}
+  .mo-wheel{transform:none;opacity:.35}
   .tq-row{animation:none}
   .about .portrait{clip-path:none}.about .portrait img{transform:none}
   .skel i,.skel span{opacity:.55}.prompt-note{opacity:1}

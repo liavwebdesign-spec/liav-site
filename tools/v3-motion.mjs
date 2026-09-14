@@ -34,9 +34,9 @@ await send("Emulation.setDeviceMetricsOverride", { width: W, height: H, deviceSc
 await send("Page.navigate", { url: BASE });
 await sleep(7000);   // פרילודר אמיתי, לא מצב QA: בודקים את הכניסה כמו גולש
 
-// --- 1. הירו G54: אחרי הכניסה כל תשע העבודות התכנסו לגריד (בלי היסט, סיבוב או שקיפות) ---
-const cvEnd = await js(`[...document.querySelectorAll('#cv figure')].map(f => [gsap.getProperty(f,'xPercent'), gsap.getProperty(f,'yPercent'), gsap.getProperty(f,'rotate'), gsap.getProperty(f,'scale'), +getComputedStyle(f).opacity])`);
-check(cvEnd.length === 9 && cvEnd.every(([x, y, r, s, o]) => Math.abs(x) < .5 && Math.abs(y) < .5 && Math.abs(r) < .5 && Math.abs(s - 1) < .01 && o > .99), `הגריד בהירו התכנס: ${cvEnd.length} עבודות במקום`);
+// --- 1. הירו: אחרי הכניסה כל ששת סמלי המותג בגודל מלא ונראים ---
+const hsEnd = await js(`[...document.querySelectorAll('#hs .hs-m')].map(m => [+gsap.getProperty(m,'scale'), m.getBoundingClientRect().width | 0])`);
+check(hsEnd.length === 6 && hsEnd.every(([s, w]) => Math.abs(s - 1) < .01 && w > 20), `סמלי ההירו נכנסו: ${hsEnd.map(v => v.join('/')).join(' ')}`);
 
 // --- 2. גלילה אמיתית לאורך כל העמוד, בצעדים, עם דגימה של הרצועות והצמדות ---
 const total = await js(`document.body.scrollHeight - innerHeight`);
