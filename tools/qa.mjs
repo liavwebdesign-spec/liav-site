@@ -82,6 +82,18 @@ const PROBE = String.raw`(() => {
     if (r.height < 44 || r.width < 24) out.touch.push({ el: name(el), w: Math.round(r.width), h: Math.round(r.height) });
   }
 
+  // --- 3ב. שוליים בנייד: טקסט שנוגע בקצה המסך או יוצא לתוך השוליים (ליאב, 14.9.2026) ---
+  out.gutter = [];
+  if (vw < 900) {
+    const gm = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--gm')) || 16;
+    for (const el of document.querySelectorAll('h1, h2, h3, p, li, label, small, b, .mono, .pill')) {
+      if (!vis(el) || el.closest('[aria-hidden="true"], .hd, .stickycta, .nv-overlay, #pre, .vt-lb, .rvf-footer, .tq, .vt-track, .mq-wrap, .wall')) continue;
+      if (getComputedStyle(el).position === 'fixed') continue;
+      const r = el.getBoundingClientRect(); if (r.bottom < 0 || r.top > document.documentElement.scrollHeight) continue;
+      if (r.left < gm - 1 || r.right > vw - gm + 1) out.gutter.push({ el: name(el), txt: el.textContent.trim().slice(0, 26), left: Math.round(r.left), right: Math.round(vw - r.right), gm });
+    }
+  }
+
   // --- 4. סולם ריווח ---
   // 25 ו-15 הם המרזב והשוליים של הגריד השוויצרי, בדיוק כמו ב-madewithgsap. הם הסולם, לא חריגה.
   const SCALE = new Set([0,1,2,4,6,8,10,12,14,15,16,18,20,22,24,25,26,28,32,36,40,44,48,56,60,64,70,72,80,88,96,112,120,128,140,160,180,200]);
@@ -210,6 +222,7 @@ for (const [W, r] of Object.entries(report)) {
   const lines = [];
   const add = (label, arr, fmt = JSON.stringify) => { if (arr && arr.length) { lines.push(`  ${label} (${arr.length}):`); arr.slice(0, 6).forEach(x => lines.push(`     ${typeof x === 'string' ? x : fmt(x)}`)); fails += arr.length; } };
   add("גלישה אופקית", r.overflow);
+  add("טקסט בתוך שולי המסך", r.gutter);
   add("פונט תצוגה במקום לא נכון", r.display);
   add("ניגודיות", r.contrast);
   add("יעדי מגע", r.touch);

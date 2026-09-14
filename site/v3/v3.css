@@ -60,9 +60,12 @@ h2{font-size:var(--fs-h2)}
 .hd::before{content:"";position:absolute;inset:0 0 -40px;z-index:-1;pointer-events:none;background:var(--bg);-webkit-mask-image:linear-gradient(to bottom,#000 30%,transparent 100%);mask-image:linear-gradient(to bottom,#000 30%,transparent 100%);transition:opacity .4s}
 body.nv-open .hd::before{opacity:0}
 .hd>*{pointer-events:auto}
-.hd .logo{width:clamp(130px,11vw,170px);display:flex;align-items:center;min-height:44px;position:relative}
+.hd .logo{width:clamp(130px,11vw,170px);display:grid;align-items:center;min-height:44px;position:relative}
 .hd .logo img{width:100%;height:auto;transition:opacity .45s var(--ease)}
-.hd .logo .on-dark{position:absolute;inset:0;opacity:0}
+/* שתי הגרסאות באותו תא גריד וממורכזות אנכית. absolute עם inset:0 הצמיד אחת לראש התיבה ואת השנייה למרכז,
+   והלוגו קפץ ~11px בכל החלפת רקע (14.9.2026) */
+.hd .logo img{grid-area:1/1}
+.hd .logo .on-dark{opacity:0}
 body.t-dark .hd .logo .on-light,body.nv-open .hd .logo .on-light{opacity:0}
 body.t-dark .hd .logo .on-dark,body.nv-open .hd .logo .on-dark{opacity:1}
 .tg{position:absolute;left:50%;top:14px;transform:translateX(-50%);display:inline-flex;background:var(--bg-2);border:1px solid var(--line);border-radius:999px;padding:4px;gap:2px;box-shadow:0 6px 24px rgba(10,10,11,.06)}
@@ -93,7 +96,7 @@ body.t-dark .tg{box-shadow:none}
 
 /* ===== 00 הירו: טקסט מימין, קיר עבודות משמאל ===== */
 .hero{min-height:100svh;padding-top:var(--hero-top);padding-bottom:32px;align-content:space-between;row-gap:48px;position:relative;overflow:hidden}
-.hero-copy{grid-column:1/7;display:grid;gap:22px;align-content:center;justify-items:start}
+.hero-copy{grid-column:1/7;display:grid;gap:22px;align-content:center;justify-items:start;min-width:0}
 .hero .kick{margin-bottom:6px}
 .hero h1{font-size:clamp(36px,4.9vw,84px);max-width:12ch}
 .hero h1 em,.u{position:relative;display:inline-block;white-space:nowrap}
@@ -114,6 +117,8 @@ body.t-dark .tg{box-shadow:none}
   .wall{height:46svh;order:-1;margin-top:8px;transform:rotate(-3deg) scale(1.1)}
   .hero h1{max-width:none}
 }
+/* 320px: "בתוך ימים," לא נשבר ורוחבו 289px בעמודה של 288px */
+@media (max-width:359px){.hero h1{font-size:32px}}
 
 /* ===== 01 עבודות: אינדקס עם תצוגה שעוקבת אחרי הסמן (G43) ===== */
 .works-top{align-items:end;row-gap:16px;margin-bottom:48px}
@@ -184,13 +189,53 @@ body.t-dark .tg{box-shadow:none}
 /* הגוף: אמירה גדולה על כל הרוחב, ושני לוחות גדולים עם מספרי ליים */
 .mo-body{padding-block:var(--sec);row-gap:64px}
 .mo-lead{grid-column:1/10;font-family:var(--body);font-weight:400;font-size:clamp(22px,2.4vw,40px);line-height:1.35;letter-spacing:-.01em;max-width:32ch}
-.mo-two{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:var(--gg)}
-.mo-card{display:grid;gap:24px;padding:32px 0 0;border-top:1px solid var(--line);align-content:start}
-.mo-card .num{font-family:var(--head);font-weight:500;font-size:clamp(56px,7vw,120px);line-height:.9;letter-spacing:-.03em;color:var(--ink);font-variant-numeric:tabular-nums}
-/* ליים רק על כהה: כשכל המסך מתחלף לבהיר, מספר ליים על אפור בהיר יורד לניגודיות 1.03 */
-.th-dark .mo-card .num{color:var(--accent)}
+.mo-two{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;column-gap:var(--gg);row-gap:24px}
+.mo-card{display:grid;gap:28px;padding:32px 0 0;border-top:1px solid var(--line);align-content:start}
 .mo-card p{font-family:var(--body);font-weight:500;font-size:clamp(20px,1.8vw,30px);line-height:1.3;letter-spacing:-.005em;max-width:24ch}
-@media (max-width:899px){.mo-lead{grid-column:1/-1}.mo-two{grid-template-columns:1fr;gap:32px}.mo-pin{min-height:70svh}.mo-body{row-gap:48px}}
+/* מתג פעם/היום: פס זמן לכל כרטיס. הטכני מתכווץ, העיצוב גדל, וסימן חיוור שומר את הערך הקודם להשוואה */
+.mo-switch{position:relative;display:inline-flex;padding:4px;border:1px solid var(--line);border-radius:999px}
+.mo-switch button{position:relative;z-index:1;min-height:36px;padding:0 16px;border-radius:999px;color:var(--grey);transition:color .25s}
+.mo-switch button.on{color:var(--accent-ink)}
+.mo-switch-pill{position:absolute;top:4px;bottom:4px;left:4px;border-radius:999px;background:var(--accent);will-change:transform}
+.bar{display:grid;gap:12px}
+.bar-track{position:relative;height:14px;background:var(--line)}
+/* המילוי זז ב-scaleX ולא ב-width: רוחב מונפש חישב layout בכל פריים והפיל את הגלילה ל-20ms לפריים (נמדד) */
+.bar-fill,.bar-ghost{position:absolute;inset-block:0;right:0}
+.bar-fill{width:100%;transform:scaleX(0);transform-origin:right center;will-change:transform;background:var(--ink-dim)}
+.bar.lime .bar-fill{background:var(--ink)}
+.th-dark .bar.lime .bar-fill{background:var(--accent)}
+.bar-ghost{width:calc(var(--g,0) * 1%);border:1px dashed var(--line-strong);background:transparent;opacity:0;transition:opacity .4s;z-index:1}
+/* על מילוי ליים או כהה, סימן ה-Before צריך ניגוד משלו אחרת הוא נבלע במילוי */
+.bar.lime .bar-ghost{border-color:var(--bg)}
+.th-dark .bar.lime .bar-ghost{border-color:#0A0A0B}
+.mo-legend{display:inline-flex;align-items:center;gap:10px;opacity:0;transition:opacity .4s}
+.mo-legend i{width:28px;height:10px;border:1px dashed var(--line-strong)}
+.mo-two.cmp .mo-legend{opacity:1}
+.mo-head{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.mo-two.cmp .bar-ghost{opacity:1}
+@media (max-width:899px){.mo-two{grid-template-columns:1fr}.mo-switch button{min-height:48px;padding:0 20px}}
+
+/* טיימליין בתוך המסך המוצמד. זמן זורם מימין לשמאל (RTL): בריף בימין, השקה בשמאל */
+.tl{grid-column:1/-1;margin-top:clamp(40px,6vh,72px);display:grid;gap:14px;max-width:1100px}
+.tl-head{display:flex;justify-content:space-between;align-items:center}
+.tl-phase{position:relative;display:inline-grid}
+.tl-phase>span{grid-area:1/1}
+.tl-now{color:var(--accent);opacity:0}
+.tl-rail{position:relative;height:44px}
+/* המסלול המקורי נשאר כקו מקווקו חיוור, כדי שההתכווצות מחודשים לימים תיקרא מול האורך שהיה */
+.tl-rail::before{content:"";position:absolute;inset-inline:0;top:50%;border-top:1px dashed var(--line);transform:scaleX(var(--draw,0));transform-origin:right center}
+.tl-seg{position:absolute;inset-block:0;right:0;width:calc(var(--w,1) * 100%)}
+.tl-rail{--draw:0}
+.tl-seg::before{content:"";position:absolute;inset-inline:0;top:50%;height:1px;background:var(--line-strong);transform:scaleX(var(--draw,0));transform-origin:right center}
+.tl-ticks{position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center;pointer-events:none}
+.tl-ticks i{width:1px;height:10px;background:var(--line-strong);opacity:0}
+.tl-ticks i:nth-child(4n+1){height:18px}
+.tl-fill{position:absolute;top:calc(50% - 1px);height:3px;right:0;width:calc(var(--p,0) * 100%);background:var(--accent)}
+.tl-dot{position:absolute;top:50%;right:calc(var(--p,0) * 100%);width:14px;height:14px;margin:-7px -7px 0 0;border-radius:50%;background:var(--accent);opacity:0}
+.tl-dot i{position:absolute;inset:0;border-radius:50%;border:1px solid var(--accent);transform:scale(var(--ring,1));opacity:calc(1 - var(--ringo,0))}
+.tl-flag{position:absolute;left:0;bottom:calc(100% + 4px);translate:50% 0;padding:5px 10px;border-radius:999px;background:var(--accent);color:var(--accent-ink);opacity:0;white-space:nowrap}
+@media (max-width:899px){.tl{margin-top:40px}.tl-flag{translate:20% 0}.mo-pin{min-height:100svh}}
+@media (max-width:899px){.mo-lead{grid-column:1/-1}.mo-two{grid-template-columns:1fr;gap:32px}.mo-body{row-gap:48px}}
 
 /* ===== 04 רצועות ===== */
 .flow h2{grid-column:1/-1;margin-bottom:48px}
@@ -235,7 +280,15 @@ body.t-dark .tg{box-shadow:none}
 .wave .char{display:inline-block;will-change:transform}
 .taste-lines{display:grid;gap:10px;font-size:var(--fs-lead);line-height:1.4;max-width:40ch;justify-items:center}
 .taste-lines .strong{font-family:var(--body);font-weight:500;font-size:clamp(22px,2.2vw,36px);line-height:1.3;letter-spacing:-.005em;max-width:26ch}
-@media (max-width:899px){.taste-in{max-width:none}.tiles figure:nth-child(n+3){display:none}}
+@media (max-width:899px){
+  /* בנייד: אין מקום לאריחים בפינות בלי שייחתכו מתחת לכותרת או יעלו על הטקסט. הם יורדים לגריד מתחת */
+  .taste-pin{min-height:0;display:flex;flex-direction:column;padding-block:96px}
+  .taste-in{max-width:none;padding:0 var(--pad-x);gap:28px}
+  .taste h2{font-size:clamp(32px,9.6vw,56px);line-height:1.18}
+  .taste-lines .strong{font-size:clamp(20px,5.6vw,28px)}
+  .tiles{position:relative;inset:auto;order:2;display:grid;grid-template-columns:1fr 1fr;gap:var(--gg);padding-inline:var(--pad-x);margin-top:48px}
+  .tiles figure{position:static!important;width:auto!important;box-shadow:none}
+}
 
 /* ===== 07 אנשים: רצועת וידאו מוצמדת (G65) ומרקי כתוב ===== */
 .people-top{row-gap:20px;align-items:end}
@@ -304,9 +357,9 @@ section.about{padding-bottom:0;align-items:end;row-gap:0}
   -webkit-mask-image:linear-gradient(to bottom,#000 0,#000 72%,transparent 100%);mask-image:linear-gradient(to bottom,#000 0,#000 72%,transparent 100%);
   clip-path:inset(100% 0 0 0)}
 .about .portrait img{width:100%;height:100%;object-fit:cover;object-position:50% 0;transform:scale(1.18);transform-origin:50% 100%}
-.about-text{grid-column:8/13;align-self:center;padding-bottom:96px;display:grid;gap:22px}
+.about-text{grid-column:8/13;align-self:center;padding-bottom:96px;display:grid;gap:22px;min-width:0}
 .about-text p{font-size:var(--fs-lead);color:var(--grey);max-width:34ch;line-height:1.4}
-.stats{display:grid;grid-template-columns:repeat(3,auto);gap:32px;justify-content:start;margin-top:18px;padding-top:24px;border-top:1px solid var(--line)}
+.stats{display:grid;grid-template-columns:repeat(3,auto);gap:32px;min-width:0;justify-content:start;margin-top:18px;padding-top:24px;border-top:1px solid var(--line)}
 .stats b{display:block;font-family:var(--head);font-weight:500;font-size:clamp(34px,4vw,64px);line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .stats span{display:block;margin-top:8px;color:var(--grey);font-size:14px}
 @media (max-width:899px){
@@ -314,7 +367,11 @@ section.about{padding-bottom:0;align-items:end;row-gap:0}
   .about .portrait,.about-text{grid-column:1/-1}
   .about-text{order:-1;padding-bottom:0;margin-bottom:32px}
   .about .portrait{max-height:80svh}
-  .stats{gap:20px}
+  /* Sataf רחב מאוד: "+200" צריך ~140px ולכל עמודה בטלפון יש ~106px. בנייד המספרים בשורות, כל מספר ליד התווית שלו */
+  .stats{grid-template-columns:1fr;gap:16px}
+  .stats>div{display:flex;align-items:baseline;gap:16px}
+  .stats b{font-size:clamp(36px,11vw,52px);min-width:4.2em}
+  .stats span{margin-top:0}
 }
 
 /* ===== 09 דברו איתי + פוטר ===== */

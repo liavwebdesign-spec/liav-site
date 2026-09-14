@@ -81,13 +81,30 @@
   <div class="mo-pin">
     <div class="grid">
       <h2 class="mo-h" id="mo-h"><span class="mo-l1">מה שפעם לקח <span class="strike"><span>חודשים</span><i></i></span></span><span class="mo-l2">אני בונה היום <span class="mk"><span>בתוך ימים</span></span></span></h2>
+      <!-- טיימליין: מסלול מבריף להשקה שמתכווץ, ונקודה שמגיעה. בלי מספרים מומצאים -->
+      <div class="tl" id="tl" aria-hidden="true">
+        <div class="tl-head"><span class="mono">Brief</span><span class="mono tl-phase"><span class="tl-was">Months</span><span class="tl-now">Days</span></span></div>
+        <div class="tl-rail">
+          <div class="tl-seg"><div class="tl-ticks"></div><i class="tl-fill"></i><span class="tl-dot"><i></i></span><span class="tl-flag mono">Launch</span></div>
+        </div>
+      </div>
     </div>
   </div>
   <div class="grid mo-body">
     <p class="mo-lead t-lines">הניסיון שצברתי בעיצוב, חוויית משתמש ופיתוח, יחד עם הכלים שיש היום, שינו לגמרי את הדרך שבה אני עובד.</p>
-    <div class="mo-two">
-      <div class="mo-card rv"><b class="num">01</b><p>פחות זמן מתבזבז על עבודה טכנית.</p></div>
-      <div class="mo-card rv"><b class="num">02</b><p>יותר זמן נשאר למה שבאמת קובע איך האתר ייראה וירגיש.</p></div>
+    <div class="mo-two" id="mo-two">
+      <div class="mo-head">
+        <div class="mo-switch" role="group" aria-label="השוואה בין פעם להיום"><button type="button" class="mono" data-s="before" aria-pressed="false">Before</button><button type="button" class="mono on" data-s="today" aria-pressed="true">Today</button><i class="mo-switch-pill"></i></div>
+        <span class="mono mo-legend" aria-hidden="true"><i></i>Before</span>
+      </div>
+      <div class="mo-card rv" data-before="78" data-today="24">
+        <div class="bar" aria-hidden="true"><span class="mono">Technical</span><div class="bar-track"><i class="bar-ghost"></i><i class="bar-fill"></i></div></div>
+        <p>פחות זמן מתבזבז על עבודה טכנית.</p>
+      </div>
+      <div class="mo-card rv" data-before="22" data-today="76">
+        <div class="bar lime" aria-hidden="true"><span class="mono">Design · Feel</span><div class="bar-track"><i class="bar-ghost"></i><i class="bar-fill"></i></div></div>
+        <p>יותר זמן נשאר למה שבאמת קובע איך האתר ייראה וירגיש.</p>
+      </div>
     </div>
   </div>
 </section>

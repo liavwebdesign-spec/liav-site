@@ -10,7 +10,7 @@ const args = process.argv.slice(2);
 let W = 1440, H = 900, mobile = false;
 const bi = args.indexOf("--base"), BASE = bi >= 0 ? args[bi + 1] : "http://localhost:5173/v3/";
 const si = args.indexOf("--size"); if (si >= 0) [W, H] = args[si + 1].split("x").map(Number);
-if (args.includes("--mobile")) { mobile = true; W = 390; H = 844; }
+if (args.includes("--mobile")) { mobile = true; if (si < 0) { W = 390; H = 844; } }
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const out = path.join(root, "tools", "shots"); fs.mkdirSync(out, { recursive: true });
 const port = 9800 + Math.floor(Math.random() * 80);

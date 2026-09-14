@@ -34,10 +34,13 @@ em{font-style:normal}
 body.nav-dark .hd::before{background:linear-gradient(to bottom,var(--dark) 30%,transparent 100%)}
 body.nv-open .hd::before{opacity:0}
 .hd>*{pointer-events:auto}
-.hd .logo{width:clamp(130px,11vw,170px);display:flex;align-items:center;min-height:44px;position:relative}
+.hd .logo{width:clamp(130px,11vw,170px);display:grid;align-items:center;min-height:44px;position:relative}
 /* שתי גרסאות הלוגו: כהה על רקע בהיר, בהירה כשהעמוד או התפריט כהים */
 .hd .logo img{width:100%;height:auto;transition:opacity .35s var(--ease)}
-.hd .logo .on-dark{position:absolute;inset:0;opacity:0}
+/* שתי הגרסאות באותו תא גריד וממורכזות אנכית. absolute עם inset:0 הצמיד אחת לראש התיבה ואת השנייה למרכז,
+   והלוגו קפץ ~11px בכל החלפת רקע (14.9.2026) */
+.hd .logo img{grid-area:1/1}
+.hd .logo .on-dark{opacity:0}
 body.nav-dark .hd .logo .on-light,body.nv-open .hd .logo .on-light{opacity:0}
 body.nav-dark .hd .logo .on-dark,body.nv-open .hd .logo .on-dark{opacity:1}
 body.nav-dark .nv-burger i{background:var(--bg)}

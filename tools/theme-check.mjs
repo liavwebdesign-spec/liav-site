@@ -44,12 +44,14 @@ const READABLE = String.raw`(() => {
   const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + .05) / (y + .05); };
   const layers = [...document.querySelectorAll('#bg i')].filter(l => +getComputedStyle(l).opacity > .99).sort((a, b) => (+b.style.zIndex || 0) - (+a.style.zIndex || 0));
   const pageBg = layers.length ? parse(getComputedStyle(layers[0]).backgroundColor).slice(0, 3) : [241,241,241];
+  // רקע = ההורה האטום הקרוב, או שכבת הרקע. elementsFromPoint נוסה ונפסל: הוא מחזיר גם שכבות בשקיפות 0 וממציא כשלים
   const bgOf = el => { let p = el; while (p && p !== document.body) { const c = parse(getComputedStyle(p).backgroundColor); if (c && c[3] > .5) return c.slice(0, 3); p = p.parentElement; } return pageBg; };
   const bad = [];
   for (const el of document.querySelectorAll('h1, h2, h3, p, .mono, b, label')) {
     const r = el.getBoundingClientRect(); if (r.width < 2 || r.bottom < 70 || r.top > innerHeight - 10) continue;
     const s = getComputedStyle(el); if (s.visibility === 'hidden' || +s.opacity < .5) continue;
-    if (el.closest('[aria-hidden="true"], .hd, .stickycta, .vt-media, .pl-prev, #pre')) continue;
+    // .mo-switch: הכפתור הפעיל יושב על פיל ליים שמחליק מאחוריו כאח ולא כהורה, ולכן לא נמדד כאן
+    if (el.closest('[aria-hidden="true"], .hd, .stickycta, .vt-media, .pl-prev, #pre, .mo-switch')) continue;
     const own = [...el.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent.trim()).join('');
     const txt = own || (el.children.length ? '' : el.textContent.trim());
     if (txt.length < 2) continue;

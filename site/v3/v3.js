@@ -166,19 +166,59 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
   tl.to({}, { duration:.6 });
 })();
 
-/* ---------- 03 חודשים → ימים: קו מוחק, השורה השנייה מתעוררת, "בתוך ימים" נצבע ---------- */
+/* ---------- 03 חודשים → ימים: הכותרת והטיימליין על אותו ציר גלילה ----------
+   1. השורה הראשונה נכנסת והמסלול מבריף להשקה נמתח.  2. "חודשים" נמחקת בזמן שהנקודה זוחלת לאט.
+   3. השורה השנייה מתעוררת והמסלול מתכווץ לקטע קצר.  4. "בתוך ימים" נצבע והנקודה מגיעה להשקה, עם פעימה. */
 (function(){
-  const h = document.getElementById('mo-h'), l2 = h.querySelector('.mo-l2');
-  if(REDUCE){ gsap.set(l2, {'--mix':1}); gsap.set(h.querySelector('.mk'), {'--fill':1}); return; }
-  const tl = gsap.timeline({ scrollTrigger:{ trigger:'.mo-pin', start:'top top', end:'+=120%', pin:true, anticipatePin:1, scrub:.6 } });
-  tl.from(h.querySelector('.mo-l1'), { yPercent:30, autoAlpha:0, duration:.4, ease:'power2.out' })
-    .to(h.querySelector('.strike i'), { scaleX:1, duration:.5, ease:'power2.inOut' }, .5)
-    .to(h.querySelector('.strike > span'), { opacity:.35, duration:.3 }, .7)
-    .from(l2, { yPercent:20, autoAlpha:0, duration:.5, ease:'power2.out' }, .9)
-    .to(l2, { '--mix':1, duration:.4 }, 1.2)
-    .to(h.querySelector('.mk'), { '--fill':1, duration:.5, ease:'power2.inOut' }, 1.4)
-    .to({}, { duration:.5 });
-  gsap.utils.toArray('.mo-card .num').forEach(n => gsap.from(n, { yPercent:40, autoAlpha:0, duration:1, ease:EASE, scrollTrigger:{ trigger:n, start:'top 85%', once:true } }));
+  const h = document.getElementById('mo-h'), l2 = h.querySelector('.mo-l2'), mk = h.querySelector('.mk');
+  const tl = document.getElementById('tl'), seg = tl.querySelector('.tl-seg'), dot = tl.querySelector('.tl-dot'), ring = dot.querySelector('i');
+  const ticks = tl.querySelector('.tl-ticks'); ticks.innerHTML = '<i></i>'.repeat(25);
+  const tk = [...ticks.children], flag = tl.querySelector('.tl-flag'), was = tl.querySelector('.tl-was'), now = tl.querySelector('.tl-now');
+  if(REDUCE){
+    gsap.set(l2, {'--mix':1}); gsap.set(mk, {'--fill':1});
+    gsap.set(seg, {'--w':.34, '--draw':1, '--p':1}); gsap.set(tl.querySelector('.tl-rail'), {'--draw':1}); gsap.set([dot, flag, now], {opacity:1}); gsap.set(tk, {opacity:1}); gsap.set(was, {opacity:0});
+    return;
+  }
+  /* ערכי התחלה מפורשים: GSAP לא יודע לנפח משתנה CSS שאין לו ערך, ופשוט קופץ לסוף. זה מה שהסתיר את הזחילה */
+  /* בטלפון קטע של שליש מסלול קצר מדי, ודגל ההשקה נדחס על תווית הבריף */
+  const SHORT = innerWidth < 900 ? .6 : .34;
+  gsap.set(seg, { '--draw':0, '--p':0, '--w':1 }); gsap.set(ring, { '--ring':1, '--ringo':0 });
+  const t = gsap.timeline({ scrollTrigger:{ trigger:'.mo-pin', start:'top top', end:'+=160%', pin:true, anticipatePin:1, scrub:.6 } });
+  t.from(h.querySelector('.mo-l1'), { yPercent:30, autoAlpha:0, duration:.4, ease:'power2.out' }, 0)
+    .to([seg, tl.querySelector('.tl-rail')], { '--draw':1, duration:.5, ease:'power2.inOut' }, .05)
+    .to(tk, { opacity:1, duration:.2, stagger:.012 }, .15)
+    .to(dot, { opacity:1, duration:.15 }, .45)
+    /* חודשים: הנקודה זוחלת לאורך מסלול ארוך, בזמן שהמילה נמחקת */
+    .to(h.querySelector('.strike i'), { scaleX:1, duration:.5, ease:'power2.inOut' }, .55)
+    .to(h.querySelector('.strike > span'), { opacity:.35, duration:.3 }, .75)
+    .to(seg, { '--p':.28, duration:.55, ease:'none' }, .55)
+    /* ימים: המסלול מתכווץ לקטע קצר והשורה השנייה מתעוררת */
+    .from(l2, { yPercent:20, autoAlpha:0, duration:.5, ease:'power2.out' }, 1.1)
+    .to(l2, { '--mix':1, duration:.4 }, 1.35)
+    .to(seg, { '--w':SHORT, duration:.6, ease:'power3.inOut' }, 1.15)
+    .to(was, { opacity:0, y:-8, duration:.25 }, 1.2)
+    .fromTo(now, { opacity:0, y:8 }, { opacity:1, y:0, duration:.25 }, 1.35)
+    /* הגעה: הנקודה רצה לסוף, "בתוך ימים" נצבע, דגל ההשקה קופץ ופעימה אחת */
+    .to(seg, { '--p':1, duration:.35, ease:'power2.out' }, 1.6)
+    .to(mk, { '--fill':1, duration:.5, ease:'power2.inOut' }, 1.6)
+    .fromTo(flag, { opacity:0, y:8 }, { opacity:1, y:0, duration:.2, ease:'back.out(2)' }, 1.92)
+    .fromTo(ring, { '--ring':1, '--ringo':0 }, { '--ring':3.2, '--ringo':1, duration:.45, ease:'power2.out' }, 1.94)
+    .to({}, { duration:.45 });
+
+  /* פעם / היום: פסי זמן בשני הלוחות. נכנס למסך ומתחלף ל"היום", ובלחיצה אפשר להשוות */
+  const box = document.getElementById('mo-two'), cards = [...box.querySelectorAll('.mo-card')];
+  const btns = [...box.querySelectorAll('.mo-switch button')], pill = box.querySelector('.mo-switch-pill');
+  const setState = (s, animate) => {
+    btns.forEach(b => { const on = b.dataset.s === s; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); });
+    const b = btns.find(x => x.dataset.s === s);
+    gsap.to(pill, { x: b.offsetLeft - 4, width: b.offsetWidth, duration: animate ? .45 : 0, ease:'power3.inOut' });
+    cards.forEach(c => { gsap.set(c.querySelector('.bar-track'), { '--g': +c.dataset.before }); gsap.to(c.querySelector('.bar-fill'), { scaleX: +c.dataset[s] / 100, duration: animate ? 1.1 : 0, ease:'power3.inOut', overwrite:true }); });
+    box.classList.toggle('cmp', s === 'today');
+  };
+  setState('before', false);
+  ScrollTrigger.create({ trigger:box, start:'top 75%', once:true, onEnter(){ setTimeout(() => setState('today', true), 350); } });
+  btns.forEach(b => b.addEventListener('click', () => setState(b.dataset.s, true)));
+  addEventListener('resize', () => { const b = btns.find(x => x.classList.contains('on')); gsap.set(pill, { x: b.offsetLeft - 4, width: b.offsetWidth }); });
 })();
 
 /* ---------- 04 LM8: שתי רצועות בלופ אינסופי. הגלילה רק מאיצה ומטה, אף פעם לא מזיזה מיקום ---------- */
@@ -248,8 +288,9 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
   if(REDUCE) return;
   gsap.from(chars, { yPercent:120, autoAlpha:0, duration:.9, stagger:{ each:.012, from:'start' }, ease:EASE, scrollTrigger:{ trigger:h, start:'top 85%', once:true } });
   gsap.from(tiles, { autoAlpha:0, y:40, duration:1, stagger:.08, ease:EASE, scrollTrigger:{ trigger:'.taste-pin', start:'top 70%', once:true } });
-  const pin = document.querySelector('.taste-pin');
-  ScrollTrigger.create({ trigger:pin, start:'top top', end:'+=80%', pin:true, anticipatePin:1, scrub:true,
+  const pin = document.querySelector('.taste-pin'), DESKTOP = innerWidth >= 900;
+  /* בנייד בלי הצמדה: הכותרת והאריחים גבוהים מהמסך, והצמדה הייתה חותכת אותם */
+  ScrollTrigger.create({ trigger:pin, start: DESKTOP ? 'top top' : 'top 80%', end: DESKTOP ? '+=80%' : 'bottom 20%', pin:DESKTOP, anticipatePin:1, scrub:true,
     onUpdate(self){ const p = self.progress; chars.forEach((c, i) => { c.style.transform = `translateY(${(Math.sin(i * .55 + p * 9) * 10 * Math.sin(p * Math.PI)).toFixed(2)}px)`; }); } });
   if(!FINE) return;
   const setX = tiles.map(f => gsap.quickTo(f, 'x', { duration:1.2, ease:'power3' })), setY = tiles.map(f => gsap.quickTo(f, 'y', { duration:1.2, ease:'power3' }));
