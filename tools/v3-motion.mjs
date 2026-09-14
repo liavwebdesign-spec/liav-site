@@ -34,11 +34,9 @@ await send("Emulation.setDeviceMetricsOverride", { width: W, height: H, deviceSc
 await send("Page.navigate", { url: BASE });
 await sleep(7000);   // פרילודר אמיתי, לא מצב QA: בודקים את הכניסה כמו גולש
 
-// --- 1. לופים בזמן, בלי לגלול: הקיר בהירו ---
-const sample = async (expr, n, dt) => { const a = []; for (let i = 0; i < n; i++) { a.push(await js(expr)); await sleep(dt); } return a; };
-const wall = await sample(`[...document.querySelectorAll('#wall .wall-col')].map(c => +gsap.getProperty(c, 'yPercent'))`, 12, 120);
-const mono = (arr, k, dir) => arr.slice(1).every((v, i) => { const d = v[k] - arr[i][k]; return dir > 0 ? (d > 0 || d < -40) : (d < 0 || d > 40); });
-check(mono(wall, 0, -1) && mono(wall, 1, 1), `הקיר בהירו זורם ברציפות, שני הטורים בכיוונים מנוגדים [${wall[0].map(v => v.toFixed(1))} → ${wall[11].map(v => v.toFixed(1))}]`);
+// --- 1. הירו G54: אחרי הכניסה כל תשע העבודות התכנסו לגריד (בלי היסט, סיבוב או שקיפות) ---
+const cvEnd = await js(`[...document.querySelectorAll('#cv figure')].map(f => [gsap.getProperty(f,'xPercent'), gsap.getProperty(f,'yPercent'), gsap.getProperty(f,'rotate'), gsap.getProperty(f,'scale'), +getComputedStyle(f).opacity])`);
+check(cvEnd.length === 9 && cvEnd.every(([x, y, r, s, o]) => Math.abs(x) < .5 && Math.abs(y) < .5 && Math.abs(r) < .5 && Math.abs(s - 1) < .01 && o > .99), `הגריד בהירו התכנס: ${cvEnd.length} עבודות במקום`);
 
 // --- 2. גלילה אמיתית לאורך כל העמוד, בצעדים, עם דגימה של הרצועות והצמדות ---
 const total = await js(`document.body.scrollHeight - innerHeight`);

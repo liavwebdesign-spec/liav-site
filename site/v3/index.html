@@ -12,7 +12,7 @@
 <link rel="icon" href="../img/favicon.png" type="image/png">
 <link rel="stylesheet" href="../css/tokens.css">
 <!-- ?v= מונע מהדפדפן להגיש CSS/JS ישנים מהמטמון (max-age=600 ב-GitHub Pages) אחרי כל שינוי בקבצים האלה. מעלים ב-1 בכל דחיפה שנוגעת בהם -->
-<link rel="stylesheet" href="v3.css?v=6">
+<link rel="stylesheet" href="v3.css?v=7">
 </head>
 <body class="t-light">
 
@@ -39,7 +39,7 @@
 
 <div class="page" id="top">
 
-<!-- ===== 00 הירו: כותרת בשורות, ושני טורים של כל 14 העבודות שזורמים בלופ אינסופי (G4 + CSS19) ===== -->
+<!-- ===== 00 הירו: כותרת בשורות, ותשע עבודות שמתפזרות ומתכנסות לגריד מסודר, ונוטות לעומק ביציאה (G4 + G54) ===== -->
 <section class="hero grid" data-theme="light" aria-label="פתיח">
   <div class="hero-copy">
     <p class="mono kick">Liav Matzri · Premium web design</p>
@@ -48,7 +48,7 @@
     <p class="sub rv">אני נעזר בכלי בינה מלאכותית כדי לייעל את הפיתוח, אבל כל אתר עדיין נבנה מאפס, לפי העסק, הקהל והמטרות שלו.</p>
     <div class="ctas rv"><span class="mg"><a class="pill" href="#works">לצפייה בעבודות <span class="arr">↓</span></a></span><span class="mg"><a class="pill ghost" href="#contact">בואו נדבר</a></span></div>
   </div>
-  <div class="wall" id="wall" aria-hidden="true"><div class="wall-col" data-dir="1"></div><div class="wall-col" data-dir="-1"></div></div>
+  <div class="cv-stage" aria-hidden="true"><div class="cv" id="cv"></div></div>
   <div class="hero-foot"><span class="mono">Scroll</span><span class="mono">14 projects · 2020 to 2026</span></div>
 </section>
 
@@ -138,16 +138,17 @@
   </div>
 </section>
 
-<!-- ===== 06 הטעם: מסך לבן מוצמד, אותיות בגל, ארבעה אריחים בפינות שנעים עם העכבר (G35 + G37) ===== -->
+<!-- ===== 06 הטעם: שתי שורות הכותרת נפתחות, ורצועת עבודות אמיתיות נפתחת ביניהן (G108) ===== -->
 <section class="taste" data-theme="white" aria-label="הטעם">
   <div class="taste-pin">
-    <div class="tiles" id="tiles" aria-hidden="true"></div>
-    <div class="taste-in">
-      <h2 class="wave" id="wave">כשהבנייה נהיית קלה, <em class="u">הטעם</em> נהיה חשוב יותר</h2>
-      <div class="taste-lines">
-        <p class="rv">אפשר לתת לכלי לייצר.</p>
-        <p class="rv strong">אי אפשר לתת לו להכיר את העסק במקומכם.</p>
-      </div>
+    <h2 class="sp-h">
+      <span class="sp-l">כשהבנייה נהיית קלה,</span>
+      <span class="sp-img" id="sp-img" aria-hidden="true"></span>
+      <span class="sp-l"><em class="u">הטעם</em> נהיה חשוב יותר</span>
+    </h2>
+    <div class="taste-lines sp-cap">
+      <p>אפשר לתת לכלי לייצר.</p>
+      <p class="strong">אי אפשר לתת לו להכיר את העסק במקומכם.</p>
     </div>
   </div>
 </section>
@@ -229,6 +230,6 @@
 <script src="../js/vendor/InertiaPlugin.min.js"></script>
 <script src="../js/vendor/lenis.min.js"></script>
 <script src="../js/data.js"></script>
-<script src="v3.js?v=6"></script>
+<script src="v3.js?v=7"></script>
 </body>
 </html>

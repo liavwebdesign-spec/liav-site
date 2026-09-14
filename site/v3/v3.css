@@ -108,17 +108,17 @@ body.t-dark .tg{box-shadow:none}
 .hero .lead{font-size:var(--fs-lead);line-height:1.4;max-width:34ch;color:var(--ink)}
 .hero .sub{color:var(--grey);max-width:44ch}
 .hero .ctas{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px}
-/* קיר: שני טורים של כל 14 העבודות, זורמים בכיוונים מנוגדים, בלופ. מסכה רכה למעלה ולמטה */
-.wall{grid-column:7/13;align-self:stretch;height:min(72svh,760px);display:grid;grid-template-columns:1fr 1fr;gap:var(--gg);overflow:hidden;transform:rotate(-4deg) scale(1.12);
-  -webkit-mask-image:linear-gradient(to bottom,transparent,#000 14%,#000 86%,transparent);mask-image:linear-gradient(to bottom,transparent,#000 14%,#000 86%,transparent)}
-.wall-col{display:grid;gap:var(--gg);align-content:start;will-change:transform}
-.wall-col figure{aspect-ratio:16/10;overflow:hidden;background:var(--dark)}
-.wall-col img{width:100%;height:100%;object-fit:cover}
+/* G54: תשע עבודות בגריד 3x3. הן נכנסות מפוזרות, מסובבות וקטנות, ומתכנסות. היחס המקורי של המוקאפ, בלי חיתוך */
+.cv-stage{grid-column:7/13;align-self:center;perspective:1400px;min-width:0}
+.cv{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(8px,1vw,16px);transform-style:preserve-3d;transform-origin:50% 40%;will-change:transform}
+.cv figure{aspect-ratio:1400/1056;overflow:hidden;background:var(--bg-2,#F1F1F1);will-change:transform,opacity;box-shadow:0 18px 40px rgba(10,10,11,.10)}
+.cv img{width:100%;height:100%;object-fit:cover}
 .hero-foot{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:14px}
 @media (max-width:899px){
   .hero{padding-top:96px;row-gap:32px}
-  .hero-copy,.wall{grid-column:1/-1}
-  .wall{height:46svh;order:-1;margin-top:8px;transform:rotate(-3deg) scale(1.1)}
+  .hero-copy,.cv-stage{grid-column:1/-1}
+  .cv-stage{order:-1;margin-top:8px}
+  .cv{gap:8px}
   /* "בהישג ידכם" לא נשבר: הגודל צמוד לרוחב המסך כדי שלא ייכנס לשוליים ב-320 עד 390 */
   .hero h1{max-width:none;font-size:clamp(28px,9.2vw,52px)}
 }
@@ -274,26 +274,33 @@ body.t-dark .tg{box-shadow:none}
 .tools-text>p:not(.big){color:var(--grey);font-size:var(--fs-lead);line-height:1.4;max-width:32ch}
 @media (max-width:899px){.prompt,.tools-text{grid-column:1/-1}.tools-h{margin-bottom:32px}}
 
-/* ===== 06 הטעם: לבן, טקסט במרכז, אריחים רק בפינות ===== */
+/* ===== 06 הטעם: G108. שתי שורות שנפתחות, ורצועה של שלוש עבודות נחשפת ביניהן מהאמצע =====
+   ה-h2 ב-display:contents כדי שהרצועה תשב בין השורות באותו גריד. חשיפה ב-clip-path ולא scaleY, כדי שהמוקאפים לא יימעכו. */
 .taste{padding:0}
-.taste-pin{min-height:100svh;position:relative;overflow:hidden;display:grid;align-content:center}
-.tiles{position:absolute;inset:0;pointer-events:none}
-.tiles figure{position:absolute;width:var(--w);aspect-ratio:16/10;overflow:hidden;background:var(--dark);will-change:transform;box-shadow:0 20px 50px rgba(10,10,11,.14)}
-.tiles img{width:100%;height:100%;object-fit:cover}
-.taste-in{position:relative;z-index:1;display:grid;gap:36px;justify-items:center;text-align:center;padding:var(--sec) var(--pad-x);max-width:min(72vw,1100px);margin-inline:auto}
-.taste h2{font-size:clamp(34px,5.2vw,92px);line-height:1.06}
-.wave .char{display:inline-block;will-change:transform}
-.taste-lines{display:grid;gap:10px;font-size:var(--fs-lead);line-height:1.4;max-width:40ch;justify-items:center}
+.taste-pin{height:100svh;position:relative;overflow:hidden;display:grid;align-content:center;justify-items:center;text-align:center;padding-inline:var(--pad-x)}
+.sp-h{display:contents}
+.sp-l{display:block;font-size:clamp(34px,5.2vw,92px);line-height:1.06;position:relative;z-index:1;will-change:transform}
+.sp-img{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gg);margin-block:clamp(14px,2vw,30px);width:min(100%,1180px,calc(33svh * 1400 / 1056 * 3));will-change:clip-path}
+.sp-img figure{aspect-ratio:1400/1056;overflow:hidden;background:var(--bg-2,#F1F1F1)}
+.sp-img img{width:100%;height:100%;object-fit:cover;will-change:transform}
+.taste-lines{display:grid;gap:10px;font-size:var(--fs-lead);line-height:1.4;max-width:40ch;justify-items:center;margin-top:clamp(18px,2.6vw,40px)}
 .taste-lines .strong{font-family:var(--body);font-weight:500;font-size:clamp(22px,2.2vw,36px);line-height:1.3;letter-spacing:-.005em;max-width:26ch}
 @media (max-width:899px){
-  /* בנייד: אין מקום לאריחים בפינות בלי שייחתכו מתחת לכותרת או יעלו על הטקסט. הם יורדים לגריד מתחת */
-  .taste-pin{min-height:0;display:flex;flex-direction:column;padding-block:96px}
-  .taste-in{max-width:none;padding:0 var(--pad-x);gap:28px}
-  .taste h2{font-size:clamp(32px,9.6vw,56px);line-height:1.18}
-  .taste-lines .strong{font-size:clamp(20px,5.6vw,28px)}
-  .tiles{position:relative;inset:auto;order:2;display:grid;grid-template-columns:1fr 1fr;gap:var(--gg);padding-inline:var(--pad-x);margin-top:48px}
-  .tiles figure{position:static!important;width:auto!important;box-shadow:none}
+  /* בנייד עבודה אחת ברצועה, בגובה שמשאיר מקום לשתי השורות ולכיתוב בתוך מסך אחד מוצמד */
+  .sp-l{font-size:clamp(28px,8.6vw,56px);line-height:1.14}
+  .sp-img{grid-template-columns:1fr;width:min(100%,calc(30svh * 1400 / 1056))}
+  .sp-img figure:nth-child(n+2){display:none}
+  .taste-lines .strong{font-size:clamp(19px,5.4vw,28px)}
+  /* ההדר למעלה וכפתור הוואטסאפ למטה: הבמה המוצמדת מתמרכזת ביניהם */
+  .taste-pin{padding-block:64px 76px}
 }
+@media (max-width:899px) and (max-height:700px){
+  .sp-l{font-size:clamp(24px,7.6vw,40px)}
+  .sp-img{width:min(100%,calc(22svh * 1400 / 1056))}
+  .taste-lines{margin-top:12px;gap:4px}
+  .taste-lines .strong{font-size:clamp(17px,5vw,22px)}
+}
+@media (prefers-reduced-motion:reduce){.taste-pin{height:auto;min-height:100svh;padding-block:96px}}
 
 /* ===== 07 אנשים: רצועת וידאו מוצמדת (G65) ומרקי כתוב ===== */
 .people-top{row-gap:20px;align-items:end}

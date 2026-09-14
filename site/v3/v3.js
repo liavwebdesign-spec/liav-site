@@ -28,17 +28,17 @@ const QUOTES = [
 ];
 const ALL = works.map((w, i) => i + 1);
 const GEN_IMGS = [2, 8, 12];
-const TILES = [4, 6, 7, 10];
+const CV = [1, 3, 5, 9, 2, 11, 6, 13, 8];
+const STRIP = [4, 7, 10];
 
 /* ---------- תוכן דינמי ---------- */
 (function build(){
-  /* הקיר: שני טורים, כל אחד עם 7 עבודות, משוכפל פעמיים ללופ */
-  document.querySelectorAll('#wall .wall-col').forEach((col, c) => { const list = ALL.filter((_, i) => i % 2 === c); col.innerHTML = [...list, ...list].map((i, k) => `<figure><img src="${src(i, 1)}" alt="" ${k > 3 ? 'loading="lazy"' : ''}></figure>`).join(''); });
+  document.getElementById('cv').innerHTML = CV.map(i => `<figure><img src="${src(i, 1)}" alt=""></figure>`).join('');
   document.getElementById('pl').innerHTML = works.map((w, i) => `<div class="pl-row" data-i="${i}"><span class="mono">${pad(i+1)}</span><h3>${w.n}</h3><span class="mono tag">${w.tag}</span><div class="thumb"><img src="${src(i+1, 1)}" alt="" loading="lazy"></div></div>`).join('');
   document.getElementById('pl-prev').innerHTML = '<div class="pl-prev-in">' + works.map((w, i) => `<img src="${src(i+1)}" alt="" loading="lazy">`).join('') + '</div>';
   document.getElementById('gen-media').innerHTML = GEN_IMGS.map(i => `<img src="${src(i)}" alt="" loading="lazy">`).join('');
   document.querySelectorAll('.mq-in').forEach((row, r) => { const list = r ? [...ALL.slice(7), ...ALL.slice(0, 7)] : ALL; row.innerHTML = list.map(i => `<figure><img src="${src(i, 1)}" alt=""></figure>`).join(''); });
-  document.getElementById('tiles').innerHTML = TILES.map((i, k) => `<figure data-k="${k}"><img src="${src(i, 1)}" alt=""></figure>`).join('');
+  document.getElementById('sp-img').innerHTML = STRIP.map(i => `<figure><img src="${src(i)}" alt="" loading="lazy"></figure>`).join('');
   document.getElementById('vt-track').innerHTML = clients.map((c, i) => `<button class="vt-card" type="button" data-i="${i}" aria-label="צפייה בהמלצה של ${c.n}"><span class="vt-media"><img src="../video/${c.v}.webp" alt="" loading="lazy"><video muted playsinline loop preload="none" src="../video/${c.v}.mp4" tabindex="-1" aria-hidden="true"></video><span class="vt-q">${c.q}</span><span class="vt-play"><i></i>צפייה</span></span><span class="vt-meta"><b>${c.n}</b><span class="mono">${c.r}</span></span></button>`).join('');
   const card = (q, k) => `<div class="tq-card"><img src="../img/testi/${q.i}.webp" alt="" loading="lazy"${q.logo ? ' class="logo"' : ''}><div><p>${q.q}</p><small><b>${q.n}</b> · ${q.t}</small></div></div>`;
   const a = QUOTES.slice(0, 6), b = QUOTES.slice(6);
@@ -74,8 +74,8 @@ const READY = FONTS.then(() => { document.querySelectorAll('.t-lines, .h-lines')
       .to(h1.querySelector('em'), { '--u':1, duration:.8, ease:'power2.inOut' }, .9)
       .to('.hero .rv', { y:0, autoAlpha:1, duration:.9, stagger:.1 }, .5)
       .from('.hd', { y:-20, autoAlpha:0, duration:.8 }, .3)
-      .from('.wall', { autoAlpha:0, x:-40, duration:1.2 }, .3)
       .from('.hero-foot', { autoAlpha:0, duration:.6 }, 1);
+    converge();
   };
   if(REDUCE || QA){
     pre.style.display = 'none'; lenis && lenis.start();
@@ -91,15 +91,21 @@ const READY = FONTS.then(() => { document.querySelectorAll('.t-lines, .h-lines')
   });
 })();
 
-/* ---------- 00 CSS19: הקיר זורם בלופ, שני הטורים בכיוונים מנוגדים, ומאט בהובר ---------- */
+/* ---------- 00 G54: גריד מפוזר שמתכנס. כל עבודה יוצאת מכיוון שנגזר ממקומה בגריד, ביחידות xPercent,
+   כך שהפיזור נשאר פרופורציונלי בכל רוחב. ביציאה מההירו הגריד כולו נוטה לעומק ---------- */
+function converge(){
+  const cv = document.getElementById('cv'); if(!cv || REDUCE) return;
+  const items = [...cv.children], g = cv.getBoundingClientRect(), cx = g.left + g.width / 2, cy = g.top + g.height / 2;
+  items.forEach((el, k) => {
+    const r = el.getBoundingClientRect(), dx = (r.left + r.width / 2 - cx) / g.width, dy = (r.top + r.height / 2 - cy) / g.height;
+    const spin = (k % 2 ? -1 : 1) * 7;
+    gsap.fromTo(el, { xPercent:dx * 260, yPercent:dy * 230, scale:.42, rotate:dx * 30 + spin, rotateY:dx * -30, autoAlpha:0 },
+      { xPercent:0, yPercent:0, scale:1, rotate:0, rotateY:0, autoAlpha:1, duration:1.9, ease:'power3.out', delay:.75 + Math.hypot(dx, dy) * .45 });   /* ההשהיה: הפרילודר מתרומם ב-0.9 שניות, וההתכנסות צריכה לקרות מול העיניים ולא מאחוריו */
+  });
+}
 (function(){
-  const cols = gsap.utils.toArray('#wall .wall-col'); if(!cols.length || REDUCE) return;
-  /* שני עותקים זהים, אז חצי מהגובה הוא מחזור שלם. yPercent על הטור, בלי חישובי פיקסלים */
-  const tweens = cols.map(col => { const dir = +col.dataset.dir; return gsap.fromTo(col, { yPercent: dir > 0 ? 0 : -50 }, { yPercent: dir > 0 ? -50 : 0, duration: 38, ease:'none', repeat:-1 }); });
-  const wall = document.getElementById('wall');
-  wall.addEventListener('mouseenter', () => tweens.forEach(t => gsap.to(t, { timeScale:.25, duration:.6 })));
-  wall.addEventListener('mouseleave', () => tweens.forEach(t => gsap.to(t, { timeScale:1, duration:.6 })));
-  ScrollTrigger.create({ trigger:'.hero', start:'top bottom', end:'bottom top', onToggle(self){ tweens.forEach(t => self.isActive ? t.play() : t.pause()); } });
+  if(REDUCE) return;
+  gsap.to('#cv', { rotateX:26, rotateZ:-5, yPercent:-6, scale:.9, ease:'none', scrollTrigger:{ trigger:'.hero', start:'top top', end:'bottom top', scrub:.6 } });
   gsap.to('.hero-copy', { y:-60, autoAlpha:0, ease:'none', scrollTrigger:{ trigger:'.hero', start:'40% top', end:'bottom top', scrub:.6 } });
 })();
 
@@ -311,23 +317,19 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
   mk && tw.to(mk, { '--fill':1, duration:.6, ease:'power2.out' }, spans.length * .35 - 1);
 })();
 
-/* ---------- 06 G35 + G37: אותיות בגל לפי הגלילה, אריחים בפינות שנעים עם העכבר ---------- */
+/* ---------- 06 G108: שתי שורות הכותרת מתחילות צמודות, נפתחות בגלילה, ורצועת העבודות נחשפת ביניהן מהאמצע ----------
+   המרחק נמדד ב-offsetTop, שלא מושפע מה-transform, ומחושב מחדש ב-refresh */
 (function(){
-  const h = document.getElementById('wave');
-  const chars = new SplitText(h, { type:'words,chars', charsClass:'char' }).chars;
-  const tiles = gsap.utils.toArray('#tiles figure');
-  const POS = [[2, 6, .15], [84, 8, .13], [83, 68, .15], [2, 66, .13]];   /* פינות בלבד, רחוק מהטקסט */
-  tiles.forEach((f, k) => { const [l, t, w] = POS[k]; f.style.left = l + '%'; f.style.top = t + '%'; f.style.setProperty('--w', `max(120px, ${w * 100}vw)`); f.dataset.depth = (.5 + k * .18).toFixed(2); });
-  if(REDUCE) return;
-  gsap.from(chars, { yPercent:120, autoAlpha:0, duration:.9, stagger:{ each:.012, from:'start' }, ease:EASE, scrollTrigger:{ trigger:h, start:'top 85%', once:true } });
-  gsap.from(tiles, { autoAlpha:0, y:40, duration:1, stagger:.08, ease:EASE, scrollTrigger:{ trigger:'.taste-pin', start:'top 70%', once:true } });
-  const pin = document.querySelector('.taste-pin'), DESKTOP = innerWidth >= 900;
-  /* בנייד בלי הצמדה: הכותרת והאריחים גבוהים מהמסך, והצמדה הייתה חותכת אותם */
-  ScrollTrigger.create({ trigger:pin, start: DESKTOP ? 'top top' : 'top 80%', end: DESKTOP ? '+=80%' : 'bottom 20%', pin:DESKTOP, anticipatePin:1, scrub:true,
-    onUpdate(self){ const p = self.progress; chars.forEach((c, i) => { c.style.transform = `translateY(${(Math.sin(i * .55 + p * 9) * 10 * Math.sin(p * Math.PI)).toFixed(2)}px)`; }); } });
-  if(!FINE) return;
-  const setX = tiles.map(f => gsap.quickTo(f, 'x', { duration:1.2, ease:'power3' })), setY = tiles.map(f => gsap.quickTo(f, 'y', { duration:1.2, ease:'power3' }));
-  pin.addEventListener('mousemove', e => { const dx = (e.clientX / innerWidth - .5), dy = (e.clientY / innerHeight - .5); tiles.forEach((f, k) => { const d = +f.dataset.depth * 40; setX[k](-dx * d); setY[k](-dy * d); }); });
+  const pin = document.querySelector('.taste-pin'); if(!pin || REDUCE) return;
+  const [a, b] = pin.querySelectorAll('.sp-l'), strip = document.getElementById('sp-img'), cap = pin.querySelector('.sp-cap');
+  const half = () => (b.offsetTop - (a.offsetTop + a.offsetHeight)) / 2;
+  gsap.timeline({ scrollTrigger:{ trigger:pin, start:'top top', end:'+=130%', pin:true, anticipatePin:1, scrub:.6, invalidateOnRefresh:true } })
+    .fromTo(a, { y:() => half() }, { y:0, duration:1, ease:'power3.inOut' }, 0)
+    .fromTo(b, { y:() => -half() }, { y:0, duration:1, ease:'power3.inOut' }, 0)
+    .fromTo(strip, { clipPath:'inset(50% 0% 50% 0%)' }, { clipPath:'inset(0% 0% 0% 0%)', duration:1, ease:'power3.inOut' }, 0)
+    .fromTo(strip.querySelectorAll('img'), { scale:1.3 }, { scale:1, duration:1, ease:'power3.inOut' }, 0)
+    .to([a, b], { scale:.9, duration:.4, ease:'power2.out' }, .7)
+    .fromTo(cap, { autoAlpha:0, y:24 }, { autoAlpha:1, y:0, duration:.35, ease:'power2.out' }, .8);
 })();
 
 /* ---------- 07 G65: רצועת וידאו מוצמדת שנגללת לרוחב, הכרטיס שבמרכז גדל ומתנגן. לחיצה פותחת נגן ---------- */
