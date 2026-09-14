@@ -60,6 +60,116 @@ document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click
   gsap.to(o, { v:100, duration:1.6, ease:'power2.inOut', onUpdate(){ num.textContent = String(Math.round(o.v)).padStart(2,'0'); }, onComplete:open });
 })();
 
+/* ---------- G65 + FLIP: לקוחות בווידאו ----------
+   נבנה לפני שאר הטריגרים, כי ההצמדה מוסיפה גובה לעמוד וכל מה שמתחתיה נמדד אחריה. */
+(function(){
+  const sec = document.getElementById('clients'); if(!sec) return;
+  const list = window.SITE.clients, N = list.length;
+  const track = document.getElementById('vt-track'), strip = sec.querySelector('.vt-strip');
+  const idx = document.getElementById('vt-idx'), bar = sec.querySelector('.vt-bar i');
+  const pad = n => String(n).padStart(2,'0');
+  track.innerHTML = list.map((c,i) => `<button class="vt-card" type="button" data-i="${i}" aria-label="צפייה בהמלצה של ${c.n}"><span class="vt-media"><img src="video/${c.v}.webp" alt="" loading="lazy"><video muted playsinline loop preload="none" src="video/${c.v}.mp4" tabindex="-1" aria-hidden="true"></video><span class="vt-q">${c.q}</span><span class="vt-play"><i></i>צפייה</span></span><span class="vt-meta"><b>${c.n}</b><span class="mono">${c.r}</span></span></button>`).join('');
+  const cards = [...track.children], clips = cards.map(c => c.querySelector('video'));
+  idx.textContent = `01 / ${pad(N)}`;
+
+  /* סרטון חי אחד בכל רגע: הכרטיס הקרוב למרכז, ורק כשהסקשן על המסך */
+  let live = -1, inView = false;
+  const setLive = i => {
+    if(REDUCE) return;
+    if(!inView) i = -1;
+    if(i === live) return;
+    clips.forEach((v,n) => { if(n !== i && !v.paused){ v.pause(); } cards[n].classList.toggle('live', n === i && !v.paused); });
+    live = i;
+    if(i >= 0){ const v = clips[i]; v.play().then(() => { if(live === i) cards[i].classList.add('live'); }).catch(() => {}); }
+  };
+  ScrollTrigger.create({ trigger:sec, start:'top 55%', end:'bottom 45%', onToggle(self){ inView = self.isActive; const l = live; live = -2; setLive(inView ? Math.max(0,l) : -1); } });
+
+  if(!REDUCE){
+    const geo = () => {
+      const cs = getComputedStyle(strip), inner = strip.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      const w = cards[0].offsetWidth, g = parseFloat(getComputedStyle(track).columnGap) || 0;
+      return { inner, w, g, x0: w/2 - inner/2, x1: (N-1)*(w+g) + w/2 - inner/2 };
+    };
+    let G = geo();
+    const layout = () => {
+      const x = gsap.getProperty(track, 'x'), step = G.w + G.g;
+      const pos = (x - G.x0) / step;   /* 0 בכרטיס הראשון, N-1 באחרון */
+      cards.forEach((c,i) => {
+        const d = Math.min(Math.abs(i - pos), 1.4);
+        gsap.set(c, { scale: 1 - d*.12 });
+        c.style.setProperty('--dim', d);
+        c.querySelector('.vt-meta').style.opacity = 1 - d*.5;
+        c.querySelector('.vt-q').style.opacity = c.querySelector('.vt-play').style.opacity = Math.max(0, 1 - d*1.6);
+      });
+      const p = gsap.utils.clamp(0, 1, pos/(N-1));
+      bar.style.transform = `scaleX(${p})`;
+      const near = gsap.utils.clamp(0, N-1, Math.round(pos));
+      idx.textContent = `${pad(near+1)} / ${pad(N)}`;
+      setLive(near);
+    };
+    gsap.fromTo(track, { x: () => G.x0 }, {
+      x: () => G.x1, ease:'none', onUpdate: layout,
+      scrollTrigger:{ trigger: sec.querySelector('.vt-pin'), start:'top top', end: () => '+=' + (G.x1 - G.x0), pin:true, scrub:.5, invalidateOnRefresh:true, onRefreshInit(){ G = geo(); } }
+    });
+    layout();
+  }
+
+  /* נגן: הכרטיס מתרחב למסך מלא עם קול, ונסגר חזרה למקום שלו */
+  const lb = document.getElementById('vt-lb'), frame = lb.querySelector('.vt-lb-frame'), lv = frame.querySelector('video');
+  const bg = lb.querySelector('.vt-lb-bg'), close = lb.querySelector('.vt-lb-close'), cap = lb.querySelector('.vt-lb-cap');
+  let open = -1, back = null;
+  const rectOf = i => { const r = cards[i].querySelector('.vt-media').getBoundingClientRect(); return { left:r.left, top:r.top, width:r.width, height:r.height }; };
+  const fit = i => {
+    const img = cards[i].querySelector('img'), ar = img.naturalWidth && img.naturalHeight ? img.naturalWidth/img.naturalHeight : 9/16;
+    const maxH = innerHeight - 150, maxW = innerWidth - 32;
+    let h = maxH, w = h*ar; if(w > maxW){ w = maxW; h = w/ar; }
+    return { left:(innerWidth-w)/2, top:(innerHeight-h)/2, width:w, height:h };
+  };
+  const D = REDUCE ? 0 : 1;
+  function show(i){
+    if(open >= 0) return;
+    open = i; back = document.activeElement;
+    const c = list[i];
+    setLive(-1); inView = false;
+    lv.poster = `video/${c.v}.webp`; lv.src = `video/${c.v}.mp4`; lv.muted = false;
+    lv.play().catch(() => {});
+    cap.querySelector('b').textContent = c.n; cap.querySelector('.mono').textContent = c.r;
+    lb.classList.add('open'); document.body.classList.add('vt-open');
+    lenis ? lenis.stop() : (document.body.style.overflow = 'hidden');
+    cards[i].querySelector('.vt-media').style.visibility = 'hidden';
+    gsap.set(frame, rectOf(i));
+    gsap.timeline({ defaults:{ ease:'power3.inOut' } })
+      .to(bg, { opacity:1, duration:.5*D }, 0)
+      .to(frame, { ...fit(i), duration:.75*D }, 0)
+      .to([close, cap], { opacity:1, duration:.4*D, ease:'power2.out' }, .5*D);
+    close.focus({ preventScroll:true });
+  }
+  function hide(){
+    if(open < 0) return;
+    const i = open; lv.pause();
+    gsap.timeline({ defaults:{ ease:'power3.inOut' }, onComplete(){
+      cards[i].querySelector('.vt-media').style.visibility = '';
+      lb.classList.remove('open'); document.body.classList.remove('vt-open');
+      lv.removeAttribute('src'); lv.load();
+      lenis ? lenis.start() : (document.body.style.overflow = '');
+      open = -1; back && back.focus({ preventScroll:true });
+      inView = ScrollTrigger.isInViewport(sec, .2); live = -2; layoutLive();
+    }})
+      .to([close, cap], { opacity:0, duration:.2*D }, 0)
+      .to(frame, { ...rectOf(i), duration:.6*D }, 0)
+      .to(bg, { opacity:0, duration:.45*D }, .15*D);
+  }
+  const layoutLive = () => { const t = idx.textContent.slice(0,2); setLive(inView ? (+t - 1) : -1); };
+  cards.forEach((c,i) => c.addEventListener('click', () => show(i)));
+  close.addEventListener('click', hide); bg.addEventListener('click', hide);
+  addEventListener('keydown', e => {
+    if(open < 0) return;
+    if(e.key === 'Escape') hide();
+    if(e.key === 'Tab'){ const f = [close, lv]; const k = f.indexOf(document.activeElement); e.preventDefault(); f[(k + (e.shiftKey ? f.length-1 : 1)) % f.length].focus(); }
+  });
+  addEventListener('resize', () => { if(open >= 0) gsap.set(frame, fit(open)); });
+})();
+
 /* ---------- B55: מחוון מחליק בניווט ---------- */
 (function(){
   const nav = document.querySelector('.tg'); if(!nav) return;
@@ -210,6 +320,9 @@ if(!REDUCE){
   const page = document.querySelector('.page'), footer = document.querySelector('.rvf-footer');
   const fit = () => { page.style.marginBottom = footer.offsetHeight + 'px'; ScrollTrigger.refresh(); };
   fit(); addEventListener('resize', fit); document.fonts && document.fonts.ready.then(fit);
+  /* תמונה או פונט שנטענים מאוחר משנים את גובה העמוד. בלי רענון, ההצמדות מתחתם נפתחות במקום הלא נכון */
+  let h = page.offsetHeight, t = 0;
+  new ResizeObserver(() => { const nh = page.offsetHeight; if(Math.abs(nh - h) < 2) return; h = nh; clearTimeout(t); t = setTimeout(() => ScrollTrigger.refresh(), 150); }).observe(page);
 })();
 
 /* ---------- G08: סמן ---------- */

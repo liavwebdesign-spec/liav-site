@@ -66,7 +66,7 @@ body.nav-dark .tg a.cta{background:var(--accent);color:var(--ink)}
 .nv-open .nv-overlay{clip-path:inset(0 0 0 0);visibility:visible}
 .nv-link{display:flex;align-items:baseline;gap:18px;font-family:var(--head);font-size:clamp(40px,9vw,110px);font-weight:500;line-height:1.1;opacity:0;transform:translateY(28px);transition:opacity .5s,transform .5s}
 .nv-open .nv-link{opacity:1;transform:none}
-.nv-open .nv-link:nth-child(1){transition-delay:.18s}.nv-open .nv-link:nth-child(2){transition-delay:.25s}.nv-open .nv-link:nth-child(3){transition-delay:.32s}.nv-open .nv-link:nth-child(4){transition-delay:.39s}
+.nv-open .nv-link:nth-child(1){transition-delay:.18s}.nv-open .nv-link:nth-child(2){transition-delay:.25s}.nv-open .nv-link:nth-child(3){transition-delay:.32s}.nv-open .nv-link:nth-child(4){transition-delay:.39s}.nv-open .nv-link:nth-child(5){transition-delay:.46s}
 .nv-link .mono{color:var(--grey-2)}
 .nv-foot{margin-top:8vh;display:flex;gap:24px;flex-wrap:wrap;opacity:0;transition:opacity .5s .5s}
 .nv-open .nv-foot{opacity:1}
@@ -180,6 +180,58 @@ section.about{padding-bottom:0}
   .about .text{order:-1;padding-bottom:0;margin-bottom:32px}
   .about .portrait img{max-height:62vh}
 }
+
+/* ===== לקוחות בווידאו (G65 + FLIP לנגן) ===== */
+/* הסקשן מוצמד והרצועה נגררת אופקית לפי הגלילה. הכרטיס שבמרכז גדל ומתנגן בלי קול. */
+.vt{padding-top:var(--sec)}
+.vt .grid{row-gap:0}
+.vt-top{align-items:end;row-gap:24px}
+.vt h2{grid-column:1/8;font-size:var(--fs-h2)}
+.vt-top p{grid-column:9/13;align-self:end;color:var(--grey);font-size:var(--fs-lead);line-height:1.4;max-width:30ch}
+.vt-pin{height:100svh;display:grid;grid-template-columns:minmax(0,1fr);align-content:center;gap:28px;overflow:hidden}
+.vt-strip{position:relative;padding-inline:var(--pad-x)}
+.vt-track{display:flex;gap:var(--gg);width:max-content;will-change:transform;padding-block:24px}
+.vt-card{--w:clamp(220px,19vw,330px);flex:0 0 var(--w);position:relative;display:grid;gap:12px;text-align:start;cursor:pointer;transform-origin:50% 60%}
+.vt-media{display:block;position:relative;aspect-ratio:9/16;overflow:hidden;background:var(--dark);max-height:62svh}
+.vt-media img,.vt-media video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.vt-media video{opacity:0;transition:opacity .4s ease}
+.vt-card.live .vt-media video{opacity:1}
+.vt-media::after{content:"";position:absolute;inset:auto 0 0;height:46%;background:linear-gradient(to top,rgba(10,10,11,.78),transparent);pointer-events:none}
+.vt-q{position:absolute;inset-inline:16px;bottom:56px;z-index:1;color:#fff;font-family:var(--body);font-size:clamp(15px,1.05vw,18px);line-height:1.35;font-weight:500}
+.vt-play{position:absolute;inset-inline-start:16px;bottom:14px;z-index:1;display:inline-flex;align-items:center;gap:8px;min-height:32px;padding:0 12px;border-radius:999px;background:var(--accent);color:var(--accent-ink);font-size:13px;font-weight:500}
+.vt-play i{width:0;height:0;border-block:5px solid transparent;border-inline-end:8px solid currentColor}
+.vt-meta{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.vt-meta b{font-family:var(--body);font-weight:500;font-size:16px}
+.vt-card .vt-meta,.vt-card .vt-q,.vt-card .vt-play{transition:opacity .4s ease}
+.vt-foot{margin-inline:var(--pad-x);display:flex;align-items:center;gap:18px}
+.vt-bar{flex:1;height:1px;background:var(--line);position:relative}
+.vt-bar i{position:absolute;inset:0;background:var(--ink);transform:scaleX(0);transform-origin:right center}
+@media (max-width:899px){
+  .vt h2,.vt-top p{grid-column:1/-1}
+  .vt-card{--w:min(62vw,300px)}
+  .vt-media{max-height:58svh}
+  .vt-pin{gap:20px}
+}
+/* בלי תנועה: רצועה נגללת רגילה, בלי הצמדה */
+@media (prefers-reduced-motion:reduce){
+  .vt-pin{height:auto;padding-block:48px 0}
+  .vt-strip{overflow-x:auto;scroll-snap-type:x mandatory}
+  .vt-card{scroll-snap-align:center}
+}
+
+/* נגן מסך מלא: נפתח מתוך הכרטיס ונסגר חזרה אליו */
+.vt-lb{position:fixed;inset:0;z-index:300;visibility:hidden}
+.vt-lb.open{visibility:visible}
+.vt-lb-bg{position:absolute;inset:0;background:rgba(10,10,11,.92);opacity:0}
+.vt-lb-frame{position:fixed;left:0;top:0;overflow:hidden;background:#000}
+.vt-lb-frame video{width:100%;height:100%;object-fit:contain;display:block;background:#000}
+.vt-lb-close{position:absolute;top:16px;inset-inline-end:var(--gm);z-index:2;min-height:44px;padding:0 18px;border-radius:999px;background:var(--bg);color:var(--ink);font-family:var(--mono);font-size:var(--fs-mono);letter-spacing:.08em;text-transform:uppercase;opacity:0}
+.vt-lb-cap{position:absolute;bottom:18px;inset-inline:var(--gm);z-index:2;color:var(--bg);display:flex;justify-content:center;gap:14px;align-items:baseline;opacity:0;pointer-events:none}
+.vt-lb-cap b{font-weight:500}
+.vt-lb-cap .mono{color:#A7A7A7}
+  .vt-lb-close:focus-visible{outline-color:var(--accent);border-radius:999px}
+body.vt-open .stickycta{opacity:0;pointer-events:none}
+body.cursor-on .vt-lb,body.cursor-on .vt-lb button,body.cursor-on .vt-lb video{cursor:auto}
 
 /* ===== דברו איתי + פוטר (B29 + B40) ===== */
 .page{position:relative;z-index:2;background:var(--bg);overflow-x:clip;transition:background-color .8s ease,color .8s ease}

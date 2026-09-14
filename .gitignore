@@ -12,3 +12,6 @@ Thumbs.db
 desktop.ini
 .DS_Store
 *.swp
+
+# סרטוני ההמלצות המכווצים הם חלק מהאתר
+!site/video/*.mp4

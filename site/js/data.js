@@ -8,13 +8,22 @@ window.SITE = {
     { n: 'מאסל אנד מושן',       tag: 'SaaS · Global' },
     { n: 'שינובי סטודיוס',      tag: 'Video · Brand' },
     { n: 'ידע שווה כסף',        tag: 'Community · Finance' },
-    { n: 'ד"ר נמירובסקי',       tag: 'Aesthetic medicine' },
+    { n: 'ד״ר נמירובסקי',       tag: 'Aesthetic medicine' },
     { n: 'קימקו סטודיו',        tag: 'Creative · Brand' },
     { n: 'ווישלי',              tag: 'App · Service' },
     { n: 'ברזי',                tag: 'Manufacturing · Luxury' },
     { n: 'סטודיו צילום',        tag: 'Photography' },
     { n: 'מחשב לכל ילד',        tag: 'Government · Impact' },
     { n: 'קוגומלו',             tag: 'Kids · Playful' },
+  ],
+  /* המלצות וידאו. הציטוט הקצר לקוח מהסרטון עצמו, מילה במילה ככל האפשר. */
+  clients: [
+    { v: 'f', n: 'טוהר',          r: 'Fashion · E-commerce',   q: 'ההכנסות שלי הרבה יותר קבועות מאז שיש לי אתר.' },
+    { v: 'g', n: 'יהב ברזילי',     r: 'Manufacturing · Luxury', q: 'המפעל שלנו עכשיו נראה באמת מקצועי.' },
+    { v: 'a', n: 'ד״ר אור גפן',    r: 'Education · Kids',       q: 'הכול בוצע בצורה יוצאת מן הכלל, ובמהירות.' },
+    { v: 'd', n: 'איתי',           r: 'Kids · Playful',         q: 'בדיוק מה שרציתי, בדיוק לצרכים שלנו.' },
+    { v: 'e', n: 'שון צעירי',      r: 'Online business',        q: 'תוך שלושה ימים כבר היה לי אתר מושלם.' },
+    { v: 'b', n: 'שי סבג',         r: 'Top Level',              q: 'הרבה דרישות, הרבה שינויים, וכל הזמן מקסימום מקצועיות.' },
   ],
   steps: [
     { t: 'שיחה קצרה',        p: 'עשרים דקות. מה העסק, מי הלקוח, ומה האתר צריך לעשות ביום שאחרי העלייה לאוויר.', img: 1 },
