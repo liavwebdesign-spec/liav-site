@@ -485,64 +485,34 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
   });
 })();
 
-/* ---------- B29 מוכלל: מעבר נושא בניגוב ----------
-   הנושא נקבע לפי הסקשן שבמרכז המסך. השכבה החדשה נפרשת מהכיוון שאליו גוללים, עם קו ליים בקצה.
-   הטקסט לא מתהפך בבת אחת: כל סקשן מתהפך ברגע שקצה הניגוב עובר את האמצע הנראה שלו, והכותרת כשהקצה עובר אותה.
-   כך אין רגע שבו טקסט בצבע אחד יושב על רקע באותו צבע. סקשנים רחוקים מסתנכרנים כשהם מתקרבים. אפס transition על צבע. */
+/* ---------- B29 מוכלל: כל המסך בנושא של הסקשן שבמרכז, במעבר מונפש ----------
+   רקע: שכבה קבועה לכל נושא, החדשה עולה מעל ב-opacity (מאיץ גרפי, בלי ציור מחדש).
+   טקסט: מתהפך בבת אחת כשהרקע כבר באמצע הדרך, ורק בסקשנים שעל המסך או במרחק מסך אחד ממנו.
+   סקשן רחוק מקבל את הנושא כשהוא מתקרב, כך שהעלות מתפזרת ולא נופלת על פריים ההחלפה. */
 (function(){
   const secs = [...document.querySelectorAll('[data-theme]')], layers = [...document.querySelectorAll('#bg i')];
-  const bg = document.getElementById('bg'), edge = bg.querySelector('.bg-edge'), page = document.querySelector('.page'), hd = document.querySelector('.hd');
-  const THEMES = ['t-light', 't-dark', 't-white'];
-  let cur = 'light', headT = 'light', z = 1, dir = 1, wipe = null;
-  layers.forEach(l => gsap.set(l, { opacity: l.dataset.t === 'light' ? 1 : 0, scaleY: 1 }));
+  const bg = document.getElementById('bg'), page = document.querySelector('.page'), THEMES = ['t-light', 't-dark', 't-white'];
+  const FLIP = REDUCE ? 0 : 300;   /* מתוך 700ms של המעבר: הטקסט מתהפך כשהרקע כבר רחוק מהצבע הקודם */
+  let cur = 'light', shown = 'light', z = 1, timer = 0;
   const paint = (s, t) => { if(s._t === t) return; s._t = t; s.classList.toggle('th-dark', t === 'dark'); s.classList.toggle('th-white', t === 'white'); };
-  const head = t => { if(headT === t) return; headT = t; THEMES.forEach(c => document.body.classList.toggle(c, c === 't-' + t)); };
   const near = r => r.bottom > -innerHeight && r.top < innerHeight * 2;
-  const visible = r => r.bottom > 0 && r.top < innerHeight;
-  function run(t, d){
-    const layer = layers.find(l => l.dataset.t === t);
-    if(wipe){ wipe.progress(1); }
-    layer.style.zIndex = ++z; edge.style.zIndex = z + 1;
-    if(REDUCE){
-      gsap.set(layer, { opacity:1, scaleY:1 }); layers.forEach(l => { if(l !== layer) gsap.set(l, { opacity:0 }); });
-      secs.forEach(s => paint(s, t)); head(t); return;
-    }
-    const H = innerHeight, hdMid = hd.offsetHeight / 2;
-    gsap.set(layer, { opacity:1, scaleY:0, transformOrigin: d > 0 ? '50% 100%' : '50% 0%' });
-    gsap.set(edge, { opacity:1, y: d > 0 ? H : 0 });
-    wipe = gsap.to(layer, { scaleY:1, duration:.85, ease:'power3.inOut',
-      onUpdate(){
-        const p = gsap.getProperty(layer, 'scaleY'), ey = d > 0 ? H * (1 - p) : H * p;
-        gsap.set(edge, { y: ey });
-        const passed = y => d > 0 ? ey <= y : ey >= y;
-        secs.forEach(s => {
-          if(s._t === t) return;
-          const r = s.getBoundingClientRect(); if(!visible(r)) return;
-          if(passed((Math.max(r.top, 0) + Math.min(r.bottom, H)) / 2)) paint(s, t);
-        });
-        if(passed(hdMid)) head(t);
-      },
-      onComplete(){
-        layers.forEach(l => { if(l !== layer) gsap.set(l, { opacity:0 }); });
-        gsap.to(edge, { opacity:0, duration:.25 });
-        secs.forEach(s => { if(near(s.getBoundingClientRect())) paint(s, t); });
-        head(t); wipe = null;
-      } });
-  }
-  const pick = self => {
-    if(self && self.direction) dir = self.direction;
+  const sync = rects => secs.forEach((s, i) => { if(near(rects[i])) paint(s, shown); });
+  const pick = () => {
     const rects = secs.map(s => s.getBoundingClientRect()), mid = innerHeight / 2;
     let t = cur;
     for(let i = 0; i < secs.length; i++){ if(rects[i].top <= mid && rects[i].bottom > mid){ t = secs[i].dataset.theme; break; } }
-    if(t !== cur){ cur = t; run(t, dir); }
-    /* סקשנים שלא על המסך מקבלים את הנושא מיד. אלה שעל המסך מתהפכים רק כשהניגוב עובר אותם */
-    secs.forEach((s, i) => { if(near(rects[i]) && (!wipe || !visible(rects[i]))) paint(s, cur); });
-    if(!wipe) head(cur);
+    if(t !== cur){
+      cur = t;
+      layers.forEach(l => { const on = l.dataset.t === t; if(on) l.style.zIndex = ++z; l.classList.toggle('on', on); });
+      clearTimeout(timer);
+      timer = setTimeout(() => { shown = cur; THEMES.forEach(c => document.body.classList.toggle(c, c === 't-' + shown)); sync(secs.map(s => s.getBoundingClientRect())); }, FLIP);
+    }
+    sync(rects);
     /* בסוף העמוד השכבה עולה עם קצה הדף כדי שהפוטר שמאחור ייחשף, עם חפיפה של שני פיקסלים נגד תפר */
     gsap.set(bg, { y: Math.min(0, Math.round(page.getBoundingClientRect().bottom - innerHeight) + 2) });
   };
   ScrollTrigger.create({ trigger:document.body, start:0, end:'max', onUpdate:pick, onRefresh:pick });
-  addEventListener('resize', () => pick());
+  addEventListener('resize', pick);
   pick();
 })();
 
