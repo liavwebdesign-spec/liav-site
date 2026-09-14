@@ -119,7 +119,6 @@ body.t-dark .tg{box-shadow:none}
 .hs-i{position:absolute;left:calc(var(--x) * 1%);top:calc(var(--y) * 1%);width:calc(var(--s) * 1%);aspect-ratio:1;translate:-50% -50%}
 .hs-m{display:block;width:100%;height:100%;transform:scale(0)}
 .hs .k-comb,.hs .k-pin,.hs .k-spark{color:var(--ink)}
-.hero-foot{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:14px}
 @media (max-width:899px){
   .hero{padding-top:96px;row-gap:32px}
   .hero-copy,.hs{grid-column:1/-1}
@@ -152,9 +151,17 @@ body.t-dark .tg{box-shadow:none}
   .pl-prev{display:none}
   .pl-row{grid-template-columns:4ch 1fr;grid-template-rows:auto auto;row-gap:12px}
   .pl-row .tag{grid-column:2;grid-row:2}
-  .pl-row .thumb{display:block;grid-column:1/-1;overflow:hidden;aspect-ratio:16/10;background:var(--dark)}
+  .pl-row .thumb{display:block;grid-column:1/-1;overflow:hidden;aspect-ratio:1400/1056;background:var(--dark)}
   .pl-row .thumb img{width:100%;height:100%;object-fit:cover}
   .pl.hovering .pl-row h3{opacity:1}.pl-row.on h3{transform:none}
+  /* פוקוס בגלילה: השורה שבאמצע המסך מלאה, השאר עמומות. האינדקס נצבע בליים והשם זז פנימה */
+  .pl-m .pl-row h3,.pl-m .pl-row .tag{opacity:.32;transition:opacity .45s var(--ease),transform .45s var(--ease)}
+  .pl-m .pl-row>.mono:first-child{transition:color .35s}
+  .pl-m .pl-row.on-m h3,.pl-m .pl-row.on-m .tag{opacity:1}
+  .pl-m .pl-row.on-m h3{transform:translateX(-8px)}
+  .pl-m .pl-row.on-m>.mono:first-child{color:var(--accent)}
+  .pl-m .pl-row .thumb{clip-path:inset(12% 6% 12% 6%);will-change:clip-path}
+  .pl-m .pl-row .thumb img{will-change:transform}
 }
 /* טאבלט: התמונה ליד השם ולא מעליו, אחרת 14 תמונות ברוחב מלא מאריכות את העמוד ב-10,000 פיקסלים */
 @media (min-width:600px) and (max-width:899px){
@@ -184,11 +191,15 @@ body.t-dark .tg{box-shadow:none}
 .gen-media img:first-child{opacity:1;transform:none}
 @media (max-width:899px){
   .gen-text,.gen-media{grid-column:1/-1}
-  .gen-media{max-height:40svh;order:-1}
-  .gen-lines{min-height:6.5em}
+  .gen-pin{align-content:center;row-gap:28px;padding-block:72px 32px}
+  .gen-media{max-height:36svh;order:-1}
+  .gen-text{gap:18px}
+  .gen-text h2{font-size:clamp(34px,10vw,48px)}
+  .gen-lines{min-height:var(--gl-h,4.2em);font-size:clamp(20px,5.6vw,24px)}
 }
 
 /* ===== 03 חודשים → ימים ===== */
+.months{padding-top:0}
 .mo-pin{min-height:100svh;display:grid;align-content:center}
 .mo-h{grid-column:1/-1;font-size:clamp(36px,6.2vw,108px);display:grid;gap:.1em}
 .mo-l1,.mo-l2{display:block}
@@ -262,6 +273,9 @@ body.t-dark .tg{box-shadow:none}
 .mq-in{display:flex;gap:var(--gg);width:max-content;direction:ltr;will-change:transform}
 .mq-in figure{flex:0 0 clamp(220px,24vw,380px);aspect-ratio:16/10;overflow:hidden;background:var(--dark)}
 .mq-in img{width:100%;height:100%;object-fit:cover}
+/* אריח סמל בתוך הזרם: מסתובב לאט, ומהר יותר ככל שגוללים מהר */
+.mq-in .mq-shp{display:grid;place-items:center;background:var(--dark)}
+.mq-shp .b{width:44%;height:44%;transform:rotate(var(--spin,0deg))}
 
 /* ===== 05 הכלים ===== */
 .tools-h{grid-column:1/9;grid-row:1;margin-bottom:56px;align-self:end}
@@ -355,12 +369,23 @@ body.t-dark .tg{box-shadow:none}
 @keyframes tq{to{transform:translateX(50%)}}
 .tq-card{flex:0 0 clamp(280px,26vw,400px);display:grid;grid-template-columns:56px 1fr;gap:14px;padding:22px;border:1px solid var(--line);background:var(--bg-2);align-items:start;position:relative}
 .tq-card::before{content:"\201D";position:absolute;top:6px;inset-inline-end:16px;font-family:var(--head);font-size:56px;line-height:1;color:var(--accent);opacity:.9}
-.tq-card img{width:56px;height:56px;object-fit:cover;filter:grayscale(1)}
+.tq-card img{width:56px;height:56px;object-fit:cover;filter:grayscale(1);border-radius:50%}
 .tq-card img.logo{object-fit:contain;background:#F1F1F1;padding:4px}
 .tq-card p{font-size:15px;line-height:1.45;color:var(--ink);padding-inline-end:28px}
 .tq-card small{display:block;margin-top:10px;color:var(--grey);font-size:13px}
 .tq-card small b{color:var(--ink);font-weight:500}
-@media (max-width:899px){.people h2,.people-top p{grid-column:1/-1;grid-row:auto}.pp-spark{display:none}.vt-card{--w:min(62vw,300px)}.vt-media{max-height:58svh}.vt-pin{gap:20px}}
+@media (max-width:899px){
+  /* בנייד: שורה אחת עם כל 11 ההמלצות, כרטיס ברוחב של רוב המסך. הציטוט למעלה ברוחב מלא, והתמונה והשם בשורה מתחתיו */
+  .tq{-webkit-mask-image:linear-gradient(to right,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(to right,transparent,#000 5%,#000 95%,transparent)}
+  .tq-card{flex-basis:min(80vw,320px);grid-template-columns:40px 1fr;column-gap:12px;row-gap:18px;padding:20px;align-content:space-between}
+  .tq-card>div{display:contents}
+  .tq-card p{grid-column:1/-1;grid-row:1;font-size:16px;line-height:1.5;padding-inline-end:26px}
+  .tq-card img{grid-column:1;grid-row:2;width:40px;height:40px}
+  .tq-card small{grid-column:2;grid-row:2;margin-top:0;align-self:center;line-height:1.35}
+  .tq-card::before{font-size:44px;top:8px;inset-inline-end:14px}
+  .tq-row{align-items:stretch}
+}
+@media (max-width:899px){.people h2,.people-top p{grid-column:1/-1;grid-row:auto}.pp-spark{display:none}.vt-card{--w:min(62vw,300px)}.vt-media{max-height:58svh}.vt-pin{gap:20px;align-content:start;padding-top:72px}}
 @media (prefers-reduced-motion:reduce){
   .vt-pin{height:auto;padding-block:48px 0}
   .vt-strip{overflow-x:auto;scroll-snap-type:x mandatory}

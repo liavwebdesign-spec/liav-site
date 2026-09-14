@@ -39,8 +39,13 @@ const STRIP = [4, 7, 10];
   document.getElementById('sp-img').innerHTML = STRIP.map(i => `<figure><img src="${src(i)}" alt="" loading="lazy"></figure>`).join('');
   document.getElementById('vt-track').innerHTML = clients.map((c, i) => `<button class="vt-card" type="button" data-i="${i}" aria-label="צפייה בהמלצה של ${c.n}"><span class="vt-media"><img src="../video/${c.v}.webp" alt="" loading="lazy"><video muted playsinline loop preload="none" src="../video/${c.v}.mp4" tabindex="-1" aria-hidden="true"></video><span class="vt-q">${c.q}</span><span class="vt-play"><i></i>צפייה</span></span><span class="vt-meta"><b>${c.n}</b><span class="mono">${c.r}</span></span></button>`).join('');
   const card = (q, k) => `<div class="tq-card"><img src="../img/testi/${q.i}.webp" alt="" loading="lazy"${q.logo ? ' class="logo"' : ''}><div><p>${q.q}</p><small><b>${q.n}</b> · ${q.t}</small></div></div>`;
-  const a = QUOTES.slice(0, 6), b = QUOTES.slice(6);
-  document.getElementById('tq').innerHTML = `<div class="tq-row" data-dir="1" style="--d:64s">${[...a, ...a].map(card).join('')}</div><div class="tq-row" data-dir="-1" style="--d:56s">${[...b, ...b].map(card).join('')}</div>`;
+  const tqBuild = () => {
+    const el = document.getElementById('tq');
+    if(matchMedia('(max-width:899px)').matches){ el.innerHTML = `<div class="tq-row" data-dir="1" style="--d:120s">${[...QUOTES, ...QUOTES].map(card).join('')}</div>`; return; }
+    const a = QUOTES.slice(0, 6), b = QUOTES.slice(6);
+    el.innerHTML = `<div class="tq-row" data-dir="1" style="--d:64s">${[...a, ...a].map(card).join('')}</div><div class="tq-row" data-dir="-1" style="--d:56s">${[...b, ...b].map(card).join('')}</div>`;
+  };
+  tqBuild(); matchMedia('(max-width:899px)').addEventListener('change', tqBuild);
 })();
 
 /* ---------- G38: Lenis ---------- */
@@ -72,7 +77,7 @@ const READY = FONTS.then(() => { document.querySelectorAll('.t-lines, .h-lines')
       .to(h1.querySelector('em'), { '--u':1, duration:.8, ease:'power2.inOut' }, .9)
       .to('.hero .rv', { y:0, autoAlpha:1, duration:.9, stagger:.1 }, .5)
       .from('.hd', { y:-20, autoAlpha:0, duration:.8 }, .3)
-      .from('.hero-foot', { autoAlpha:0, duration:.6 }, 1);
+      ;
     shapesIn();
   };
   if(REDUCE || QA){
@@ -143,7 +148,21 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
 (function(){
   const list = document.getElementById('pl'), prev = document.getElementById('pl-prev'), inner = prev.querySelector('.pl-prev-in');
   const rows = [...list.querySelectorAll('.pl-row')], shots = [...inner.querySelectorAll('img')];
-  if(!REDUCE) gsap.from(rows, { y:30, autoAlpha:0, duration:.8, ease:EASE, stagger:.05, scrollTrigger:{ trigger:list, start:'top 85%', once:true } });
+  const mm = gsap.matchMedia();
+  mm.add({ desk:'(min-width:600px)', mob:'(max-width:599px)' }, ctx => {
+    if(REDUCE) return;
+    if(ctx.conditions.desk){ gsap.from(rows, { y:30, autoAlpha:0, duration:.8, ease:EASE, stagger:.05, scrollTrigger:{ trigger:list, start:'top 85%', once:true } }); return; }
+    /* בנייד: כל תמונה נפתחת מהמסגרת כשהיא נכנסת, התמונה בפנים זזה בפרלקס, והשורה שבמרכז המסך בפוקוס */
+    list.classList.add('pl-m');
+    rows.forEach(row => {
+      const th = row.querySelector('.thumb'), img = th.querySelector('img');
+      gsap.fromTo(th, { clipPath:'inset(12% 6% 12% 6%)' }, { clipPath:'inset(0% 0% 0% 0%)', ease:'none', scrollTrigger:{ trigger:th, start:'top 95%', end:'center 60%', scrub:.4 } });
+      gsap.fromTo(img, { scale:1.22, yPercent:-6 }, { scale:1, yPercent:6, ease:'none', scrollTrigger:{ trigger:th, start:'top bottom', end:'bottom top', scrub:.4 } });
+      gsap.from(row.querySelector('h3'), { yPercent:60, autoAlpha:0, duration:.7, ease:EASE, scrollTrigger:{ trigger:row, start:'top 88%', once:true } });
+      ScrollTrigger.create({ trigger:row, start:'top 55%', end:'bottom 55%', toggleClass:{ targets:row, className:'on-m' } });
+    });
+    return () => list.classList.remove('pl-m');
+  });
   if(!FINE) return;
   gsap.set(inner, { transformPerspective:1000 });
   const xTo = gsap.quickTo(prev, 'x', { duration:.6, ease:'power3' }), yTo = gsap.quickTo(prev, 'y', { duration:.6, ease:'power3' });
@@ -197,6 +216,8 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
   const lines = gsap.utils.toArray('#gen-lines p'), imgs = gsap.utils.toArray('#gen-media img'), idx = document.getElementById('gen-idx'), bar = document.querySelector('.gen-bar i');
   if(REDUCE){ lines.forEach(p => gsap.set(p.querySelector('.u'), {'--u':1})); return; }
   const N = lines.length, shp = gsap.utils.toArray('.gen-shp .b');
+  const fitLines = () => { const box = lines[0].parentNode; box.style.setProperty('--gl-h', Math.max(...lines.map(p => p.offsetHeight)) + 'px'); };
+  fitLines(); addEventListener('resize', fitLines); READY.then(fitLines);
   const tl = gsap.timeline({ scrollTrigger:{ trigger:'.gen-pin', start:'top top', end:'+=' + N * 70 + '%', pin:true, anticipatePin:1, scrub:.5,
     onUpdate(self){ const k = Math.min(N - 1, Math.floor(self.progress * N)); idx.textContent = `${pad(k+1)} / ${pad(N)}`; bar.style.transform = `scaleX(${self.progress})`; } } });
   tl.to(lines[0].querySelector('.u'), { '--u':1, duration:.4, ease:'power2.inOut' }, .15);
@@ -284,7 +305,8 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
     tweens.splice(0).forEach(t => t.kill());
     rows.forEach(row => {
       const inner = row.querySelector('.mq-in');
-      const base = [...inner.children].slice(0, 14);
+      if(inner.dataset.shp && !inner.querySelector('.mq-shp')){ const f = document.createElement('figure'); f.className = 'mq-shp'; f.innerHTML = `<svg class="b k-${inner.dataset.shp}"><use href="#b-${inner.dataset.shp}"/></svg>`; inner.insertBefore(f, inner.children[+inner.dataset.at] || null); }
+      const base = [...inner.children].slice(0, 14 + (inner.dataset.shp ? 1 : 0));
       inner.innerHTML = ''; base.forEach(f => inner.appendChild(f));
       gsap.set(inner, { x:0 });
       /* עותק אחד = מחזור. משכפלים עד שהרצועה מכסה פעמיים את המסך, כך שאין רגע ריק */
@@ -301,13 +323,14 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
   build();
   let rw = innerWidth; addEventListener('resize', () => { if(Math.abs(innerWidth - rw) > 60){ rw = innerWidth; build(); } });
   if(REDUCE) return;
-  let vel = 0;
-  ScrollTrigger.create({ trigger:wrap, start:'top bottom', end:'bottom top', onUpdate(self){ vel = self.getVelocity(); }, onToggle(self){ tweens.forEach(t => self.isActive ? t.play() : t.pause()); } });
+  let vel = 0, spin = 0, mqOn = false;
+  ScrollTrigger.create({ trigger:wrap, start:'top bottom', end:'bottom top', onUpdate(self){ vel = self.getVelocity(); }, onToggle(self){ mqOn = self.isActive; tweens.forEach(t => self.isActive ? t.play() : t.pause()); } });
   const skewTo = gsap.quickTo(wrap, 'skewX', { duration:.5, ease:'power3' });
   gsap.ticker.add(() => {
     const v = gsap.utils.clamp(-3000, 3000, vel); vel *= .92;
     const ts = 1 + Math.abs(v) / 900;
     tweens.forEach(t => t.timeScale(ts));
+    if(mqOn){ spin = (spin + .35 * ts * ts) % 360; wrap.style.setProperty('--spin', spin.toFixed(1) + 'deg'); }
     skewTo(gsap.utils.clamp(-6, 6, v / 400));
   });
 })();
