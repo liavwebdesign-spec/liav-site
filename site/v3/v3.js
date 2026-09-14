@@ -411,19 +411,34 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
   });
 })();
 
-/* ---------- B29 מוכלל: הכותרת העליונה מתהפכת לפי הסקשן שנמצא מתחתיה ----------
-   הרקעים עצמם צבועים על הסקשנים ולא מתחלפים בכלל, כך שהמעבר חלק ואין מה לחשב בזמן גלילה.
-   הכותרת נמדדת בקו שלה (לא במרכז המסך), כדי שהלוגו יתהפך בדיוק כשהקו בין הצבעים עובר מתחתיו. */
+/* ---------- B29 מוכלל: כל המסך בנושא של הסקשן שבמרכז, במעבר מונפש ----------
+   רקע: שכבה קבועה לכל נושא, החדשה עולה מעל ב-opacity (מאיץ גרפי, בלי ציור מחדש).
+   טקסט: מתהפך בבת אחת כשהרקע כבר באמצע הדרך, ורק בסקשנים שעל המסך או במרחק מסך אחד ממנו.
+   סקשן רחוק מקבל את הנושא כשהוא מתקרב, כך שהעלות מתפזרת ולא נופלת על פריים ההחלפה. */
 (function(){
-  const secs = [...document.querySelectorAll('[data-theme]')], hd = document.querySelector('.hd'), THEMES = ['t-light', 't-dark', 't-white'];
-  let cur = '';
+  const secs = [...document.querySelectorAll('[data-theme]')], layers = [...document.querySelectorAll('#bg i')];
+  const bg = document.getElementById('bg'), page = document.querySelector('.page'), THEMES = ['t-light', 't-dark', 't-white'];
+  const FLIP = REDUCE ? 0 : 300;   /* מתוך 700ms של המעבר: הטקסט מתהפך כשהרקע כבר רחוק מהצבע הקודם */
+  let cur = 'light', shown = 'light', z = 1, timer = 0;
+  const paint = (s, t) => { if(s._t === t) return; s._t = t; s.classList.toggle('th-dark', t === 'dark'); s.classList.toggle('th-white', t === 'white'); };
+  const near = r => r.bottom > -innerHeight && r.top < innerHeight * 2;
+  const sync = rects => secs.forEach((s, i) => { if(near(rects[i])) paint(s, shown); });
   const pick = () => {
-    const line = hd.offsetHeight / 2; let t = 'light';
-    for(const s of secs){ const r = s.getBoundingClientRect(); if(r.top <= line && r.bottom > line){ t = s.dataset.theme; break; } }
-    if(t === cur) return; cur = t;
-    THEMES.forEach(c => document.body.classList.toggle(c, c === 't-' + t));
+    const rects = secs.map(s => s.getBoundingClientRect()), mid = innerHeight / 2;
+    let t = cur;
+    for(let i = 0; i < secs.length; i++){ if(rects[i].top <= mid && rects[i].bottom > mid){ t = secs[i].dataset.theme; break; } }
+    if(t !== cur){
+      cur = t;
+      layers.forEach(l => { const on = l.dataset.t === t; if(on) l.style.zIndex = ++z; l.classList.toggle('on', on); });
+      clearTimeout(timer);
+      timer = setTimeout(() => { shown = cur; THEMES.forEach(c => document.body.classList.toggle(c, c === 't-' + shown)); sync(secs.map(s => s.getBoundingClientRect())); }, FLIP);
+    }
+    sync(rects);
+    /* בסוף העמוד השכבה עולה עם קצה הדף כדי שהפוטר שמאחור ייחשף, עם חפיפה של שני פיקסלים נגד תפר */
+    gsap.set(bg, { y: Math.min(0, Math.round(page.getBoundingClientRect().bottom - innerHeight) + 2) });
   };
   ScrollTrigger.create({ trigger:document.body, start:0, end:'max', onUpdate:pick, onRefresh:pick });
+  addEventListener('resize', pick);
   pick();
 })();
 
