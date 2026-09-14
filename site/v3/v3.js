@@ -419,13 +419,42 @@ function laptop(root){
     const x0 = () => -(h.offsetLeft + h.offsetWidth) + pin.clientWidth * .3, x1 = () => pad() - h.offsetLeft;
     gsap.set(u, {'--u':0});
     const skew = gsap.quickTo(h, 'skewX', { duration:.5, ease:'power3' });
+    /* הסמלים: p הוא הרגע בנסיעה (0 עד 1) שבו הסמל עובר בנקודה s על רוחב המסך, בגובה y. d הוא העומק:
+       בכל רגע x = s·רוחב + (X − X(p))·d, כך שהסמל זז יחד עם הכותרת אבל מהר או לאט ממנה, ונעצר כשהיא נעצרת.
+       האחרונים (p=1) הם ההרכב הסופי סביב "מה לבנות", והם מחוץ לאזור הכיתוב שבמרכז.
+       הערכים נבחרו בסימולציה של כל המסלולים, כך שאף שני סמלים לא נחתכים זה בזה לאורך הנסיעה */
+    const INK = '#0A0A0B', OR = '#F17105', LI = '#D8FC73';
+    const FLY = [
+      { k:'squircle', c:OR, p:.06, s:.66, y:.2,  z:150, d:1.3 },
+      { k:'spark',    c:INK, p:.12, s:.2,  y:.2,  z:64,  d:.7 },
+      { k:'aster',    c:LI, p:.3,  s:.72, y:.7,  z:200, d:1.45 },
+      { k:'comb',     c:INK, p:.44, s:.3,  y:.16, z:104, d:1.05 },
+      { k:'pin',      c:INK, p:.58, s:.66, y:.24, z:128, d:1.12 },
+      { k:'diamond',  c:OR, p:.72, s:.24, y:.76, z:118, d:1.32 },
+      { k:'spark',    c:OR, p:1,   s:.09, y:.24, z:86,  d:1 },
+      { k:'aster',    c:LI, p:1,   s:.84, y:.72, z:150, d:.9 },
+    ];
+    const els = FLY.map(f => { const e = document.createElement('i'); e.className = 'sp-fly'; e.setAttribute('aria-hidden', 'true'); e.style.cssText = `width:${f.z}px;height:${f.z}px;color:${f.c};z-index:${f.d > 1 ? 2 : 0};opacity:${f.d < 1 ? .9 : 1}`; e.innerHTML = `<svg class="b"><use href="#b-${f.k}"/></svg>`; pin.appendChild(e); return e; });
+    const roll = h.querySelector('.sp-roll');
+    let X0 = 0, X1 = 0, W = 0, H = 0;
+    const measure = () => { X0 = x0(); X1 = x1(); W = pin.clientWidth; H = pin.clientHeight; };
+    const place = () => {
+      const X = gsap.getProperty(h, 'x');
+      FLY.forEach((f, i) => {
+        const dx = (X - (X0 + (X1 - X0) * f.p)) * f.d, r = f.z / 2;
+        els[i].style.transform = `translate3d(${(f.s * W + dx - r).toFixed(1)}px,${(f.y * H - r + Math.sin(dx / 260) * 14).toFixed(1)}px,0) rotate(${(dx / r).toFixed(3)}rad)`;
+      });
+      if(roll) roll.style.transform = `rotate(${((X - X1) / (roll.offsetWidth / 2)).toFixed(3)}rad)`;
+    };
     const tl = gsap.timeline({ scrollTrigger:{ trigger:pin, start:'top top', end:() => '+=' + Math.round((x1() - x0()) * .55), pin:true, anticipatePin:1, scrub:.7, invalidateOnRefresh:true,
+      onRefresh(){ measure(); place(); },
       onUpdate(self){ skew(gsap.utils.clamp(-8, 8, self.getVelocity() / -260)); } } })
-      .fromTo(h, { x:x0 }, { x:x1, duration:1, ease:'none' }, 0)
+      .fromTo(h, { x:x0 }, { x:x1, duration:1, ease:'none', onUpdate:place }, 0)
       .to(u, { '--u':1, duration:.08, ease:'power2.inOut' }, .9)
       .fromTo(cap, { autoAlpha:0, y:30 }, { autoAlpha:1, y:0, duration:.1, ease:'power2.out' }, .92)
       .to({}, { duration:.12 });
-    return () => gsap.set(h, { clearProps:'transform' });
+    measure(); place();
+    return () => { gsap.set(h, { clearProps:'transform' }); els.forEach(e => e.remove()); if(roll) roll.style.transform = ''; };
   });
   mm.add('(max-width:899px)', () => {
     const half = () => (b.offsetTop - (a.offsetTop + a.offsetHeight)) / 2;
