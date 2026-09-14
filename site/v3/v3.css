@@ -5,17 +5,11 @@ html{scroll-behavior:auto}
 html.lenis,html.lenis body{height:auto}
 .lenis.lenis-smooth{scroll-behavior:auto!important}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:var(--fs-body);line-height:1.55;-webkit-font-smoothing:antialiased;overscroll-behavior-y:none}
-/* הרקע של העמוד הוא שכבה קבועה בגודל המסך, לא צבע על אלמנט באורך 18,000 פיקסלים.
-   כל נושא הוא שכבה משלו, והמעבר הוא opacity בלבד, שהמאיץ הגרפי מחשב בלי לצייר מחדש.
-   אסור להוסיף transition על color או על משתני נושא: זה מה שגרם לתקיעות (14.9.2026, נמדד). */
-#bg{position:fixed;inset:0;z-index:2;pointer-events:none;will-change:transform}
-#bg i{position:absolute;inset:0;opacity:0;will-change:opacity;transition:opacity 0s linear .6s}
-#bg i.on{opacity:1;transition:opacity .6s ease}
-#bg i[data-t="light"]{background:#F1F1F1}#bg i[data-t="dark"]{background:#0A0A0B}#bg i[data-t="white"]{background:#FFFFFF}
-/* נושאים. כל סקשן מגדיר את הצבעים של עצמו לפי data-theme, קבוע, בלי שום החלפה בזמן גלילה.
-   בגלילה מתחלפים רק שני דברים: שכבת הרקע (#bg, ב-opacity) והכותרת העליונה (class על body שרק .hd תלוי בו).
-   משתני נושא על body גרמו לחישוב מחדש של כל העמוד בכל מעבר, וזה מה שנראה כתקיעה (נמדד 14.9.2026). */
-[data-theme]{color:var(--ink)}
+/* נושאים. כל סקשן צובע את הרקע והטקסט של עצמו לפי data-theme, קבוע.
+   הקו בין בהיר לכהה זז עם התוכן, ולכן כל חצי מסך תמיד נכון גם כששני סקשנים על המסך יחד.
+   שכבת רקע אחת בגודל המסך נפסלה (14.9.2026): היא יכולה להיות רק צבע אחד, והסקשן שנכנס או יוצא נבלע בה.
+   ואין שום transition על צבע: משתני נושא על body עם transition תקעו את הגלילה (נמדד). רק הכותרת העליונה מתהפכת. */
+[data-theme]{color:var(--ink);background:var(--bg)}
 [data-theme="dark"],body.t-dark .hd{--bg:#0A0A0B;--bg-2:#141416;--ink:#F1F1F1;--ink-2:#DADADA;--ink-dim:#8E8E8E;--grey:#A7A7A7;--grey-2:#8E8E8E;--line:rgba(241,241,241,.16);--line-strong:rgba(241,241,241,.6)}
 [data-theme="white"],body.t-white .hd{--bg:#FFFFFF;--bg-2:#F1F1F1}
 img{max-width:100%;display:block}

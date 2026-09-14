@@ -411,31 +411,19 @@ if(!REDUCE) document.querySelectorAll('.taste .u').forEach(u => gsap.to(u, { '--
   });
 })();
 
-/* ---------- B29 מוכלל: הסקשן שמרכז המסך נמצא בו קובע את הנושא ----------
-   הרקע: שכבה קבועה לכל נושא, החדשה עולה מעל הקודמת ב-opacity (מאיץ גרפי, בלי ציור מחדש).
-   הטקסט: מתהפך בבת אחת באמצע המעבר, כשהרקע כבר חצי בדרך, כך שאין רגע של טקסט כהה על כהה.
-   בלי transition על צבעי טקסט: עשרות אלמנטים שמחשבים צבע בכל פריים הם מה שתקע את הגלילה. */
+/* ---------- B29 מוכלל: הכותרת העליונה מתהפכת לפי הסקשן שנמצא מתחתיה ----------
+   הרקעים עצמם צבועים על הסקשנים ולא מתחלפים בכלל, כך שהמעבר חלק ואין מה לחשב בזמן גלילה.
+   הכותרת נמדדת בקו שלה (לא במרכז המסך), כדי שהלוגו יתהפך בדיוק כשהקו בין הצבעים עובר מתחתיו. */
 (function(){
-  const secs = [...document.querySelectorAll('[data-theme]')], THEMES = ['t-light', 't-dark', 't-white'];
-  const layers = [...document.querySelectorAll('#bg i')], bg = document.getElementById('bg'), page = document.querySelector('.page');
-  let cur = 'light', z = 1, flip = 0;
-  const apply = t => THEMES.forEach(c => document.body.classList.toggle(c, c === 't-' + t));
-  const set = t => {
-    if(t === cur) return; cur = t;
-    layers.forEach(l => { const on = l.dataset.t === t; if(on) l.style.zIndex = ++z; l.classList.toggle('on', on); });
-    clearTimeout(flip); flip = setTimeout(() => apply(t), REDUCE ? 0 : 240);
-  };
+  const secs = [...document.querySelectorAll('[data-theme]')], hd = document.querySelector('.hd'), THEMES = ['t-light', 't-dark', 't-white'];
+  let cur = '';
   const pick = () => {
-    const mid = innerHeight / 2; let t = cur;
-    for(const s of secs){ const r = s.getBoundingClientRect(); if(r.top <= mid && r.bottom > mid){ t = s.dataset.theme; break; } if(r.top > mid) break; }
-    set(t);
-    /* בסוף העמוד השכבה עולה יחד עם קצה הדף, כדי שהפוטר שמאחור ייחשף */
-    const end = page.getBoundingClientRect().bottom;
-    /* עיגול ושני פיקסלים של חפיפה: בחצי פיקסל נפתח תפר דק שרואים דרכו את הרקע של body */
-    gsap.set(bg, { y: Math.min(0, Math.round(end - innerHeight) + 2) });
+    const line = hd.offsetHeight / 2; let t = 'light';
+    for(const s of secs){ const r = s.getBoundingClientRect(); if(r.top <= line && r.bottom > line){ t = s.dataset.theme; break; } }
+    if(t === cur) return; cur = t;
+    THEMES.forEach(c => document.body.classList.toggle(c, c === 't-' + t));
   };
   ScrollTrigger.create({ trigger:document.body, start:0, end:'max', onUpdate:pick, onRefresh:pick });
-  addEventListener('resize', pick);
   pick();
 })();
 
