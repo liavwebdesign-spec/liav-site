@@ -23,6 +23,8 @@ html[lang="en"] .nv-link{font-size:clamp(32px,7.4vw,84px)}
 html[lang="en"] .mo-h{font-size:clamp(28px,5vw,90px)}
 html[lang="en"] .sp-l{font-size:clamp(28px,4.3vw,78px)}
 html[lang="en"] .stats b{font-size:clamp(24px,2vw,34px)}
+html[lang="en"] .pr-num{font-size:clamp(38px,4vw,68px)}
+html[lang="en"] .ai-end h2{max-width:16ch}
 @media (min-width:900px){html[lang="en"] .sp-h{font-size:clamp(74px,7.8vw,168px)}html[lang="en"] .sp-l{font-size:inherit}}
 @media (max-width:899px){
   html[lang="en"] .hero h1{font-size:clamp(24px,7.6vw,44px)}
@@ -36,7 +38,7 @@ html[lang="en"] .stats b{font-size:clamp(24px,2vw,34px)}
 html[dir="ltr"] .sec-head::before,html[dir="ltr"] .hero h1 em::after,html[dir="ltr"] .u::after,
 html[dir="ltr"] .gen-bar i,html[dir="ltr"] .strike i,html[dir="ltr"] .mk::before,html[dir="ltr"] .bar-fill,
 html[dir="ltr"] .tl-rail::before,html[dir="ltr"] .tl-seg::before,html[dir="ltr"] .skel i,html[dir="ltr"] .skel span,
-html[dir="ltr"] .vt-bar i{transform-origin:left center}
+html[dir="ltr"] .vt-bar i,html[dir="ltr"] .pr-rail i{transform-origin:left center}
 html[dir="ltr"] .ff-field label{transform-origin:0 0}
 html[dir="ltr"] .pl-row.on h3{transform:translateX(16px)}
 @media (max-width:899px){html[dir="ltr"] .pl-m .pl-row.on-m h3{transform:translateX(8px)}}

@@ -186,6 +186,37 @@ body:not(.nv-open) .nv-link{transition-delay:0s!important}
   .pl-m .pl-row.on-m>.mono:first-child{color:var(--accent)}
 }
 
+/* ===== 02 איך עובדים יחד: שלושה צעדים על מסילה. מספר גדול ב-Sataf, סמל קטן בפינה, כותרת ב-Begin ===== */
+.process{padding-bottom:var(--sec)}
+.pr-h{grid-column:1/9;margin-bottom:48px}
+.pr-steps{grid-column:1/-1;position:relative;row-gap:28px}
+.pr-rail{grid-column:1/-1;height:1px;background:var(--line);position:relative}
+.pr-rail i{position:absolute;inset:0;background:var(--accent);transform:scaleX(var(--f,0));transform-origin:right center}
+.pr-step{grid-column:span 4;display:grid;gap:12px;align-content:start;padding-inline-end:clamp(16px,3vw,56px);min-width:0}
+.pr-top{display:flex;align-items:flex-end;gap:12px;margin-bottom:6px}
+.pr-num{font-family:var(--head);font-weight:500;font-size:clamp(44px,4.6vw,80px);line-height:.9;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.pr-shp{width:clamp(26px,2.2vw,38px);aspect-ratio:1;margin-bottom:.5em;transform:scale(0)}
+.pr-step h3{font-family:var(--body);font-weight:500;font-size:clamp(20px,1.7vw,28px);line-height:1.25;letter-spacing:-.01em}
+.pr-step p{color:var(--grey);font-size:var(--fs-body);line-height:1.5;max-width:30ch}
+.pr-foot{grid-column:1/-1;margin-top:40px}
+@media (max-width:899px){
+  .pr-h{grid-column:1/-1;margin-bottom:32px}
+  /* בנייד המסילה אנכית לאורך תחילת הצעדים, והצעדים נערמים */
+  .pr-steps{row-gap:36px}
+  .pr-rail{position:absolute;inset-block:0;inset-inline-start:var(--pad-x);width:1px;height:auto}
+  .pr-rail i{transform:scaleY(var(--f,0));transform-origin:center top}
+  .pr-step{grid-column:1/-1;padding-inline-end:0;padding-inline-start:26px}
+  .pr-num{font-size:clamp(36px,10vw,52px)}
+  .pr-foot{margin-top:8px}
+}
+/* ===== עמוד "למה אני בונה אתרים עם AI": הירו קצר וסיום עם קריאה לפעולה ===== */
+.ai-hero{min-height:min(100svh,820px)}
+.ai-end{min-height:70vh;align-content:center;padding-bottom:var(--sec)}
+.ai-end .inner{grid-column:1/-1;display:grid;gap:22px;justify-items:start}
+.ai-end h2{max-width:14ch}
+.ai-end p{color:var(--grey);font-size:var(--fs-lead);max-width:34ch;line-height:1.4}
+.ai-end .ctas{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+
 /* ===== 02 מהיר לא אומר גנרי ===== */
 .gen-pin{min-height:100svh;align-items:center;row-gap:32px}
 .gen-text{grid-column:1/7;display:grid;gap:32px;align-content:center}
@@ -540,7 +571,7 @@ section.about{padding-bottom:0;align-items:end;row-gap:0}
   .gen-media>.gm{opacity:1;transform:none}
   .strike i{transform:none}
   .mk::before{transform:none}
-  .mk-spark,.hs-m,.ts-a,.ts-b,.cf-shp{transform:none}
+  .mk-spark,.hs-m,.ts-a,.ts-b,.cf-shp,.pr-shp{transform:none}
   .mo-wheel{transform:none;opacity:.35}
   .about .portrait{clip-path:none}.about .portrait img{transform:none}
   .skel i,.skel span{opacity:.55}.prompt-note{opacity:1}

@@ -42,16 +42,18 @@ const GEN_IMGS = [2, 8, 12];
 const STRIP = [4, 7, 10];
 
 /* ---------- תוכן דינמי ---------- */
+/* $: אלמנט לפי id, או null. העמוד הפנימי (ai.html) טוען את אותו קובץ עם חלק מהסקשנים בלבד */
+const $ = id => document.getElementById(id);
 (function build(){
-  document.getElementById('pl').innerHTML = works.map((w, i) => `<div class="pl-row" data-i="${i}"><span class="mono">${pad(i+1)}</span><h3>${w.n}</h3><span class="mono tag">${w.tag}</span></div>`).join('');
-  document.getElementById('pl-prev').innerHTML = '<div class="pl-prev-in">' + lapHTML(works.map(w => w.clip)) + '</div>';
-  document.getElementById('gen-media').innerHTML = GEN_IMGS.map(i => `<img class="gm" src="${src(i)}" alt="" loading="lazy">`).join('');
+  if($('pl')) $('pl').innerHTML = works.map((w, i) => `<div class="pl-row" data-i="${i}"><span class="mono">${pad(i+1)}</span><h3>${w.n}</h3><span class="mono tag">${w.tag}</span></div>`).join('');
+  if($('pl-prev')) $('pl-prev').innerHTML = '<div class="pl-prev-in">' + lapHTML(works.map(w => w.clip)) + '</div>';
+  if($('gen-media')) $('gen-media').innerHTML = GEN_IMGS.map(i => `<img class="gm" src="${src(i)}" alt="" loading="lazy">`).join('');
   document.querySelectorAll('.mq-in').forEach((row, r) => { const list = r ? [...ALL.slice(7), ...ALL.slice(0, 7)] : ALL; row.innerHTML = list.map(i => `<figure><img src="${src(i, 1)}" alt=""></figure>`).join(''); });
-  document.getElementById('sp-img').innerHTML = STRIP.map(i => `<figure><img src="${src(i)}" alt="" loading="lazy"></figure>`).join('');
-  document.getElementById('vt-track').innerHTML = clients.map((c, i) => `<button class="vt-card" type="button" data-i="${i}" aria-label="${T.watchOf(c.n)}"><span class="vt-media"><img src="../video/${c.v}.webp" alt="" loading="lazy"><video muted playsinline loop preload="none" src="../video/${c.v}.mp4" tabindex="-1" aria-hidden="true"></video><span class="vt-q">${c.q}</span><span class="vt-play"><i></i>${T.watch}</span></span><span class="vt-meta"><b>${c.n}</b><span class="mono">${c.r}</span></span></button>`).join('');
+  if($('sp-img')) $('sp-img').innerHTML = STRIP.map(i => `<figure><img src="${src(i)}" alt="" loading="lazy"></figure>`).join('');
+  if($('vt-track')) $('vt-track').innerHTML = clients.map((c, i) => `<button class="vt-card" type="button" data-i="${i}" aria-label="${T.watchOf(c.n)}"><span class="vt-media"><img src="../video/${c.v}.webp" alt="" loading="lazy"><video muted playsinline loop preload="none" src="../video/${c.v}.mp4" tabindex="-1" aria-hidden="true"></video><span class="vt-q">${c.q}</span><span class="vt-play"><i></i>${T.watch}</span></span><span class="vt-meta"><b>${c.n}</b><span class="mono">${c.r}</span></span></button>`).join('');
   const card = (q, k) => `<div class="tq-card"><img src="../img/testi/${q.i}.webp" alt="" loading="lazy"${q.logo ? ' class="logo"' : ''}><div><p>${q.q}</p><small><b>${q.n}</b> · ${q.t}</small></div></div>`;
   const tqBuild = () => {
-    const el = document.getElementById('tq');
+    const el = document.getElementById('tq'); if(!el) return;
     if(matchMedia('(max-width:899px)').matches){ el.innerHTML = `<div class="tq-row" data-dir="1" style="--d:72s">${[...QUOTES, ...QUOTES].map(card).join('')}</div>`; return; }
     const a = QUOTES.slice(0, 6), b = QUOTES.slice(6);
     el.innerHTML = `<div class="tq-row" data-dir="1" style="--d:64s">${[...a, ...a].map(card).join('')}</div><div class="tq-row" data-dir="-1" style="--d:56s">${[...b, ...b].map(card).join('')}</div>`;
@@ -92,6 +94,7 @@ const READY = FONTS.then(() => { document.querySelectorAll('.t-lines, .h-lines')
 (function(){
   const pre = document.getElementById('pre');
   const heroIn = () => {
+    if(!document.querySelector('.hero h1')) return;
     const h1 = document.querySelector('.hero h1');
     gsap.timeline({ defaults:{ ease:EASE } })
       .from(LINES.get(h1), { yPercent:110, duration:1.1, stagger:.1 }, 0)
@@ -102,8 +105,10 @@ const READY = FONTS.then(() => { document.querySelectorAll('.t-lines, .h-lines')
       ;
     shapesIn();
   };
+  /* עמוד פנימי בלי פרילודר: מתחילים מיד, וכניסת ההירו רצה אחרי שהפונטים נטענו */
+  if(!pre && !REDUCE && !QA){ lenis && lenis.start(); READY.then(() => { heroIn(); ScrollTrigger.refresh(); }); return; }
   if(REDUCE || QA){
-    pre.style.display = 'none'; lenis && lenis.start();
+    if(pre) pre.style.display = 'none'; lenis && lenis.start();
     gsap.set('.hero .rv', {autoAlpha:1, y:0}); gsap.set('.hero h1 em', {'--u':1}); gsap.set('#hs .hs-m', {scale:1});
     READY.then(() => ScrollTrigger.refresh());
     return;
@@ -199,7 +204,8 @@ function laptop(root){
    נפתחת במסכה מלמטה עם זום פנימי, מתחלפת בין פרויקטים בהחלקה אנכית, ומוטה לפי מהירות העכבר:
    סיבוב קל במישור והטיה בתלת-ממד (css15). כשהעכבר נעצר, הכול מתיישר. */
 (function(){
-  const list = document.getElementById('pl'), prev = document.getElementById('pl-prev'), inner = prev.querySelector('.pl-prev-in');
+  const list = document.getElementById('pl'), prev = document.getElementById('pl-prev'); if(!list || !prev) return;
+  const inner = prev.querySelector('.pl-prev-in');
   const rows = [...list.querySelectorAll('.pl-row')];
   const TOUCH = !FINE || innerWidth < 900;
   if(TOUCH){
@@ -260,7 +266,8 @@ function laptop(root){
 
 /* ---------- 02 G60: שלושה משפטים מתחלפים על מסך מוצמד, כל אחד עם קו ליים, והתמונה איתם ---------- */
 (function(){
-  const lines = gsap.utils.toArray('#gen-lines p'), imgs = gsap.utils.toArray('#gen-media > .gm'), idx = document.getElementById('gen-idx'), bar = document.querySelector('.gen-bar i');
+  const lines = gsap.utils.toArray('#gen-lines p'); if(!lines.length) return;
+  const imgs = gsap.utils.toArray('#gen-media > .gm'), idx = document.getElementById('gen-idx'), bar = document.querySelector('.gen-bar i');
   if(REDUCE){ lines.forEach(p => gsap.set(p.querySelector('.u'), {'--u':1})); return; }
   const N = lines.length, shp = gsap.utils.toArray('.gen-shp .b');
   const fitLines = () => { const box = lines[0].parentNode; box.style.setProperty('--gl-h', Math.max(...lines.map(p => p.offsetHeight)) + 'px'); };
@@ -287,7 +294,8 @@ function laptop(root){
    1. השורה הראשונה נכנסת והמסלול מבריף להשקה נמתח.  2. "חודשים" נמחקת בזמן שהנקודה זוחלת לאט.
    3. השורה השנייה מתעוררת והמסלול מתכווץ לקטע קצר.  4. "בתוך ימים" נצבע והנקודה מגיעה להשקה, עם פעימה. */
 (function(){
-  const h = document.getElementById('mo-h'), l2 = h.querySelector('.mo-l2'), mk = h.querySelector('.mk');
+  const h = document.getElementById('mo-h'); if(!h) return;
+  const l2 = h.querySelector('.mo-l2'), mk = h.querySelector('.mk');
   const tl = document.getElementById('tl'), seg = tl.querySelector('.tl-seg'), dot = tl.querySelector('.tl-dot'), ring = dot.querySelector('i');
   const ticks = tl.querySelector('.tl-ticks'); ticks.innerHTML = '<i></i>'.repeat(25);
   const tk = [...ticks.children], flag = tl.querySelector('.tl-flag'), was = tl.querySelector('.tl-was'), now = tl.querySelector('.tl-now');
@@ -343,6 +351,19 @@ function laptop(root){
   addEventListener('resize', () => { const b = btns.find(x => x.classList.contains('on')); gsap.set(pill, { x: b.offsetLeft - 4, width: b.offsetWidth }); });
 })();
 
+/* ---------- 02 איך עובדים יחד: שלושה צעדים על מסילה. המסילה מתמלאת בליים עם הגלילה, וכל סמל קופץ כשהמילוי מגיע אליו ---------- */
+(function(){
+  const wrap = document.getElementById('pr-steps'); if(!wrap) return;
+  const steps = [...wrap.querySelectorAll('.pr-step')], rail = wrap.querySelector('.pr-rail i'), shps = steps.map(s => s.querySelector('.pr-shp'));
+  if(REDUCE){ gsap.set(rail, { '--f':1 }); gsap.set(shps, { scale:1 }); return; }
+  gsap.set(rail, { '--f':0 });
+  gsap.from(steps, { y:40, autoAlpha:0, duration:.9, stagger:.14, ease:EASE, scrollTrigger:{ trigger:wrap, start:'top 82%', once:true } });
+  const tl = gsap.timeline({ scrollTrigger:{ trigger:wrap, start:'top 78%', end:'bottom 55%', scrub:.6 } });
+  tl.to(rail, { '--f':1, duration:1, ease:'none' }, 0);
+  shps.forEach((s, k) => tl.fromTo(s, { scale:0, rotate:-120 }, { scale:1, rotate:0, duration:.2, ease:'back.out(2)' }, k / 3 + .04));
+  shps.forEach((s, k) => gsap.to(s.querySelector('.b'), { rotate:(k % 2 ? -1 : 1) * 90, ease:'none', scrollTrigger:{ trigger:'.process', start:'top bottom', end:'bottom top', scrub:.8 } }));
+})();
+
 /* ---------- 04 LM8: שתי רצועות בלופ אינסופי. הגלילה רק מאיצה ומטה, אף פעם לא מזיזה מיקום ---------- */
 (function(){
   const rows = gsap.utils.toArray('.mq'); if(!rows.length) return;
@@ -394,7 +415,8 @@ function laptop(root){
 
 /* ---------- 05 הפרומפט נכתב לבד, מייצר שלד גנרי, והפסקה מולו נצבעת מילה-מילה (G48) ---------- */
 (function(){
-  const txt = document.getElementById('prompt-txt'), FULL = T.prompt;
+  const txt = document.getElementById('prompt-txt'); if(!txt) return;
+  const FULL = T.prompt;
   const skel = gsap.utils.toArray('#skel > *'), note = document.querySelector('.prompt-note');
   const p = document.getElementById('tools-p'), MARK = T.mark;
   const bare = w => w.replace(/[.,:;!?"'׳״]/g, '');
@@ -482,7 +504,7 @@ function laptop(root){
 
 /* ---------- 07 G65: רצועת וידאו מוצמדת שנגללת לרוחב, הכרטיס שבמרכז גדל ומתנגן. לחיצה פותחת נגן ---------- */
 (function(){
-  const sec = document.getElementById('clients');
+  const sec = document.getElementById('clients'); if(!sec) return;
   const track = document.getElementById('vt-track'), strip = sec.querySelector('.vt-strip');
   const idx = document.getElementById('vt-idx'), bar = sec.querySelector('.vt-bar i'), roll = sec.querySelector('.vt-roll');
   const cards = [...track.children], clips = cards.map(c => c.querySelector('video')), N = cards.length;
@@ -558,7 +580,7 @@ function laptop(root){
 
 /* ---------- 08 הפורטרט נחשף מלמטה ומתיישב, ואז המספרים נספרים (G15) ---------- */
 (function(){
-  const fig = document.getElementById('portrait');
+  const fig = document.getElementById('portrait'); if(!fig) return;
   if(!REDUCE){
     gsap.timeline({ scrollTrigger:{ trigger:fig, start:'top 80%', once:true } })
       .to(fig, { clipPath:'inset(0% 0 0 0)', duration:1.4, ease:'power3.inOut' }, 0)
@@ -734,7 +756,7 @@ function laptop(root){
 
 /* ---------- מרקי ההמלצות: הגלילה מאיצה אותו, בנייד חזק יותר. אף פעם לא עוצר ולא מגיב לנגיעה ---------- */
 (function(){
-  if(REDUCE) return;
+  if(REDUCE || !document.getElementById('tq')) return;
   let vel = 0, on = false;
   const K = () => innerWidth < 900 ? 160 : 420, MAX = () => innerWidth < 900 ? 7 : 3;
   ScrollTrigger.create({ trigger:'#tq', start:'top bottom', end:'bottom top', onUpdate(self){ vel = self.getVelocity(); }, onToggle(self){ on = self.isActive; window.TQ.tweens.forEach(t => on ? t.play() : t.pause()); } });
@@ -743,7 +765,8 @@ function laptop(root){
 
 /* ---------- B32: טופס ---------- */
 (function(){
-  const form = document.querySelector('.ff'), btn = form.querySelector('.ff-btn'), fields = [...form.querySelectorAll('.ff-field')];
+  const form = document.querySelector('.ff'); if(!form) return;
+  const btn = form.querySelector('.ff-btn'), fields = [...form.querySelectorAll('.ff-field')];
   const ENDPOINT = 'https://hkywmjyvdbaarwqzpzme.supabase.co/functions/v1/public-pricing-lead';
   const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhreXdtanl2ZGJhYXJ3cXpwem1lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NDQwNzMsImV4cCI6MjEwMzEyMDA3M30.I8Quoq72ApZ83DIQQtwLAznowADZudaq3wbmg3jbw_U';
   const bad = f => { const el = f.querySelector('input'), v = el.value.trim(); return el.type==='tel' ? !T.phoneOk(v) : v.length < 2; };
@@ -812,7 +835,8 @@ function laptop(root){
   nav.addEventListener('mouseleave', () => move(active, true));
   move(null, false);
   links.forEach(a => {
-    const sec = document.querySelector(a.getAttribute('href')); if(!sec) return;
+    const href = a.getAttribute('href'); if(!href.startsWith('#')) return;   /* בעמוד הפנימי הקישורים מובילים לעמוד הבית */
+    const sec = document.querySelector(href); if(!sec) return;
     ScrollTrigger.create({ trigger:sec, start:'top 50%', end:'bottom 50%', onToggle(self){ if(self.isActive){ active = a; move(a, true); } else if(active === a){ active = null; move(null, true); } } });
   });
 })();
