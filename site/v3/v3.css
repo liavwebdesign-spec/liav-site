@@ -116,7 +116,7 @@ body:not(.nv-open) .nv-link{transition-delay:0s!important}
 .hero{min-height:100svh;padding-top:var(--hero-top);padding-bottom:32px;align-content:space-between;row-gap:48px;position:relative;overflow:hidden}
 .hero-copy{grid-column:1/7;display:grid;gap:22px;align-content:center;justify-items:start;min-width:0}
 .hero .kick{margin-bottom:6px}
-.hero h1{font-size:clamp(36px,4.9vw,84px);max-width:12ch}
+.hero h1{font-size:clamp(32px,4.3vw,72px);max-width:12ch}
 .hero h1 em,.u{position:relative;display:inline-block;white-space:nowrap}
 .hero h1 em::after,.u::after{content:"";position:absolute;inset-inline:0;bottom:.04em;height:.14em;background:var(--accent);z-index:-1;transform:scaleX(var(--u,0));transform-origin:right center}
 .hero .lead{font-size:var(--fs-lead);line-height:1.4;max-width:34ch;color:var(--ink)}
@@ -133,7 +133,7 @@ body:not(.nv-open) .nv-link{transition-delay:0s!important}
   .hero-copy,.hs{grid-column:1/-1}
   .hs{order:-1;min-height:0;height:34svh;margin-top:8px}
   /* "בהישג ידכם" לא נשבר: הגודל צמוד לרוחב המסך כדי שלא ייכנס לשוליים ב-320 עד 390 */
-  .hero h1{max-width:none;font-size:clamp(28px,9.2vw,52px)}
+  .hero h1{max-width:none;font-size:clamp(26px,8.4vw,44px)}
 }
 /* 320px: "בתוך ימים," לא נשבר ורוחבו 289px בעמודה של 288px */
 
