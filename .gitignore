@@ -21,3 +21,6 @@ qa-shots/
 _edits/
 site/_edits/
 !site/video/works/*.mp4
+
+# ריפו Lovable (נפרד, מקור האמת של האתר)
+_lovable/

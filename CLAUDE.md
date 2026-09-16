@@ -1,6 +1,9 @@
-# liav-site
+# liav-site (כלים ותיעוד)
 
-- האתר: `site/` (v3 פעיל ב-`site/v3/`), GitHub Pages דרך Actions. כל שינוי עולה לאוויר מיד.
-- עריכת תוכן: `?edit=1` (לדוגמה `http://localhost:5173/v3/?edit=1`). ליאב עורך טקסטים ותמונות בעצמו: `edit-site.cmd` פותח את העריכה ו-`publish-site.cmd` מעלה לאוויר. לפני שינוי ב-index.html בודקים ב-`site/_edits/edits.log` אם ליאב ערך משהו.
-- שער מסירה: `tools/qa.mjs` ב-12 רוחבים, `tools/theme-check.mjs` בדסקטופ ובנייד, `tools/v3-motion.mjs`, ו-`tools/pin-film.mjs` לכל סקשן מוצמד. אחרי כל שינוי ב-v3.css או ב-v3.js מעלים את `?v=N`.
-- גרסה אנגלית: `site/en/index.html`, אותם v3.css/v3.js עם `lang="en" dir="ltr"`, ובנוסף `v3/en.css` (פונטים, מידות, היפוכי כיוון) ו-`js/data-en.js` (טקסטים ב-JS). כל שינוי מבני בעמוד העברי צריך להיכנס גם לאנגלי. ב-JS: `EN`, `FLIP` (כפל לכל תנועה אופקית), `T` (מחרוזות). שער המסירה רץ על שני העמודים (`--base http://localhost:5173/en/`).
+- **האתר עבר ל-Lovable ב-16.9.2026.** הקוד נמצא ב-`_lovable/` (ריפו `liavwebdesign-spec/barebones-base`, מחובר ל-Lovable), ושם גם `CLAUDE.md` עם כל שיטת העבודה. כתובת חיה: https://liav-matzri.lovable.app
+- האתר הסטטי (`site/`), GitHub Pages, `?edit=1`, `edit-site.cmd` ו-`publish-site.cmd` הוסרו. ההיסטוריה שלהם ב-git של הריפו הזה.
+- הריפו הזה נשאר בשביל כלי הבדיקה (`tools/qa.mjs`, `theme-check.mjs`, `v3-motion.mjs`, `pin-film.mjs`), שרצים מול `http://localhost:8091/` (שרת `liav-lovable` ב-`.claude/launch.json`) או מול הכתובת החיה, ובשביל חומרי המקור.
+
+## תיאום מקומי עם Codex
+
+בתחילת משימה בפרויקט קרא גם את `.collaboration/SHARED.md` ואת `.collaboration/STATE.md` להקשר משותף, החלטות עדכניות וחלוקת עבודה. התיקייה מקומית ומוחרגת מ-Git; אם היא חסרה בעותק אחר, דווח שההקשר המשותף אינו זמין ואל תניח שהוא נטען. הוראות הפרויקט שלמעלה נשמרות; הוראות המשתמש הנוכחיות קובעות.
