@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 
 const CH = "C:/Program Files/Google/Chrome/Application/chrome.exe";
 const args = process.argv.slice(2);
-const BASE = (args.indexOf("--base") >= 0 && args[args.indexOf("--base") + 1]) || "http://localhost:5173/";
+const BASE = (args.indexOf("--base") >= 0 && args[args.indexOf("--base") + 1]) || "http://localhost:5173/v3/";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const out = path.join(root, "tools", "shots");
 fs.mkdirSync(out, { recursive: true });

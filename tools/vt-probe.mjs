@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 const CH = "C:/Program Files/Google/Chrome/Application/chrome.exe";
 const args = process.argv.slice(2);
 let W = 1440, H = 900, mobile = false;
-const bi = args.indexOf("--base"), BASE = bi >= 0 ? args[bi + 1] : "http://localhost:5173/";
+const bi = args.indexOf("--base"), BASE = bi >= 0 ? args[bi + 1] : "http://localhost:5173/v3/";
 const si = args.indexOf("--size"); if (si >= 0) [W, H] = args[si + 1].split("x").map(Number);
 if (args.includes("--mobile")) { mobile = true; W = 390; H = 844; }
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");

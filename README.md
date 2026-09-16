@@ -7,13 +7,11 @@
 ## מבנה
 ```
 site/
-  index.html        עמוד אחד. הקופי הקבוע כאן
+  index.html        הפניה בלבד ל-v3/. הגרסה הישנה (v2) נמחקה ב-16.9.2026
+  v3/               האתר הפעיל: index.html, ai.html, v3.css, v3.js (ראה CLAUDE.md)
+  en/               מראה באנגלית
   js/data.js        14 הפרויקטים ו-4 שלבי העבודה (שמות, תגיות, תמונות)
-  js/main.js        Lenis + המהלכים: G15 מונה, B55 ניווט, B23 נייד, G06 שואוקייס נגרר, G48 מניפסט,
-                    G43 אינדקס עם תצוגה עוקבת, B41 שלבים מוצמדים, G4 כותרות, G12 פרלקס, B29 מעבר לכהה,
-                    B40 פוטר, G08 סמן, B61 מגנט, B03 FAB, B32 טופס ל-public-pricing-lead
   css/tokens.css    צבעים, פונטים (--head מחכה לפונט מפונטאפ), גריד, סולם טיפוגרפי
-  css/site.css
   img/works/NN.webp + NN-s.webp   14 מוקאפים (01-04 נבחרות)
 tools/font-sheet-v2.html   74 משפחות עבריות במבנה ההירו, לבחירה
 tools/shot.mjs             צילומי QA דרך CDP: node tools/shot.mjs [--mobile] 0 1400 3000  (BASE=<url> לאתר החי)

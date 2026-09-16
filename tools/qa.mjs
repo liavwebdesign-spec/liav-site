@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 const CH = "C:/Program Files/Google/Chrome/Application/chrome.exe";
 const args = process.argv.slice(2);
 const opt = (k, d) => { const i = args.indexOf(k); return i >= 0 && args[i + 1] ? args[i + 1] : d; };
-const BASE = opt("--base", "http://localhost:5173/");
+const BASE = opt("--base", "http://localhost:5173/v3/");
 const WIDTHS = opt("--widths", "375,390,768,1024,1280,1440,1920").split(",").map(Number);
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const port = 9500 + Math.floor(Math.random() * 80);
